@@ -20,6 +20,10 @@ allprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(8))
         }
+        if (project.name != "commons-kt") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 
     repositories {
@@ -52,13 +56,16 @@ allprojects {
                 }
             }
         }
-        publications {
-            create<MavenPublication>("maven") {
-                groupId = project.group as String
-                artifactId = project.base.archivesName.get()
-                version = project.version as String
+        // kmp does it for us
+        if (project.name != "commons-kt") {
+            publications {
+                create<MavenPublication>("maven") {
+                    groupId = project.group as String
+                    artifactId = project.base.archivesName.get()
+                    version = project.version as String
 
-                from(components["java"])
+                    from(components["java"])
+                }
             }
         }
     }
