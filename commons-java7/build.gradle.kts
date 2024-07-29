@@ -28,3 +28,13 @@ dependencies {
 tasks.jar.configure {
     from(sourceSets["main"].output, sourceSets["shared"].output)
 }
+
+val sourcesJar by tasks.getting(Jar::class) {
+    from(sourceSets["main"].allSource, sourceSets["shared"].allSource)
+    archiveClassifier.set("sources")
+}
+
+val javadoc by tasks.getting(Javadoc::class) {
+    source = sourceSets["main"].allSource
+    source += sourceSets["shared"].allSource
+}

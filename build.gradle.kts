@@ -86,3 +86,13 @@ dependencies {
 tasks.jar.configure {
     from(sourceSets["main"].output, project(":commons-java7").sourceSets["shared"].output)
 }
+
+val sourcesJar by tasks.getting(Jar::class) {
+    from(sourceSets["main"].allSource, project(":commons-java7").sourceSets["shared"].allSource)
+}
+
+val javadoc by tasks.getting(Javadoc::class) {
+    source += sourceSets["main"].allSource
+    source += project(":commons-java7").sourceSets["shared"].allSource
+    classpath +=  project(":commons-java7").sourceSets["shared"].runtimeClasspath
+}
