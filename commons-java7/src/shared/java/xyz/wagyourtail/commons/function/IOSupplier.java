@@ -1,10 +1,7 @@
-package xyz.wagyourtail.asmreader.iofunction;
+package xyz.wagyourtail.commons.function;
 
 import java.io.IOException;
 
-@FunctionalInterface
 public interface IOSupplier<T> {
-
     T get() throws IOException;
-
 }

@@ -1,10 +1,10 @@
-package xyz.wagyourtail.commonskt.parser.string
+package xyz.wagyourtail.commonskt.parser
 
 import xyz.wagyourtail.commonskt.utils.translateEscapes
 
 class CharReader(
     buf: String,
-    pos: Int
+    pos: Int = 0
 ) {
 
     var pos: Int = pos
@@ -104,13 +104,10 @@ class CharReader(
 
     fun takeRemainingOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }): List<String> {
         val list = mutableListOf<String>()
-        while (pos < buffer.length) {
-            takeWhile{ sep(it) && it != '\n' }
-            val next = peek()
-            if (next == '\n') {
-                break
-            }
-            list.add(takeNext(sep)!!)
+        var next = takeNext(sep)
+        while (next != null) {
+            list.add(next)
+            next = takeNext(sep)
         }
         return list
     }
@@ -150,27 +147,31 @@ class CharReader(
 
     // -- CSV specific functions --
 
-    fun CharReader.takeRemainingCol(lenient: Boolean = false): List<String> {
+    fun takeRemainingCol(lenient: Boolean = false): List<String> {
         val list = mutableListOf<String>()
-        while (!exhausted()) {
-            val next = peek()
-            if (next == '\n') {
-                break
-            }
-            list.add(takeCol()!!)
+        var next = takeCol(lenient)
+        while (next != null) {
+            list.add(next)
+            next = takeCol(lenient)
         }
         return list
     }
 
-    fun CharReader.takeCol(lenient: Boolean = false): String? {
-        if (peek() == ',') {
+    fun takeCol(lenient: Boolean = false): String? {
+        val took = if (peek() == ',') {
             take()
+            true
+        } else {
+            false
         }
         val next = peek()
+        if ((next == null || next == '\n') && !took) {
+            return null
+        }
         if (next == '"') {
             val value = takeString(lenient, true)
             val wsp = takeNonNewlineWhitespace()
-            if (peek() != ',' && peek() != '\n') {
+            if (peek() != ',' && peek() != '\n' && peek() != null) {
                 if (!lenient) {
                     throw IllegalArgumentException("Expected , found ${peek()}")
                 } else {

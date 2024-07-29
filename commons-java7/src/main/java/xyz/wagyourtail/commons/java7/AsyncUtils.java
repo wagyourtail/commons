@@ -1,8 +1,9 @@
 package xyz.wagyourtail.commons.java7;
 
 import org.jetbrains.annotations.NotNull;
-import xyz.wagyourtail.commons.java7.function.IOConsumer;
-import xyz.wagyourtail.commons.java7.function.IOFunction;
+import xyz.wagyourtail.commons.Utils;
+import xyz.wagyourtail.commons.function.IOConsumer;
+import xyz.wagyourtail.commons.function.IOFunction;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -146,14 +147,5 @@ public class AsyncUtils {
         });
         return (Future) waitForFutures(futures);
     }
-
-//    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-//        visitPathsAsync(Paths.get("./"), null, new IOConsumer<Path>() {
-//            @Override
-//            public void accept(Path path) throws IOException {
-//                System.out.println(path);
-//            }
-//        }).get();
-//    }
 
 }

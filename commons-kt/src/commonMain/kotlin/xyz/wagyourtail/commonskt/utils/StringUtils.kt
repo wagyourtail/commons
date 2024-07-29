@@ -3,7 +3,7 @@ package xyz.wagyourtail.commonskt.utils
 /**
  * unlike java, this will translate unicode escapes as well
  */
-fun String.translateEscapes(leinient: Boolean = false): String {
+fun String.translateEscapes(lenient: Boolean = false): String {
     if (this.isEmpty() || !this.contains("\\")) {
         return this
     }
@@ -42,7 +42,7 @@ fun String.translateEscapes(leinient: Boolean = false): String {
                     's' -> append(' ')
                     't' -> append('\t')
                     else -> {
-                        if (leinient) {
+                        if (lenient) {
                             append("\\")
                             append(n)
                         } else {

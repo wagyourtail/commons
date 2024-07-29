@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt.finalizable
+package xyz.wagyourtail.commonskt.collection.finalizable
 
 open class FinalizableIterator<E, T: MutableIterator<E>>(val backing: T) : MutableIterator<E>, Iterator<E> by backing {
     protected var finalized = false

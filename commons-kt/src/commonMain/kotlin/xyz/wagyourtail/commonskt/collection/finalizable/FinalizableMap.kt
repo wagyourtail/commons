@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt.finalizable
+package xyz.wagyourtail.commonskt.collection.finalizable
 
 class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()): MutableMap<K, V>, Map<K, V> by backing {
     private var finalized = false

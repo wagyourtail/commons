@@ -1,9 +1,10 @@
-package xyz.wagyourtail.jvmdg.logging;
+package xyz.wagyourtail.commons;
 
-import xyz.wagyourtail.jvmdg.util.Consumer;
-import xyz.wagyourtail.jvmdg.util.Utils;
+import xyz.wagyourtail.commons.function.IOConsumer;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -65,7 +66,7 @@ public class Logger {
     }
 
     public void warn(final String message, final Throwable t) {
-        wrapPrintStream(Level.WARN, new Consumer<PrintStream>() {
+        wrapPrintStream(Level.WARN, new IOConsumer<PrintStream>() {
             @Override
             public void accept(PrintStream printStream) {
                 printStream.println(message);
@@ -75,7 +76,7 @@ public class Logger {
     }
 
     public void error(final String message, final Throwable t) {
-        wrapPrintStream(Level.ERROR, new Consumer<PrintStream>() {
+        wrapPrintStream(Level.ERROR, new IOConsumer<PrintStream>() {
             @Override
             public void accept(PrintStream printStream) {
                 printStream.println(message);
@@ -85,7 +86,7 @@ public class Logger {
     }
 
     public void fatal(final String message, final Throwable t) {
-        wrapPrintStream(Level.FATAL, new Consumer<PrintStream>() {
+        wrapPrintStream(Level.FATAL, new IOConsumer<PrintStream>() {
             @Override
             public void accept(PrintStream printStream) {
                 printStream.println(message);
@@ -102,7 +103,7 @@ public class Logger {
         return subLogger(clazz.getSimpleName());
     }
 
-    public void wrapPrintStream(Level level, Consumer<PrintStream> ps) {
+    public void wrapPrintStream(Level level, IOConsumer<PrintStream> ps) {
         if (is(level)) {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -111,7 +112,7 @@ public class Logger {
                 ps2.close();
                 String str = baos.toString(StandardCharsets.UTF_8.name());
                 log(level, str);
-            } catch (UnsupportedEncodingException e) {
+            } catch (IOException e) {
                 Utils.<RuntimeException>sneakyThrow(e);
             }
         }

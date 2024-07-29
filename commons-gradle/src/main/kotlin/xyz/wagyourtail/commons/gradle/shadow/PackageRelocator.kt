@@ -1,4 +1,4 @@
-package xyz.wagyourtail.gradle.shadow
+package xyz.wagyourtail.commons.gradle.shadow
 
 import org.objectweb.asm.commons.Remapper
 

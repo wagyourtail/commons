@@ -5,7 +5,10 @@ java {
     }
 }
 
-val shared by sourceSets.creating {}
+val shared by sourceSets.creating {
+    compileClasspath += sourceSets["main"].compileClasspath
+    runtimeClasspath += sourceSets["main"].runtimeClasspath
+}
 
 
 sourceSets.main.configure {
@@ -15,6 +18,11 @@ sourceSets.main.configure {
 
 dependencies {
     compileOnly("org.jetbrains:annotations-java5:24.1.0")
+    compileOnly("org.ow2.asm:asm:9.7")
+    compileOnly("org.ow2.asm:asm-commons:9.7")
+    compileOnly("org.ow2.asm:asm-util:9.7")
+    compileOnly("org.ow2.asm:asm-analysis:9.7")
+    compileOnly("org.ow2.asm:asm-tree:9.7")
 }
 
 tasks.jar.configure {

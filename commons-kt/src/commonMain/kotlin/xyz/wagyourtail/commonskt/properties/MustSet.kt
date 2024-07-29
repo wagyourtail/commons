@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt
+package xyz.wagyourtail.commonskt.properties
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

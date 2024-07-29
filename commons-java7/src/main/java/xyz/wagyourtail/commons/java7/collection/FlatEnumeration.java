@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commons.java7.collection;
 
-import xyz.wagyourtail.jvmdg.util.Function;
+import xyz.wagyourtail.commons.java7.function.Function;
 
 import java.util.Enumeration;
 

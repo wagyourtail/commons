@@ -1,4 +1,4 @@
-package xyz.wagyourtail.gradle.shadow
+package xyz.wagyourtail.commons.gradle.shadow
 
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ListProperty

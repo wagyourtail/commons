@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 
-public class PathUtils {
+public class HashUtils {
 
     public static boolean testSha1(long size, String sha1, Path path) throws IOException, NoSuchAlgorithmException {
         return testSha1(size, sha1, path, Duration.ofDays(1));

@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.lazy;
+package xyz.wagyourtail.commons;
 
 import java.util.function.Supplier;
 

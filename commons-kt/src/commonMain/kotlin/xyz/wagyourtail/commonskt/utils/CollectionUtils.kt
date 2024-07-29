@@ -4,8 +4,6 @@ import kotlin.jvm.JvmName
 
 class ListCompare<T: Comparable<T>>(val list: List<T>): Comparable<ListCompare<T>> {
 
-    constructor(vararg elements: T): this(elements.toList())
-
     override operator fun compareTo(other: ListCompare<T>): Int {
         val size = list.size
         if (size != other.list.size) return size - other.list.size
@@ -17,6 +15,10 @@ class ListCompare<T: Comparable<T>>(val list: List<T>): Comparable<ListCompare<T
     }
 
 }
+
+fun <T: Comparable<T>> compareable(vararg elements: T) = ListCompare(elements.toList())
+
+fun <T: Comparable<T>> List<T>.comparable() = ListCompare(this)
 
 fun <K, V> Map<K, V>.firstAsMap(): Map<K, V> {
     val entry = entries.first()

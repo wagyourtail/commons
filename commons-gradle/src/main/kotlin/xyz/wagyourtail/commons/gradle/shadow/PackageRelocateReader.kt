@@ -1,9 +1,9 @@
-package xyz.wagyourtail.gradle.shadow
+package xyz.wagyourtail.commons.gradle.shadow
 
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.commons.ClassRemapper
-import xyz.wagyourtail.jvmdg.util.MustSet
+import xyz.wagyourtail.commonskt.properties.MustSet
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FilterReader

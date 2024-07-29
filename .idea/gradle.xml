@@ -8,6 +8,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/commons-compress-kt" />
+            <option value="$PROJECT_DIR$/commons-gradle" />
+            <option value="$PROJECT_DIR$/commons-java7" />
+            <option value="$PROJECT_DIR$/commons-kt" />
           </set>
         </option>
       </GradleProjectSettings>

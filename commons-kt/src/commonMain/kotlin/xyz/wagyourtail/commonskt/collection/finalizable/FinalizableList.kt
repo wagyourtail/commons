@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt.finalizable
+package xyz.wagyourtail.commonskt.collection.finalizable
 
 class FinalizableList<E>(backing: MutableList<E>): FinalizableCollection<E, MutableList<E>>(backing), MutableList<E>, List<E> by backing {
 

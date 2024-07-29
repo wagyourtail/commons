@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt.finalizable
+package xyz.wagyourtail.commonskt.collection.finalizable
 
 open class FinalizableSet<E>(backing: MutableSet<E>): FinalizableCollection<E, MutableSet<E>>(backing), MutableSet<E>, Set<E> by backing {
 

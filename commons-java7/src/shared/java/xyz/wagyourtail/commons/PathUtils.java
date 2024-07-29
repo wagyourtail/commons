@@ -1,13 +1,13 @@
 package xyz.wagyourtail.commons;
 
-import org.apache.commons.io.function.IOConsumer;
+
+import xyz.wagyourtail.commons.function.IOConsumer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -32,16 +32,7 @@ public class PathUtils {
         });
     }
 
-// fun Path.forEachFile(action: (Path) -> Unit) {
-//    Files.walkFileTree(this, object: SimpleFileVisitor<Path>() {
-//        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-//            action(file)
-//            return FileVisitResult.CONTINUE
-//        }
-//    })
-//}
-
-    public static void forEachFile(Path path, IOConsumer<Path> visitor) throws IOException {
+    public static void forEachFile(Path path, final IOConsumer<Path> visitor) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -56,7 +47,10 @@ public class PathUtils {
             byte[] header = new byte[4];
             int i = stream.read(header, 0, 4);
             if (i != 4) return false;
-            return header[0] == 0x50 && header[1] == 0x4B && header[2] == 0x03 && header[3] == 0x04;
+            boolean pk = header[0] == 0x50 && header[1] == 0x4B;
+            boolean zip = header[2] == 0x03 && header[3] == 0x04;
+            boolean zip2 = header[2] == 0x05 && header[3] == 0x06;
+            return pk && (zip || zip2);
         }
     }
 

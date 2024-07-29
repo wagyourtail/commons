@@ -18,6 +18,7 @@ fun Int.isValidUnicodeCodePoint(): Boolean {
 
 fun Int.lowUnicodeSurrogate() = (this.and(0x3ff) + '\uDC00'.code).toChar()
 fun Int.highUnicodeSurrogate() = (this.ushr(10) + ('\uD800'.code - 0x010000)).toChar()
+
 fun Int.checkedToChar(): Char? =
     if (this in (Char.MIN_VALUE.code..Char.MAX_VALUE.code)) {
         this.toChar()
