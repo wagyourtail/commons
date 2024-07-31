@@ -10,11 +10,19 @@ import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.jvm.toolchain.JavaToolchainService
 import java.io.File
 
 val Project.sourceSets
     get() = extensions.findByType(SourceSetContainer::class.java)!!
 
+val Project.javaToolchains
+    get() = extensions.findByType(JavaToolchainService::class.java)!!
+
+/**
+ * ignores the version and classifier, because gradle's dumb and deprecated
+ * [Configuration.files] without a proper replacement.
+ */
 fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): FileCollection {
     resolve()
     return incoming.artifactView { view ->
