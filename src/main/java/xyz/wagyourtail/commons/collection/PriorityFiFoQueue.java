@@ -13,13 +13,13 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-public class PrioryFiFoQueue<E> implements Queue<E> {
+public class PriorityFiFoQueue<E> implements Queue<E> {
     volatile E currentTask;
     final Map<Integer, List<E>> tasks = new HashMap<>();
     final Set<E> taskSet = new HashSet<>();
     final Function<E, Integer> priorityFunction;
 
-    public PrioryFiFoQueue(Function<E, Integer> priorityFunction) {
+    public PriorityFiFoQueue(Function<E, Integer> priorityFunction) {
         this.priorityFunction = priorityFunction;
     }
 

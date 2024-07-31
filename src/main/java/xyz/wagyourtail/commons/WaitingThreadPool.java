@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 public class WaitingThreadPool {
     private final ArrayDeque<PoolThread> freeThreads = new ArrayDeque<>();
-
+    private final String name;
     public final int maxFreeThreads;
 
     public WaitingThreadPool() {
@@ -13,6 +13,11 @@ public class WaitingThreadPool {
     }
 
     public WaitingThreadPool(int maxFreeThreads) {
+        this("Waiting ThreadPool", maxFreeThreads);
+    }
+
+    public WaitingThreadPool(String name, int maxFreeThreads) {
+        this.name = name;
         this.maxFreeThreads = maxFreeThreads;
         for (int i = 0; i < maxFreeThreads; i++) {
             PoolThread t = new PoolThread();
@@ -73,11 +78,11 @@ public class WaitingThreadPool {
         return t;
     }
 
-    public static class PoolThread extends Thread {
+    private class PoolThread extends Thread {
         private Runnable task;
 
         public PoolThread() {
-            super("JsMacros Pool Thread");
+            super(name + " Thread");
             setDaemon(true);
         }
 
