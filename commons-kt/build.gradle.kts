@@ -6,8 +6,6 @@ plugins {
     idea
 }
 
-
-
 kotlin {
     jvmToolchain(8)
     jvm {
@@ -31,6 +29,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("com.sschr15.annotations:jb-annotations-kmp:24.1.0")
+                // couroutines
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
             }
         }
         val commonTest by getting {
