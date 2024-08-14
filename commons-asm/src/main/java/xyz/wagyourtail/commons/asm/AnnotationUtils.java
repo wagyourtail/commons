@@ -28,7 +28,7 @@ public class AnnotationUtils {
     }
 
     private static Object enumValueOf(String desc, String value, ClassLoader loader) throws ClassNotFoundException {
-        return Enum.valueOf((Class<Enum>) AnnotationUtils.getClass(Type.getType(desc), loader), value);
+        return Enum.valueOf((Class<Enum>) Class.forName(Type.getType(desc).getClassName(), true, loader), value);
     }
 
     private static Class<?> getClass(Type type, ClassLoader loader) throws ClassNotFoundException {
