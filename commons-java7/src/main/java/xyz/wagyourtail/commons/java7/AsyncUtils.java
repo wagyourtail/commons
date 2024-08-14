@@ -1,9 +1,9 @@
 package xyz.wagyourtail.commons.java7;
 
 import org.jetbrains.annotations.NotNull;
-import xyz.wagyourtail.commons.Utils;
-import xyz.wagyourtail.commons.function.IOConsumer;
-import xyz.wagyourtail.commons.function.IOFunction;
+import xyz.wagyourtail.commons.core.Utils;
+import xyz.wagyourtail.commons.core.function.IOConsumer;
+import xyz.wagyourtail.commons.core.function.IOFunction;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    apply(plugin = "java")
+    apply(plugin = "java-library")
     apply(plugin = "maven-publish")
 
     group = project.properties["maven_group"] as String
@@ -31,14 +31,30 @@ allprojects {
     }
 
     dependencies {
-    }
-
-    tasks.test {
-        useJUnitPlatform()
+        testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
     tasks.jar {
         from(rootProject.file("LICENSE.md"))
+    }
+
+    if (project.name != "commons-kt") {
+        tasks.compileTestJava {
+            javaCompiler = javaToolchains.compilerFor {
+                languageVersion.set(JavaLanguageVersion.of(17))
+            }
+        }
+
+        tasks.test {
+            javaLauncher = javaToolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(17))
+            }
+        }
+    }
+
+    tasks.test {
+        useJUnitPlatform()
     }
 
     publishing {
@@ -74,25 +90,8 @@ allprojects {
 
 evaluationDependsOnChildren()
 
-sourceSets.main.configure {
-    compileClasspath += project(":commons-java7").sourceSets["shared"].output
-    runtimeClasspath += project(":commons-java7").sourceSets["shared"].output
-}
-
 dependencies {
     compileOnly("org.jetbrains:annotations:24.1.0")
-}
 
-tasks.jar.configure {
-    from(sourceSets["main"].output, project(":commons-java7").sourceSets["shared"].output)
-}
-
-val sourcesJar by tasks.getting(Jar::class) {
-    from(sourceSets["main"].allSource, project(":commons-java7").sourceSets["shared"].allSource)
-}
-
-val javadoc by tasks.getting(Javadoc::class) {
-    source += sourceSets["main"].allSource
-    source += project(":commons-java7").sourceSets["shared"].allSource
-    classpath +=  project(":commons-java7").sourceSets["shared"].runtimeClasspath
+    api(project(":commons-core"))
 }

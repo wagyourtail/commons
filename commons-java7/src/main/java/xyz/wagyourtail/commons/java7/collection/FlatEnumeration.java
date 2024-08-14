@@ -4,6 +4,11 @@ import xyz.wagyourtail.commons.java7.function.Function;
 
 import java.util.Enumeration;
 
+/**
+ * basically {@code enumeration.stream().flatMap(mapper).toEnumeration()} except that doesn't exist.
+ * @param <T>
+ * @param <E>
+ */
 public class FlatEnumeration<T, E> implements Enumeration<E> {
     private final Enumeration<T> enumeration;
     private final Function<T, Enumeration<E>> mapper;

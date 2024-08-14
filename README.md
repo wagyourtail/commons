@@ -11,6 +11,10 @@ maven: `https://maven.wagyourtail.xyz/releases`
 `xyz.wagyourtail:commons:${version}`
 This contains many java helper functions
 
+### Commons-Core
+`xyz.wagyourtail:commons-core:${version}`
+This contains java7 helper functions that are also used in `commons` and `commons-asm`
+
 ### Commons-Java7
 `xyz.wagyourtail:commons-java7:${version}`
 This contains many java7 helper functions
