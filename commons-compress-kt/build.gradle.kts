@@ -8,5 +8,5 @@ kotlin {
 }
 
 dependencies {
-    compileOnly("org.apache.commons:commons-compress:1.26.2")
+    api(libs.appache.commons.compress)
 }

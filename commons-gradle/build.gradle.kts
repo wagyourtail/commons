@@ -11,7 +11,7 @@ dependencies {
     api(project(":commons-kt"))
     api(gradleApi())
 
-    api("org.ow2.asm:asm:9.7")
-    api("org.ow2.asm:asm-tree:9.7")
-    api("org.ow2.asm:asm-commons:9.7")
+    api(libs.asm)
+    api(libs.asm.tree)
+    api(libs.asm.commons)
 }

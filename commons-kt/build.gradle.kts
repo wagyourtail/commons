@@ -28,9 +28,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.sschr15.annotations:jb-annotations-kmp:24.1.0")
-                // couroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
+                implementation(libs.jetbrains.annotations.kmp)
+                implementation(libs.kotlin.coroutines)
             }
         }
         val commonTest by getting {

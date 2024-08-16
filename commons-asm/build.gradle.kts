@@ -6,13 +6,13 @@ java {
 }
 
 dependencies {
-    compileOnly("org.jetbrains:annotations-java5:24.1.0")
+    compileOnly(libs.jetbrains.annotations.j5)
 
     api(project(":commons-core"))
 
-    api("org.ow2.asm:asm:9.7")
-    api("org.ow2.asm:asm-commons:9.7")
-    api("org.ow2.asm:asm-util:9.7")
-    api("org.ow2.asm:asm-analysis:9.7")
-    api("org.ow2.asm:asm-tree:9.7")
+    api(libs.asm)
+    api(libs.asm.commons)
+    api(libs.asm.util)
+    api(libs.asm.analysis)
+    api(libs.asm.tree)
 }

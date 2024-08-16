@@ -7,5 +7,5 @@ java {
 
 dependencies {
     api(project(":commons-core"))
-    compileOnly("org.jetbrains:annotations-java5:24.1.0")
+    compileOnly(libs.jetbrains.annotations.j5)
 }
