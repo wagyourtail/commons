@@ -1,8 +1,7 @@
 package xyz.wagyourtail.commons.reader.test;
 
 import org.junit.jupiter.api.Test;
-import xyz.wagyourtail.shared.reader.StringCharReader;
-
+import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,6 +78,7 @@ class TestCharReader {
     @Test
     public void testTakeNextWithWhitespace() {
         var reader = new StringCharReader(" test test2");
+        assertEquals("", reader.takeNext());
         assertEquals("test", reader.takeNext());
         assertEquals("test2", reader.takeNext());
     }

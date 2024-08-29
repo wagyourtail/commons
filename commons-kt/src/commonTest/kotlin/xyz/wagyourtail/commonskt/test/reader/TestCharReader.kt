@@ -75,6 +75,7 @@ class TestCharReader {
     @Test
     fun testTakeNextWithWhitespace() {
         val reader = StringCharReader(" test test2")
+        assertEquals("", reader.takeNext())
         assertEquals("test", reader.takeNext())
         assertEquals("test2", reader.takeNext())
     }

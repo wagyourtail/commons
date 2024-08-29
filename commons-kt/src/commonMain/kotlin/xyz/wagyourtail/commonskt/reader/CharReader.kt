@@ -54,19 +54,30 @@ abstract class CharReader<T: CharReader<T>> {
     fun takeNonNewlineWhitespace() = takeWhile { it.isWhitespace() && it != '\n' }
 
     inline fun takeNext(sep: (Char) -> Boolean = { it.isWhitespace() }): String? {
-        takeNonNewlineWhitespace()
-        val next = peek()
+        var next = peek()
         if (next == null || next == '\n') return null
-        if (next == '"') return takeString()
-        return takeUntil(sep)
+        val value = if (next == '"') takeString()
+        else takeUntil(sep)
+        // take trailing sep
+        next = peek()
+        if (next != null && next != '\n' && sep(next)) {
+            take()
+        }
+        return value
     }
 
     inline fun takeNextLiteral(sep: (Char) -> Boolean = { it.isWhitespace() }): String? {
         takeNonNewlineWhitespace()
-        val next = peek()
+        var next = peek()
         if (next == null || next == '\n') return null
         if (next == '\n') return null
-        return takeUntil(sep)
+        val value = takeUntil(sep)
+        // take trailing sep
+        next = peek()
+        if (next != null && next != '\n' && sep(next)) {
+            take()
+        }
+        return value
     }
 
     inline fun takeRemainingOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {

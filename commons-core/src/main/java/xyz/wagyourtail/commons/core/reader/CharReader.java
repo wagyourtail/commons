@@ -101,16 +101,29 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         StringBuilder sb = new StringBuilder();
         int next = peek();
         if (next == -1 || next == '\n') return null;
-        if (next == '"') return takeString();
-        return takeUntil(sep);
+        String value;
+        if (next == '"') value = takeString();
+        else value = takeUntil(sep);
+        // take trailing sep
+        next = peek();
+        if (next == sep) {
+            take();
+        }
+        return value;
     }
 
     public @Nullable String takeNext(CharAccepter sep) {
-        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
-        if (next == '"') return takeString();
-        return takeUntil(sep);
+        String value;
+        if (next == '"') value = takeString();
+        else value = takeUntil(sep);
+        // take trailing sep
+        next = peek();
+        if (next != -1 && next != '\n' && sep.accept((char) next)) {
+            take();
+        }
+        return value;
     }
 
     public @Nullable String takeNextLiteral() {
@@ -118,7 +131,6 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNextLiteral(char sep) {
-        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         StringBuilder sb = new StringBuilder();
@@ -127,11 +139,14 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             sb.append((char) take());
             next = peek();
         }
+        // take trailing sep
+        if (next == sep) {
+            take();
+        }
         return sb.toString();
     }
 
     public @Nullable String takeNextLiteral(CharAccepter sep) {
-        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         StringBuilder sb = new StringBuilder();
@@ -139,6 +154,10 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             if (next == '\n' || sep.accept((char) next)) break;
             sb.append((char) take());
             next = peek();
+        }
+        // take trailing sep
+        if (next != -1 && next != '\n' && sep.accept((char) next)) {
+            take();
         }
         return sb.toString();
     }
