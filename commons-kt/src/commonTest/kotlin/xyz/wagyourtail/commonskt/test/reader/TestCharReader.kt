@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commonskt.test.parser
+package xyz.wagyourtail.commonskt.test.reader
 
 import xyz.wagyourtail.commonskt.reader.StringCharReader
 import kotlin.test.Test

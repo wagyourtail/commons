@@ -42,18 +42,12 @@ abstract class CharReader<T: CharReader<T>> {
     inline fun takeUntil(sep: (Char) -> Boolean) = buildString {
         var next = peek()
         while (next != null && !sep(next)) {
-            append(next.toChar())
+            append(take()!!)
             next = peek()
         }
     }
 
-    inline fun takeWhile(acceptor: (Char) -> Boolean) = buildString {
-        var next = peek()
-        while (next != null && acceptor(next)) {
-            append(next.toChar())
-            next = peek()
-        }
-    }
+    inline fun takeWhile(acceptor: (Char) -> Boolean) = takeUntil { !acceptor(it) }
 
     fun takeWhitespace() = takeWhile { it.isWhitespace() }
 
@@ -64,7 +58,7 @@ abstract class CharReader<T: CharReader<T>> {
         val next = peek()
         if (next == null || next == '\n') return null
         if (next == '"') return takeString()
-        return takeWhile(sep)
+        return takeUntil(sep)
     }
 
     inline fun takeNextLiteral(sep: (Char) -> Boolean = { it.isWhitespace() }): String? {
@@ -72,14 +66,22 @@ abstract class CharReader<T: CharReader<T>> {
         val next = peek()
         if (next == null || next == '\n') return null
         if (next == '\n') return null
-        return takeWhile(sep)
+        return takeUntil(sep)
     }
 
-    inline fun takeRemainingOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }): List<String> = buildList {
+    inline fun takeRemainingOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {
         var next = takeNext(sep)
         while (next != null) {
             add(next)
             next = takeNext(sep)
+        }
+    }
+
+    inline fun takeRemainlingLiteralOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {
+        var next = takeNextLiteral(sep)
+        while (next != null) {
+            add(next)
+            next = takeNextLiteral(sep)
         }
     }
 
@@ -141,6 +143,14 @@ abstract class CharReader<T: CharReader<T>> {
             take()
         }
         return value
+    }
+
+    fun takeRemainingCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }) = buildList<String> {
+        var next = takeCol(leinient, sep)
+        while (next != null) {
+            add(next)
+            next = takeCol(leinient, sep)
+        }
     }
 
 }

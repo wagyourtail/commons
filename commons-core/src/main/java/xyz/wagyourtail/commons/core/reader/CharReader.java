@@ -97,6 +97,14 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return takeNext(WHITESPACE);
     }
 
+    public @Nullable String takeNext(char sep) {
+        StringBuilder sb = new StringBuilder();
+        int next = peek();
+        if (next == -1 || next == '\n') return null;
+        if (next == '"') return takeString();
+        return takeUntil(sep);
+    }
+
     public @Nullable String takeNext(CharAccepter sep) {
         takeNonNewlineWhitespace();
         int next = peek();
@@ -139,12 +147,46 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return takeRemainingOnLine(WHITESPACE);
     }
 
+    public List<String> takeRemainingOnLine(char sep) {
+        List<String> args = new ArrayList<>();
+        String next = takeNext(sep);
+        while (next != null) {
+            args.add(next);
+            next = takeNext(sep);
+        }
+        return args;
+    }
+
     public List<String> takeRemainingOnLine(CharAccepter sep) {
         List<String> args = new ArrayList<>();
         String next = takeNext(sep);
         while (next != null) {
             args.add(next);
             next = takeNext(sep);
+        }
+        return args;
+    }
+
+    public List<String> takeRemainingLiteralOnLine() {
+        return takeRemainingOnLine(WHITESPACE);
+    }
+
+    public List<String> takeRemainingLiteralOnLine(char sep) {
+        List<String> args = new ArrayList<>();
+        String next = takeNextLiteral(sep);
+        while (next != null) {
+            args.add(next);
+            next = takeNextLiteral(sep);
+        }
+        return args;
+    }
+
+    public List<String> takeRemainingLiteralOnLine(CharAccepter sep) {
+        List<String> args = new ArrayList<>();
+        String next = takeNextLiteral(sep);
+        while (next != null) {
+            args.add(next);
+            next = takeNextLiteral(sep);
         }
         return args;
     }
