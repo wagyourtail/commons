@@ -98,7 +98,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNext(CharAccepter sep) {
-        takeWhile(NOT_NEWLINE_WHITESPACE);
+        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         if (next == '"') return takeString();
@@ -110,6 +110,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNextLiteral(char sep) {
+        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         StringBuilder sb = new StringBuilder();
@@ -122,7 +123,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNextLiteral(CharAccepter sep) {
-        takeWhile(NOT_NEWLINE_WHITESPACE);
+        takeNonNewlineWhitespace();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         StringBuilder sb = new StringBuilder();
@@ -228,21 +229,23 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             String value = takeString(leinient, true);
             String whiteSpace = takeNonNewlineWhitespace();
             next = peek();
-            if (!sep.accept((char) next) && next != '\n' && next != -1) {
+            // check if string actually ends column
+            if (next != '\n' && next != -1 && !sep.accept((char) next)) {
                 if (!leinient) {
-                    throw new IllegalArgumentException("Expected " + sep + " but got " + next);
-                } else {
-                    return value + whiteSpace + takeCol(true, sep);
+                    throw new IllegalArgumentException("Expected separator char, got " + next);
                 }
+                return value + whiteSpace + takeCol(true, sep);
             }
+            // check if next is sep char and take it
             next = peek();
-            if (sep.accept((char) next)) {
+            if (next != -1 && sep.accept((char) next)) {
                 take();
             }
             return value;
         }
         String value = takeUntil(or(sep, NEWLINE));
         next = peek();
+        // check if next is sep char and take it
         if (sep.accept((char) next)) {
             take();
         }

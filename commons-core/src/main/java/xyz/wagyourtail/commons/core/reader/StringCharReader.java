@@ -38,7 +38,7 @@ public class StringCharReader extends CharReader<StringCharReader> {
     @Override
     public String takeRemaining() {
         if (pos >= buffer.length()) {
-            return null;
+            return "";
         }
         String value = buffer.substring(pos);
         pos = buffer.length();
@@ -46,16 +46,12 @@ public class StringCharReader extends CharReader<StringCharReader> {
     }
 
     @Override
-    public String takeLine() {
-        return takeUntil('\n');
-    }
-
-    @Override
     public String takeUntil(char character) {
         int next = buffer.indexOf(character, pos);
         if (next == -1) {
+            String str = buffer.substring(pos);
             pos = buffer.length();
-            return buffer.substring(pos);
+            return str;
         }
         String value = buffer.substring(pos, next);
         pos = next;
