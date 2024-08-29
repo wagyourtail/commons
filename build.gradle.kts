@@ -73,7 +73,7 @@ allprojects {
             }
         }
         // kmp does it for us
-        if (project.name != "commons-kt") {
+        if (project.name != "commons-kt" && project.name != "commons-gradle") {
             publications {
                 create<MavenPublication>("maven") {
                     groupId = project.group as String
