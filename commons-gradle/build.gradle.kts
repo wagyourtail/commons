@@ -13,7 +13,7 @@ gradlePlugin {
         create("simplePlugin") {
             id = "xyz.wagyourtail.commons-gradle"
             description = project.description
-            implementationClass = "xyz.wagyourtail.jvmdg.gradle.JVMDowngraderPlugin"
+            implementationClass = "xyz.wagyourtail.commons.gradle.GradleMain"
             version = project.version as String
         }
     }
