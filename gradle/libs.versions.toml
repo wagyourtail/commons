@@ -1,20 +1,21 @@
 [versions]
-asm_version = "9.7"
-jb_annotations_version = "24.1.0"
-apache_commons_compress_version = "1.26.2"
-kotlin_coroutines_version = "1.9.0-RC"
+asm = "9.7"
+kotlin = "2.0.20"
+jb_annotations = "24.1.0"
+apache_commons_compress = "1.26.2"
+kotlin_coroutines = "1.9.0-RC"
 
 [libraries]
-asm = { module = "org.ow2.asm:asm", version.ref = "asm_version" }
-asm_commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm_version" }
-asm_util = { module = "org.ow2.asm:asm-util", version.ref = "asm_version" }
-asm_analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm_version" }
-asm_tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm_version" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm_commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+asm_util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
+asm_analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
+asm_tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 
-jetbrains_annotations = { module = "org.jetbrains:annotations", version.ref = "jb_annotations_version" }
-jetbrains_annotations_j5 = { module = "org.jetbrains:annotations-java5", version.ref = "jb_annotations_version" }
-jetbrains_annotations_kmp = { module = "com.sschr15.annotations:jb-annotations-kmp", version.ref = "jb_annotations_version" }
+jetbrains_annotations = { module = "org.jetbrains:annotations", version.ref = "jb_annotations" }
+jetbrains_annotations_j5 = { module = "org.jetbrains:annotations-java5", version.ref = "jb_annotations" }
+jetbrains_annotations_kmp = { module = "com.sschr15.annotations:jb-annotations-kmp", version.ref = "jb_annotations" }
 
-appache_commons_compress = { module = "org.apache.commons:commons-compress", version.ref = "apache_commons_compress_version" }
+appache_commons_compress = { module = "org.apache.commons:commons-compress", version.ref = "apache_commons_compress" }
 
-kotlin_coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin_coroutines_version" }
+kotlin_coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin_coroutines" }

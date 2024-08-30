@@ -1,8 +1,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    val kotlinVersion: String by System.getProperties()
-    kotlin("multiplatform") version kotlinVersion
+    kotlin("multiplatform") version libs.versions.kotlin.asProvider()
     idea
 }
 
@@ -10,11 +9,6 @@ kotlin {
     jvmToolchain(8)
     jvm {
         withJava()
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs = listOf("-Xjsr305=strict")
-            }
-        }
     }
     js {
         browser {
@@ -28,8 +22,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.jetbrains.annotations.kmp)
-                implementation(libs.kotlin.coroutines)
+                api(libs.jetbrains.annotations.kmp)
+                api(libs.kotlin.coroutines)
             }
         }
         val commonTest by getting {
