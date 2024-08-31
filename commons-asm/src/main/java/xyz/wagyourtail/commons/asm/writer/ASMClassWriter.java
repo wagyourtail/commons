@@ -2,6 +2,7 @@ package xyz.wagyourtail.commons.asm.writer;
 
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
+import xyz.wagyourtail.commons.asm.info.ClassInfo;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.function.IOFunction;
 
@@ -31,23 +32,23 @@ public class ASMClassWriter extends ClassWriter {
         if (t1 == null || t2 == null) {
             return "java/lang/Object";
         }
-        if (t2.isInterface) {
+        if (t2.isInterface()) {
             ClassInfo temp = t1;
             t1 = t2;
             t2 = temp;
         }
 
-        if (t1.isInterface) {
-            if (t2.isInterface) {
-                if (getInterfaces(t1).contains(t2.name)) {
-                    return t2.name;
+        if (t1.isInterface()) {
+            if (t2.isInterface()) {
+                if (getInterfaces(t1).contains(t2.getName())) {
+                    return t2.getName();
                 }
-                if (getInterfaces(t2).contains(t1.name)) {
-                    return t1.name;
+                if (getInterfaces(t2).contains(t1.getName())) {
+                    return t1.getName();
                 }
             }
-            if (collectInterfaces(t2).contains(t1.name)) {
-                return t1.name;
+            if (collectInterfaces(t2).contains(t1.getName())) {
+                return t1.getName();
             }
             return "java/lang/Object";
         } else {
@@ -59,7 +60,7 @@ public class ASMClassWriter extends ClassWriter {
             if (l1.isEmpty()) {
                 return "java/lang/Object";
             }
-            return l1.get(0).name;
+            return l1.get(0).getName();
         }
     }
 
@@ -80,12 +81,12 @@ public class ASMClassWriter extends ClassWriter {
     public List<ClassInfo> getSuperTypes(ClassInfo type) {
         List<ClassInfo> l = new ArrayList<>();
         ClassInfo current = type;
-        while (current != null && !current.name.equals("java/lang/Object")) {
+        while (current != null && !current.getName().equals("java/lang/Object")) {
             l.add(current);
-            if (current.superName.equals("java/lang/Object")) {
+            if (current.getSuperName().equals("java/lang/Object")) {
                 break;
             }
-            current = getClassInfo(current.superName);
+            current = getClassInfo(current.getSuperName());
         }
         return l;
     }
@@ -101,10 +102,10 @@ public class ASMClassWriter extends ClassWriter {
 
     public Set<String> getInterfaces(ClassInfo type) {
         Set<String> l = new HashSet<>();
-        for (String i : type.interfaces) {
+        for (String i : type.getInterfaces()) {
             l.add(i);
             ClassInfo ci = getClassInfo(i);
-            if (ci != null && !ci.name.equals("java/lang/Object")) {
+            if (ci != null && !ci.getName().equals("java/lang/Object")) {
                 l.addAll(getInterfaces(ci));
             }
         }

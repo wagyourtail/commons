@@ -22,19 +22,22 @@ public class AnnotationUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, ClassLoader loader) throws ClassNotFoundException {
+        Class<?> annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), loader);
         return (T) Proxy.newProxyInstance(
                 loader,
-                new Class[]{ASMUtils.getClass(Type.getType(annotationNode.desc), loader)},
-                new Handler(annotationNode, loader)
+                new Class[]{annotationClass},
+                new Handler(annotationClass, annotationNode, loader)
         );
     }
 
 
     static class Handler implements InvocationHandler {
+        final Class<?> annotationClass;
         final Map<String, Object> values;
         final ClassLoader loader;
 
-        Handler(AnnotationNode node, ClassLoader loader) {
+        Handler(Class<?> annotationClass, AnnotationNode node, ClassLoader loader) {
+            this.annotationClass = annotationClass;
             values = new HashMap<>();
             for (int i = 0; i < node.values.size(); i += 2) {
                 values.put((String) node.values.get(i), node.values.get(i + 1));
@@ -44,6 +47,13 @@ public class AnnotationUtils {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws ClassNotFoundException {
+            if (!values.containsKey(method.getName())) {
+                Object annDefault = method.getDefaultValue();
+                if (annDefault != null) {
+                    return annDefault;
+                }
+                throw new NullPointerException("No default value for " + method.getName());
+            }
             return convertType(values.get(method.getName()), method.getReturnType());
         }
 
