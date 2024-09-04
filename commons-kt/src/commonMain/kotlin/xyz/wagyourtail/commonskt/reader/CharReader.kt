@@ -4,6 +4,10 @@ import xyz.wagyourtail.commonskt.utils.translateEscapes
 
 abstract class CharReader<T: CharReader<T>> {
 
+    companion object {
+        operator fun invoke(value: String) = StringCharReader(value)
+    }
+
     /**
      * @return either a char, or null for eof
      */
