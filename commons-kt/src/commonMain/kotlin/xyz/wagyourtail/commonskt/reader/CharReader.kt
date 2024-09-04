@@ -61,7 +61,7 @@ abstract class CharReader<T: CharReader<T>> {
         var next = peek()
         if (next == null || next == '\n') return null
         val value = if (next == '"') takeString()
-        else takeUntil(sep)
+        else takeUntil { sep(it) || it == '\n' }
         // take trailing sep
         next = peek()
         if (next != null && next != '\n' && sep(next)) {
@@ -76,7 +76,7 @@ abstract class CharReader<T: CharReader<T>> {
         var next = peek()
         if (next == null || next == '\n') return null
         if (next == '\n') return null
-        val value = takeUntil(sep)
+        val value = takeUntil { sep(it) || it == '\n' }
         // take trailing sep
         next = peek()
         if (next != null && next != '\n' && sep(next)) {
