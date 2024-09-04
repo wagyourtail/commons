@@ -66,6 +66,8 @@ abstract class CharReader<T: CharReader<T>> {
         return value
     }
 
+    fun takeNext(sep: Char) = takeNext { it == sep }
+
     inline fun takeNextLiteral(sep: (Char) -> Boolean = { it.isWhitespace() }): String? {
         takeNonNewlineWhitespace()
         var next = peek()
@@ -80,6 +82,8 @@ abstract class CharReader<T: CharReader<T>> {
         return value
     }
 
+    fun takeNextLiteral(sep: Char) = takeNextLiteral { it == sep }
+
     inline fun takeRemainingOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {
         var next = takeNext(sep)
         while (next != null) {
@@ -88,13 +92,17 @@ abstract class CharReader<T: CharReader<T>> {
         }
     }
 
-    inline fun takeRemainlingLiteralOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {
+    fun takeRemainingOnLine(sep: Char) = takeRemainingOnLine { it == sep }
+
+    inline fun takeRemainingLiteralOnLine(sep: (Char) -> Boolean = { it.isWhitespace() }) = buildList<String> {
         var next = takeNextLiteral(sep)
         while (next != null) {
             add(next)
             next = takeNextLiteral(sep)
         }
     }
+
+    fun takeRemainingLiteralOnLine(sep: Char) = takeRemainingLiteralOnLine { it == sep }
 
     fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false) = buildString {
         expect('"')
@@ -156,6 +164,8 @@ abstract class CharReader<T: CharReader<T>> {
         return value
     }
 
+    fun takeCol(leinient: Boolean = true, sep: Char) = takeCol(leinient) { it == sep }
+
     fun takeRemainingCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }) = buildList<String> {
         var next = takeCol(leinient, sep)
         while (next != null) {
@@ -163,5 +173,7 @@ abstract class CharReader<T: CharReader<T>> {
             next = takeCol(leinient, sep)
         }
     }
+
+    fun takeRemainingCol(leinient: Boolean = true, sep: Char) = takeRemainingCol(leinient) { it == sep }
 
 }

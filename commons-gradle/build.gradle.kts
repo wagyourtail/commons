@@ -20,6 +20,7 @@ gradlePlugin {
 
 dependencies {
     api(project(":commons-kt"))
+    api(project(":commons-asm"))
     api(gradleApi())
 
     api(libs.asm)
