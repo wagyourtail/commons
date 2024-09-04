@@ -32,7 +32,7 @@ class StringCharReader(val buffer: String, var pos: Int = 0) : CharReader<String
         val next = buffer.indexOf(char, pos)
         if (next == -1) {
             val str = buffer.substring(pos)
-            pos = str.length
+            pos = buffer.length
             return str
         }
         val str = buffer.substring(pos, next)
