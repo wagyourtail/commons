@@ -133,9 +133,10 @@ abstract class CharReader<T: CharReader<T>> {
         }
     }.translateEscapes(leinient)
 
-    fun expect(char: Char) {
+    fun expect(char: Char): Char {
         val it = take()
         if (it != char) throw IllegalArgumentException("Expected $char but got $it")
+        return char
     }
 
     fun takeCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }): String? {
