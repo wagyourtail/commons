@@ -147,9 +147,6 @@ public class StringHashTrie implements Collection<String> {
     /**
      * this can make the StringHashTrie sparse, this can cause extra steps in lookup that are no longer needed,
      * at some point it would be best to rebase the StringHashTrie with {@code new StringHashTrie().addAll(current.getAll())}
-     *
-     * @param o
-     * @return
      */
     @Override
     public boolean remove(Object o) {
@@ -295,9 +292,7 @@ public class StringHashTrie implements Collection<String> {
     }
 
     /**
-     * all contained elements as a {@link Set}
-     *
-     * @return
+     * @return all contained elements
      */
     public Set<String> getAll() {
         Set<String> results = new HashSet<>(leafs);

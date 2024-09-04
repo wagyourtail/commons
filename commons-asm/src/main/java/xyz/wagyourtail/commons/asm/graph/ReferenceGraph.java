@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commons.asm.graph;
 
-import javafx.util.Pair;
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -261,7 +260,7 @@ public class ReferenceGraph {
      * @param starts the references to start from.
      * @return a pair of the references required by the given references, and the resources required by the given references.
      */
-    public Pair<Set<FullyQualifiedMemberNameAndDesc>, Set<String>> recursiveResolveFrom(Set<FullyQualifiedMemberNameAndDesc> starts, int version) {
+    public ClassesAndResources recursiveResolveFrom(Set<FullyQualifiedMemberNameAndDesc> starts, int version) {
         Set<FullyQualifiedMemberNameAndDesc> refs = new HashSet<>(starts);
         Set<String> resources = new HashSet<>();
         Queue<FullyQualifiedMemberNameAndDesc> toAdd = new ArrayDeque<>(starts);
@@ -302,7 +301,7 @@ public class ReferenceGraph {
                 resources.addAll(refer.resourceList.get(member));
             }
         }
-        return new Pair<>(refs, resources);
+        return new ClassesAndResources(refs, resources);
     }
 
     /**
@@ -311,7 +310,7 @@ public class ReferenceGraph {
      * @param starts the references to start from.
      * @return a pair of the references required by the given references, and the resources required by the given references.
      */
-    public Pair<Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>>, Set<String>> recursivelyResolveUsagesFrom(Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> starts, int version) {
+    public ClassReferencesAndResources recursivelyResolveUsagesFrom(Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> starts, int version) {
         Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> usages = new HashMap<>(starts);
         Set<String> resources = new HashSet<>();
         Queue<FullyQualifiedMemberNameAndDesc> toScan = new ArrayDeque<>(starts.keySet());
@@ -359,7 +358,7 @@ public class ReferenceGraph {
                 resources.addAll(refer.resourceList.get(member));
             }
         }
-        return new Pair<>(usages, resources);
+        return new ClassReferencesAndResources(usages, resources);
     }
 
     /**
@@ -603,6 +602,42 @@ public class ReferenceGraph {
             resourceList.get(member).add(resourceLocation);
         }
 
+    }
+
+    public static class ClassesAndResources {
+        private final Set<FullyQualifiedMemberNameAndDesc> classes;
+        private final Set<String> resources;
+
+        public ClassesAndResources(Set<FullyQualifiedMemberNameAndDesc> classes, Set<String> resources) {
+            this.classes = classes;
+            this.resources = resources;
+        }
+
+        public Set<FullyQualifiedMemberNameAndDesc> getClasses() {
+            return classes;
+        }
+
+        public Set<String> getResources() {
+            return resources;
+        }
+    }
+
+    public static class ClassReferencesAndResources {
+        private final Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> classes;
+        private final Set<String> resources;
+
+        public ClassReferencesAndResources(Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> classes, Set<String> resources) {
+            this.classes = classes;
+            this.resources = resources;
+        }
+
+        public Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> getClasses() {
+            return classes;
+        }
+
+        public Set<String> getResources() {
+            return resources;
+        }
     }
 
 }
