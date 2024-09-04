@@ -69,7 +69,6 @@ abstract class CharReader<T: CharReader<T>> {
     fun takeNext(sep: Char) = takeNext { it == sep }
 
     inline fun takeNextLiteral(sep: (Char) -> Boolean = { it.isWhitespace() }): String? {
-        takeNonNewlineWhitespace()
         var next = peek()
         if (next == null || next == '\n') return null
         if (next == '\n') return null
