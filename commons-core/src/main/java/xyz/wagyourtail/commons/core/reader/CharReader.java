@@ -98,12 +98,19 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNext(char sep) {
-        StringBuilder sb = new StringBuilder();
         int next = peek();
         if (next == -1 || next == '\n') return null;
         String value;
         if (next == '"') value = takeString();
-        else value = takeUntil(sep);
+        else {
+            StringBuilder sb = new StringBuilder();
+            while (next != -1) {
+                if (next == '\n' || next == sep) break;
+                sb.append((char) take());
+                next = peek();
+            }
+            value = sb.toString();
+        }
         // take trailing sep
         next = peek();
         if (next == sep) {
@@ -117,7 +124,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         if (next == -1 || next == '\n') return null;
         String value;
         if (next == '"') value = takeString();
-        else value = takeUntil(sep);
+        else value = takeUntil(or(sep, NEWLINE));
         // take trailing sep
         next = peek();
         if (next != -1 && next != '\n' && sep.accept((char) next)) {
@@ -366,6 +373,15 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             @Override
             public boolean accept(char c) {
                 return !a.accept(c);
+            }
+        };
+    }
+
+    public static CharAccepter of(final char character) {
+        return new CharAccepter() {
+            @Override
+            public boolean accept(char c) {
+                return character == c;
             }
         };
     }
