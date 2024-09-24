@@ -1,12 +1,12 @@
 package xyz.wagyourtail.commons.core.classloader.provider;
 
+import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
+import xyz.wagyourtail.commons.core.function.IOSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -26,24 +26,13 @@ public class JarFileResourceProvider implements ResourceProvider {
         if (entry == null) {
             return Collections.emptyEnumeration();
         }
-        return Collections.enumeration(Collections.singletonList(new URL("x-buffer", null, -1, name, new URLStreamHandler() {
-            @Override
-            protected URLConnection openConnection(final URL u1) {
-                return new URLConnection(u1) {
-                    @Override
-                    public void connect() {
-                    }
+        return Collections.enumeration(Collections.singleton(Utils.bufferURL(name, new IOSupplier<InputStream>() {
 
-                    @Override
-                    public InputStream getInputStream() {
-                        try {
-                            return jarFile.getInputStream(entry);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                };
+            @Override
+            public InputStream get() throws IOException {
+                return jarFile.getInputStream(entry);
             }
+
         })));
     }
 

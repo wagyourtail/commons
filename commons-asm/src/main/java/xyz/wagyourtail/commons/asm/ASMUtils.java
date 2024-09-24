@@ -106,7 +106,6 @@ public class ASMUtils {
             default:
                 return Class.forName(type.getClassName(), true, loader);
         }
-
     }
 
     public ClassNode copy(ClassNode node) {

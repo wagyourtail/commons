@@ -7,7 +7,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 import xyz.wagyourtail.commons.core.function.IOFunction;
-import xyz.wagyourtail.commons.core.function.IOSupplier;
 import xyz.wagyourtail.commons.core.lazy.Lazy;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class ClassInfo {
@@ -235,4 +233,5 @@ public class ClassInfo {
             }
         };
     }
+
 }

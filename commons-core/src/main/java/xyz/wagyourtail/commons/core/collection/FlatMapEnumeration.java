@@ -1,36 +1,29 @@
-package xyz.wagyourtail.commons.java7.collection;
-
-import xyz.wagyourtail.commons.java7.function.Function;
+package xyz.wagyourtail.commons.core.collection;
 
 import java.util.Enumeration;
 
-/**
- * basically {@code enumeration.stream().flatMap(mapper).toEnumeration()} except that doesn't exist.
- * @param <T>
- * @param <E>
- */
-public class FlatEnumeration<T, E> implements Enumeration<E> {
+public abstract class FlatMapEnumeration<T, E> implements Enumeration<E> {
     private final Enumeration<T> enumeration;
-    private final Function<T, Enumeration<E>> mapper;
 
     private Enumeration<E> currentEnumeration = null;
 
-    public FlatEnumeration(Enumeration<T> enumeration, Function<T, Enumeration<E>> mapper) {
+    public FlatMapEnumeration(Enumeration<T> enumeration) {
         this.enumeration = enumeration;
-        this.mapper = mapper;
     }
 
     @Override
     public boolean hasMoreElements() {
         while (currentEnumeration == null || !currentEnumeration.hasMoreElements()) {
             if (enumeration.hasMoreElements()) {
-                currentEnumeration = mapper.apply(enumeration.nextElement());
+                currentEnumeration = mapper(enumeration.nextElement());
             } else {
                 return false;
             }
         }
         return true;
     }
+
+    protected abstract Enumeration<E> mapper(T element);
 
     @Override
     public E nextElement() {

@@ -3,7 +3,7 @@ package xyz.wagyourtail.commons.core.classloader;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.provider.ClassLoaderResourceProvider;
 import xyz.wagyourtail.commons.core.classloader.provider.JarFileResourceProvider;
-import xyz.wagyourtail.commons.core.collection.FlatEnumeration;
+import xyz.wagyourtail.commons.core.collection.FlatMapEnumeration;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -82,7 +82,7 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected Enumeration<URL> findResources(final String name) {
-        return new FlatEnumeration<ResourceProvider, URL>(Collections.enumeration(delegates)) {
+        return new FlatMapEnumeration<ResourceProvider, URL>(Collections.enumeration(delegates)) {
             @Override
             protected Enumeration<URL> mapper(ResourceProvider element) {
                 try {
