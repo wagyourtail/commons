@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class PackedResourceProvider implements ResourceProvider {
     private final SeekableByteChannel channel;
-    private Map<String, PositionAndLength> positions;
+    private final Map<String, PositionAndLength> positions;
 
     public PackedResourceProvider(Path path) throws IOException {
         this(Files.newByteChannel(path));
