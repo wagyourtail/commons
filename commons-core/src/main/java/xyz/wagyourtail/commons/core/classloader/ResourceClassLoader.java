@@ -36,25 +36,17 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
         Set<URL> failed = new HashSet<>();
         for (URL url : urls) {
             try {
-                delegates.add(new JarFileResourceProvider(new JarFile(Paths.get(url.toURI()).toFile())));
+                addDelegate(new JarFileResourceProvider(new JarFile(Paths.get(url.toURI()).toFile())));
             } catch (Exception e) {
                 failed.add(url);
             }
         }
         // fallback on normal classloader
-        addDelegate(failed.toArray(new URL[0]));
+        addDelegate(new ClassLoaderResourceProvider(new URLClassLoader(failed.toArray(new URL[0]))));
     }
 
-    public void addDelegate(ClassLoader loader) {
-        delegates.add(new ClassLoaderResourceProvider(loader));
-    }
-
-    public void addDelegate(JarFile jar) {
-        delegates.add(new JarFileResourceProvider(jar));
-    }
-
-    public void addDelegate(URL[] urls) {
-        delegates.add(new ClassLoaderResourceProvider(new URLClassLoader(urls)));
+    public void addDelegate(ResourceProvider resourceProvider) {
+        delegates.add(resourceProvider);
     }
 
     protected Class<?> findClass(String name) throws ClassNotFoundException {
