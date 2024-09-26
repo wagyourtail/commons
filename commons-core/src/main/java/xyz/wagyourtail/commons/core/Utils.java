@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core;
 
+import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
 import java.io.ByteArrayOutputStream;
@@ -42,6 +43,28 @@ public class Utils {
                 };
             }
         });
+    }
+
+    public static int getCurrentClassVersion() {
+        String version = System.getProperty("java.class.version");
+        if (version != null) {
+            try {
+                return Integer.parseInt(version.split("\\.")[0]);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        throw new UnsupportedOperationException("Unable to determine current class version");
+    }
+
+    public static int classVersionToMajorVersion(int version) {
+        if (version == Opcodes.V1_1) return 1;
+        else return version - Opcodes.V1_2 + 2;
+    }
+
+    public static int majorVersionToClassVersion(int version) {
+        if (version == 1) return Opcodes.V1_1;
+        else return version + Opcodes.V1_2 - 2;
     }
 
 }
