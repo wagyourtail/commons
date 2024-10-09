@@ -20,10 +20,13 @@ class StringCharReader(val buffer: String, var pos: Int = 0) : CharReader<String
     }
 
     override fun take(count: Int): String {
-        val end = min(pos + count, buffer.length)
-        val str = buffer.substring(pos, end)
-        pos = end
-        return str
+        if (pos < buffer.length) {
+            val end = min(pos + count, buffer.length)
+            val str = buffer.substring(pos, end)
+            pos = end
+            return str
+        }
+        return ""
     }
 
     override fun copy(): StringCharReader {
