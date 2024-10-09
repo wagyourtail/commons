@@ -9,7 +9,9 @@ import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.jvm.toolchain.JavaToolchainService
 import java.io.File
 
@@ -70,4 +72,5 @@ fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): FileColl
     return getFiles(dep) { it.extension == extension }
 }
 
-
+fun String.withSourceSet(sourceSet: SourceSet) =
+    if (sourceSet.name == "main") this else "${sourceSet.name}${this.capitalized()}"

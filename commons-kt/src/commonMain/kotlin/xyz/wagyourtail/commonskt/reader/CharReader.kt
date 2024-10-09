@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commonskt.reader
 
 import xyz.wagyourtail.commonskt.utils.translateEscapes
+import kotlin.text.Typography.quote
 
 abstract class CharReader<T: CharReader<T>> {
 
@@ -17,6 +18,15 @@ abstract class CharReader<T: CharReader<T>> {
      * @return either a char, or null for eof
      */
     abstract fun take(): Char?
+
+    /**
+     * @return a string of the next count chars
+     */
+    open fun take(count: Int) = buildString {
+        for (i in 0 until count) {
+            take()?.let { append(it) } ?: break
+        }
+    }
 
     /**
      * @return a copy of the reader at the current position
@@ -107,13 +117,14 @@ abstract class CharReader<T: CharReader<T>> {
 
     fun takeRemainingLiteralOnLine(sep: Char) = takeRemainingLiteralOnLine { it == sep }
 
-    fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false) = buildString {
-        expect('"')
+    fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false, quote: Char = '"') = buildString {
+        expect(quote)
         var escapes = 0
         var next = take()
         while (next != null) {
-            if (next == '"' && escapes == 0) {
-                if (escapeDoubleQuote && peek() == '"') {
+            if (next == quote && escapes == 0) {
+                copy().take()
+                if (escapeDoubleQuote && peek() == quote) {
                     append('\\')
                     append(take()!!)
                 } else {

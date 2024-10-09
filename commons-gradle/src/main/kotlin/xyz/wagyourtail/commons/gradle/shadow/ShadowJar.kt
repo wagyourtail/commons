@@ -3,14 +3,13 @@ package xyz.wagyourtail.commons.gradle.shadow
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.jvm.tasks.Jar
-import xyz.wagyourtail.commons.asm.graph.ReferenceGraph
-import xyz.wagyourtail.commons.gradle.GradleLogWrapper
+import xyz.wagyourtail.commons.gradle.filter.ContentMapper
+import xyz.wagyourtail.commons.gradle.filter.PackageRelocator
 import java.nio.charset.StandardCharsets
 
 abstract class ShadowJar : Jar() {
@@ -61,10 +60,11 @@ abstract class ShadowJar : Jar() {
                 .mapValues { it.value.replace('.', '/') }
                 .mapValues { if (!it.value.endsWith("/")) it.value + "/" else it.value }
             val rel = PackageRelocator(map)
+            val args = mapOf("mapper" to rel)
             eachFile {
                 if (!it.path.endsWith(".class")) return@eachFile
                 it.path = rel.map(it.path)
-                it.filter(mapOf("remapper" to rel), PackageRelocateReader::class.java)
+                it.filter(args, ContentMapper::class.java)
             }
         }
 

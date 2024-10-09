@@ -36,6 +36,14 @@ public class StringCharReader extends CharReader<StringCharReader> {
     }
 
     @Override
+    public String take(int count) {
+        int end = Math.min(pos + count, buffer.length());
+        String str = buffer.substring(pos, end);
+        pos = end;
+        return str;
+    }
+
+    @Override
     public String takeRemaining() {
         if (pos >= buffer.length()) {
             return "";

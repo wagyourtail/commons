@@ -1,5 +1,7 @@
 package xyz.wagyourtail.commonskt.reader
 
+import kotlin.math.min
+
 class StringCharReader(val buffer: String, var pos: Int = 0) : CharReader<StringCharReader>() {
     private var mark: Int = 0
 
@@ -15,6 +17,13 @@ class StringCharReader(val buffer: String, var pos: Int = 0) : CharReader<String
             return buffer[pos++]
         }
         return null
+    }
+
+    override fun take(count: Int): String {
+        val end = min(pos + count, buffer.length)
+        val str = buffer.substring(pos, end)
+        pos = end
+        return str
     }
 
     override fun copy(): StringCharReader {

@@ -23,6 +23,19 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public abstract int take();
 
     /**
+     * @return a string of the next count chars
+     */
+    public String take(int count) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            int ch = take();
+            if (ch == -1) break;
+            builder.append((char) ch);
+        }
+        return builder.toString();
+    }
+
+    /**
      * @return a copy of the reader at the current position
      */
     public abstract T copy();
@@ -226,13 +239,17 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public String takeString(boolean leinient, boolean escapeDoubleQuote) {
-        expect('"');
+        return takeString(leinient, escapeDoubleQuote, '"');
+    }
+
+    public String takeString(boolean leinient, boolean escapeDoubleQuote, char quote) {
+        expect(quote);
         StringBuilder sb = new StringBuilder();
         int escapes = 0;
         int next = take();
         while (next != -1) {
-            if (next == '"' && escapes == 0) {
-                if (escapeDoubleQuote && peek() == '"') {
+            if (next == quote && escapes == 0) {
+                if (escapeDoubleQuote && peek() == quote) {
                     sb.append('\\');
                     sb.append((char) take());
                 } else {
