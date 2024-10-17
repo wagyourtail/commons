@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commons.core;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
 import java.io.ByteArrayOutputStream;
@@ -58,13 +57,13 @@ public class Utils {
     }
 
     public static int classVersionToMajorVersion(int version) {
-        if (version == Opcodes.V1_1) return 1;
-        else return version - Opcodes.V1_2 + 2;
+        if (version == /* Opcodes.V1_1 = */ 196653) return 1;
+        else return version - /* Opcodes.V1_2 = */ 46 + 2;
     }
 
     public static int majorVersionToClassVersion(int version) {
-        if (version == 1) return Opcodes.V1_1;
-        else return version + Opcodes.V1_2 - 2;
+        if (version == 1) return /* Opcodes.V1_1 = */ 196653;
+        else return version + /* Opcodes.V1_2 = */ 46 - 2;
     }
 
 }
