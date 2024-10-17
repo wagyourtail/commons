@@ -32,6 +32,6 @@ fun Float.ceilToMultipleOf(value: Float) = ceil(this / value) * value
 
 fun Double.ceilToMultipleOf(value: Double) = ceil(this / value) * value
 
-fun Float.floorToMultipleOf(value: Float) = floor(this * value) * value
+fun Float.floorToMultipleOf(value: Float) = floor(this / value) * value
 
-fun Double.floorToMultipleOf(value: Double) = floor(this * value) * value
+fun Double.floorToMultipleOf(value: Double) = floor(this / value) * value
