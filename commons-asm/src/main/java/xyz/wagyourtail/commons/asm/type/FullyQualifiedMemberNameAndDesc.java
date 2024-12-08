@@ -42,6 +42,29 @@ public class FullyQualifiedMemberNameAndDesc {
         }
     }
 
+    public static FullyQualifiedMemberNameAndDesc of(String value) {
+        String[] vals = value.split(";", 3);
+        if (vals.length == 2 && vals[1].isEmpty()) vals = new String[] { vals[0] };
+        Type owner;
+        if (vals.length == 1) {
+            if (value.startsWith("L") && value.endsWith(";")) {
+                owner = Type.getType(value);
+            } else {
+                owner = Type.getObjectType(value);
+            }
+            return FullyQualifiedMemberNameAndDesc.of(owner);
+        } else {
+            owner = Type.getObjectType(vals[0].substring(1));
+        }
+        String name = vals[1];
+        Type desc = vals.length == 2 ? null : Type.getType(vals[2]);
+        return new FullyQualifiedMemberNameAndDesc(owner, name, desc);
+    }
+
+    public static FullyQualifiedMemberNameAndDesc of(Class<?> clazz) {
+        return new FullyQualifiedMemberNameAndDesc(Type.getType(clazz), null, null);
+    }
+
     public static FullyQualifiedMemberNameAndDesc of(Type type) {
         return new FullyQualifiedMemberNameAndDesc(type, null, null);
     }
@@ -99,7 +122,10 @@ public class FullyQualifiedMemberNameAndDesc {
         StringBuilder sb = new StringBuilder();
         sb.append(owner.getDescriptor());
         if (name != null) {
-            sb.append(name).append(";").append(desc.getDescriptor());
+            sb.append(name);
+            if (desc != null) {
+                sb.append(";").append(desc.getDescriptor());
+            }
         }
         return sb.toString();
     }

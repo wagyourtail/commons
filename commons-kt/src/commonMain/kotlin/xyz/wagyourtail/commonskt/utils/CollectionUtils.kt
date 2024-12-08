@@ -59,6 +59,22 @@ inline fun <E, K, V> Iterable<E>.mutliAssociate(apply: (E) -> Pair<K, V>): Map<K
     return mut
 }
 
+fun <K, V> MutableMap<K, MutableList<V>>.put(key: K, value: V) {
+    if (!containsKey(key)) {
+        put(key, mutableListOf(value))
+    } else {
+        getValue(key).add(value)
+    }
+}
+
+fun <K, V> MutableMap<K, MutableSet<V>>.put(key: K, value: V) {
+    if (!containsKey(key)) {
+        put(key, mutableSetOf(value))
+    } else {
+        getValue(key).add(value)
+    }
+}
+
 @Suppress("UNCHECKED_CAST")
 fun <K, V> Iterable<Pair<K, V?>>.filterNotNullValues(): List<Pair<K, V>> = filter { it.second != null } as List<Pair<K, V>>
 
