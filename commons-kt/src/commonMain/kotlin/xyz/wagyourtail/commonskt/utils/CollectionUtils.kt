@@ -59,7 +59,7 @@ inline fun <E, K, V> Iterable<E>.mutliAssociate(apply: (E) -> Pair<K, V>): Map<K
     return mut
 }
 
-fun <K, V> MutableMap<K, MutableList<V>>.put(key: K, value: V) {
+fun <K, V> MutableMap<K, MutableList<V>>.putMulti(key: K, value: V) {
     if (!containsKey(key)) {
         put(key, mutableListOf(value))
     } else {
@@ -67,7 +67,8 @@ fun <K, V> MutableMap<K, MutableList<V>>.put(key: K, value: V) {
     }
 }
 
-fun <K, V> MutableMap<K, MutableSet<V>>.put(key: K, value: V) {
+@JvmName("putMultiSet")
+fun <K, V> MutableMap<K, MutableSet<V>>.putMulti(key: K, value: V) {
     if (!containsKey(key)) {
         put(key, mutableSetOf(value))
     } else {
