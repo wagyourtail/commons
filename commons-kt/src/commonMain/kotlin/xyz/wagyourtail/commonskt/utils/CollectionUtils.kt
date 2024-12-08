@@ -60,20 +60,12 @@ inline fun <E, K, V> Iterable<E>.mutliAssociate(apply: (E) -> Pair<K, V>): Map<K
 }
 
 fun <K, V> MutableMap<K, MutableList<V>>.putMulti(key: K, value: V) {
-    if (!containsKey(key)) {
-        put(key, mutableListOf(value))
-    } else {
-        getValue(key).add(value)
-    }
+    getOrPut(key) { mutableListOf() } += value
 }
 
 @JvmName("putMultiSet")
 fun <K, V> MutableMap<K, MutableSet<V>>.putMulti(key: K, value: V) {
-    if (!containsKey(key)) {
-        put(key, mutableSetOf(value))
-    } else {
-        getValue(key).add(value)
-    }
+    getOrPut(key) { mutableSetOf() } += value
 }
 
 @Suppress("UNCHECKED_CAST")
