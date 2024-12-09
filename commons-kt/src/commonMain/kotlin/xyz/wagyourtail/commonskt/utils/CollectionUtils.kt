@@ -68,6 +68,28 @@ fun <K, V> MutableMap<K, MutableSet<V>>.putMulti(key: K, value: V) {
     getOrPut(key) { mutableSetOf() } += value
 }
 
+fun <T> Iterable<T>.repeat(n: Int): List<T> {
+    return buildList {
+        for (i in 0 until n) {
+            addAll(this@repeat)
+        }
+    }
+}
+
+fun <T> Iterable<T>.permutations(size: Int): Sequence<List<T>> {
+    if (size == 1) {
+        return this.map { listOf(it) }.asSequence()
+    }
+    val queue = this@permutations.toMutableList()
+    return sequence {
+        while (queue.size >= size) {
+            val first = queue.removeAt(0)
+            val perms = queue.permutations(size - 1)
+            yieldAll(perms.map { listOf(first) + it })
+        }
+    }
+}
+
 @Suppress("UNCHECKED_CAST")
 fun <K, V> Iterable<Pair<K, V?>>.filterNotNullValues(): List<Pair<K, V>> = filter { it.second != null } as List<Pair<K, V>>
 
