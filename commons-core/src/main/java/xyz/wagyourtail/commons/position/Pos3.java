@@ -93,6 +93,11 @@ public class Pos3 extends Pos2 {
     }
 
     @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Pos3)) return false;
         if (!super.equals(o)) return false;

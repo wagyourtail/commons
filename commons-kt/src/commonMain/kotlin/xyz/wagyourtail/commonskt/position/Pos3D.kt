@@ -116,6 +116,10 @@ class Pos3D(x: Double, y: Double, val z: Double): Pos2D(x, y) {
         )
     }
 
+    override fun toString(): String {
+        return "($x, $y, $z)"
+    }
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && (other is Pos3D && z == other.z)
     }

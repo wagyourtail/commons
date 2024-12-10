@@ -77,6 +77,10 @@ open class Pos2(val x: Int, val y: Int) {
         return x * other.x + y * other.y
     }
 
+    override fun toString(): String {
+        return "($x, $y)"
+    }
+
     override fun equals(other: Any?): Boolean {
         return other is Pos2 && other.x == this.x && other.y == this.y
     }

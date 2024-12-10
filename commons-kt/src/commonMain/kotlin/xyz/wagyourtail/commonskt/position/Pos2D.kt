@@ -114,6 +114,10 @@ open class Pos2D(val x: Double, val y: Double) {
         return x * other.x + y * other.y
     }
 
+    override fun toString(): String {
+        return "($x, $y)"
+    }
+
     override fun equals(other: Any?): Boolean {
         return other is Pos2D && other.x == x && other.y == y
     }

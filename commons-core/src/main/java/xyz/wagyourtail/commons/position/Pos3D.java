@@ -124,6 +124,11 @@ public class Pos3D extends Pos2D {
     }
 
     @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Pos3D)) return false;
         if (!super.equals(o)) return false;

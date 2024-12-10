@@ -85,6 +85,10 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
         )
     }
 
+    override fun toString(): String {
+        return "($x, $y, $z)"
+    }
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && (other is Pos3 && z == other.z)
     }

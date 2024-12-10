@@ -82,6 +82,11 @@ public class Pos2 {
     }
 
     @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Pos2)) return false;
         Pos2 pos2 = (Pos2) o;
