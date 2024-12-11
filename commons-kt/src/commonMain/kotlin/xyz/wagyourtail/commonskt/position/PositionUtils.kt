@@ -1,4 +1,5 @@
 package xyz.wagyourtail.commonskt.position
+import kotlin.jvm.JvmName
 import kotlin.math.*
 
 fun max(a: Pos2, b: Pos2): Pos2 {
@@ -49,34 +50,42 @@ fun abs(pos: Pos3D): Pos3D {
     return Pos3D(abs(pos.x), abs(pos.y), abs(pos.z))
 }
 
+@JvmName("maxPos2")
 fun Iterable<Pos2>.max() {
     reduce { acc, pos2 -> max(acc, pos2) }
 }
 
+@JvmName("minPos2")
 fun Iterable<Pos2>.min() {
     reduce { acc, pos2 -> min(acc, pos2) }
 }
 
+@JvmName("maxPos2D")
 fun Iterable<Pos2D>.max() {
     reduce { acc, pos2D -> max(acc, pos2D) }
 }
 
+@JvmName("minPos2D")
 fun Iterable<Pos2D>.min() {
     reduce { acc, pos2D -> min(acc, pos2D) }
 }
 
+@JvmName("maxPos3")
 fun Iterable<Pos3>.max() {
     reduce { acc, pos3 -> max(acc, pos3) }
 }
 
+@JvmName("minPos3")
 fun Iterable<Pos3>.min() {
     reduce { acc, pos3 -> min(acc, pos3) }
 }
 
+@JvmName("maxPos3D")
 fun Iterable<Pos3D>.max() {
     reduce { acc, pos3D -> max(acc, pos3D) }
 }
 
+@JvmName("minPos3D")
 fun Iterable<Pos3D>.min() {
     reduce { acc, pos3D -> min(acc, pos3D) }
 }
