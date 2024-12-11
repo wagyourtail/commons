@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.position
 
-import kotlin.math.sqrt
+import kotlin.math.*
 
 open class Pos2(val x: Int, val y: Int) {
     companion object {

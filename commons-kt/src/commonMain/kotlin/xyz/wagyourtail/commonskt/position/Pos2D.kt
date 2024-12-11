@@ -1,9 +1,6 @@
 package xyz.wagyourtail.commonskt.position
 
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.round
-import kotlin.math.sqrt
+import kotlin.math.*
 
 open class Pos2D(val x: Double, val y: Double) {
     companion object {
