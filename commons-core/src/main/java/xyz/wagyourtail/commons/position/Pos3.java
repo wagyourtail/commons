@@ -12,6 +12,18 @@ public class Pos3 extends Pos2 {
         this.z = z;
     }
 
+    public static Pos3 max(Pos3 p1, Pos3 p2) {
+        return new Pos3(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y), Math.max(p1.z, p2.z));
+    }
+
+    public static Pos3 min(Pos3 p1, Pos3 p2) {
+        return new Pos3(Math.max(p1.x, p2.x), Math.min(p1.y, p2.y), Math.min(p1.z, p2.z));
+    }
+
+    public static Pos3 abs(Pos3 p) {
+        return new Pos3(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z));
+    }
+
     @Override
     public Pos3 inverse() {
         return new Pos3(-this.x, -this.y, -this.z);

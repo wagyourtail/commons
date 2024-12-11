@@ -13,6 +13,18 @@ public class Pos2 {
         this.y = y;
     }
 
+    public static Pos2 max(Pos2 p1, Pos2 p2) {
+        return new Pos2(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y));
+    }
+
+    public static Pos2 min(Pos2 p1, Pos2 p2) {
+        return new Pos2(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));
+    }
+
+    public static Pos2 abs(Pos2 p) {
+        return new Pos2(Math.abs(p.x), Math.abs(p.y));
+    }
+
     public Pos2 inverse() {
         return new Pos2(-x, -y);
     }

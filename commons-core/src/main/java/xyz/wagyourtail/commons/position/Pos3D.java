@@ -12,6 +12,18 @@ public class Pos3D extends Pos2D {
         this.z = z;
     }
 
+    public static Pos3D max(Pos3D p1, Pos3D p2) {
+        return new Pos3D(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y), Math.max(p1.z, p2.z));
+    }
+
+    public static Pos3D min(Pos3D p1, Pos3D p2) {
+        return new Pos3D(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.min(p1.z, p2.z));
+    }
+
+    public static Pos3D abs(Pos3D p) {
+        return new Pos3D(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z));
+    }
+
     @Override
     public Pos3D inverse() {
         return new Pos3D(-this.x, -this.y, -this.z);
