@@ -11,6 +11,18 @@ open class Pos2(val x: Int, val y: Int) {
         return Pos2(-x, -y)
     }
 
+    open val up
+        get() = Pos2(this.x, this.y - 1)
+
+    open val down
+        get() = Pos2(this.x, this.y + 1)
+
+    open val left
+        get() = Pos2(this.x - 1, this.y)
+
+    open val right
+        get() = Pos2(this.x + 1, this.y)
+
     operator fun plus(other: Pos2): Pos2 {
         return Pos2(x + other.x, y + other.y)
     }

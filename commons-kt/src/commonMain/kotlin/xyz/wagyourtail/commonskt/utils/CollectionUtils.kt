@@ -101,3 +101,15 @@ fun <V> Iterable<IndexedValue<V?>>.filterNotNullValues(): List<IndexedValue<V>> 
 fun <K, V> Map<K, V?>.filterNotNullValues(): Map<K, V> = filterValues { it != null } as Map<K, V>
 
 inline fun <K, V, U> Map<K, V>.mapNotNullValues(mapper: (Map.Entry<K, V>) -> U?): Map<K, U> = mapValues(mapper).filterNotNullValues()
+
+fun <E> MutableList<E>.insertBefore(element: E, toAdd: E) {
+    val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    add(i, toAdd)
+}
+
+fun <E> MutableList<E>.insertBefore(element: E, vararg toAdd: E) {
+    val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    addAll(i, toAdd.toList())
+}

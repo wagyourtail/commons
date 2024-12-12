@@ -7,6 +7,8 @@ open class Pos2D(val x: Double, val y: Double) {
         val ZERO = Pos2D(0.0, 0.0)
     }
 
+    constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
+
     open operator fun unaryMinus(): Pos2D {
         return Pos2D(-x, -y)
     }

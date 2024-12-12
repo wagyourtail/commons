@@ -10,6 +10,8 @@ class Pos3D(x: Double, y: Double, val z: Double): Pos2D(x, y) {
         val ZERO = Pos3D(0.0, 0.0, 0.0)
     }
 
+    constructor(x: Number, y: Number, z: Number) : this(x.toDouble(), y.toDouble(), z.toDouble())
+
     override operator fun unaryMinus(): Pos3D {
         return Pos3D(-this.x, -this.y, -this.z)
     }

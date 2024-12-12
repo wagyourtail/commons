@@ -25,6 +25,22 @@ public class Pos2 {
         return new Pos2(Math.abs(p.x), Math.abs(p.y));
     }
 
+    public Pos2 up() {
+        return new Pos2(x, y - 1);
+    }
+
+    public Pos2 down() {
+        return new Pos2(x, y + 1);
+    }
+
+    public Pos2 left() {
+        return new Pos2(x - 1, y);
+    }
+
+    public Pos2 right() {
+        return new Pos2(x + 1, y);
+    }
+
     public Pos2 inverse() {
         return new Pos2(-x, -y);
     }

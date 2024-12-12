@@ -51,41 +51,41 @@ fun abs(pos: Pos3D): Pos3D {
 }
 
 @JvmName("maxPos2")
-fun Iterable<Pos2>.max() {
-    reduce { acc, pos2 -> max(acc, pos2) }
+fun Iterable<Pos2>.max(): Pos2 {
+    return reduce { acc, pos2 -> max(acc, pos2) }
 }
 
 @JvmName("minPos2")
-fun Iterable<Pos2>.min() {
-    reduce { acc, pos2 -> min(acc, pos2) }
+fun Iterable<Pos2>.min(): Pos2 {
+    return reduce { acc, pos2 -> min(acc, pos2) }
 }
 
 @JvmName("maxPos2D")
-fun Iterable<Pos2D>.max() {
-    reduce { acc, pos2D -> max(acc, pos2D) }
+fun Iterable<Pos2D>.max(): Pos2D {
+    return reduce { acc, pos2D -> max(acc, pos2D) }
 }
 
 @JvmName("minPos2D")
-fun Iterable<Pos2D>.min() {
-    reduce { acc, pos2D -> min(acc, pos2D) }
+fun Iterable<Pos2D>.min(): Pos2D {
+    return reduce { acc, pos2D -> min(acc, pos2D) }
 }
 
 @JvmName("maxPos3")
-fun Iterable<Pos3>.max() {
-    reduce { acc, pos3 -> max(acc, pos3) }
+fun Iterable<Pos3>.max(): Pos3 {
+    return reduce { acc, pos3 -> max(acc, pos3) }
 }
 
 @JvmName("minPos3")
-fun Iterable<Pos3>.min() {
-    reduce { acc, pos3 -> min(acc, pos3) }
+fun Iterable<Pos3>.min(): Pos3 {
+    return reduce { acc, pos3 -> min(acc, pos3) }
 }
 
 @JvmName("maxPos3D")
-fun Iterable<Pos3D>.max() {
-    reduce { acc, pos3D -> max(acc, pos3D) }
+fun Iterable<Pos3D>.max(): Pos3D {
+    return reduce { acc, pos3D -> max(acc, pos3D) }
 }
 
 @JvmName("minPos3D")
-fun Iterable<Pos3D>.min() {
-    reduce { acc, pos3D -> min(acc, pos3D) }
+fun Iterable<Pos3D>.min(): Pos3D {
+    return reduce { acc, pos3D -> min(acc, pos3D) }
 }

@@ -7,6 +7,24 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
         val ZERO = Pos3(0, 0, 0)
     }
 
+    override val up: Pos3
+        get() = Pos3(this.x, this.y - 1, this.z)
+
+    override val down: Pos3
+        get() = Pos3(this.x, this.y + 1, this.z)
+
+    override val left: Pos3
+        get() = Pos3(this.x - 1, this.y, this.z)
+
+    override val right: Pos3
+        get() = Pos3(this.x + 1, this.y, this.z)
+
+    val forward
+        get() = Pos3(this.x, this.y, this.z + 1)
+
+    val back
+        get() = Pos3(this.x, this.y, this.z - 1)
+
     override operator fun unaryMinus(): Pos3 {
         return Pos3(-this.x, -this.y, -this.z)
     }

@@ -24,6 +24,30 @@ public class Pos3 extends Pos2 {
         return new Pos3(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z));
     }
 
+    public Pos3 up() {
+        return new Pos3(x, y - 1, z);
+    }
+
+    public Pos3 down() {
+        return new Pos3(x, y + 1, z);
+    }
+
+    public Pos3 left() {
+        return new Pos3(x - 1, y, z);
+    }
+
+    public Pos3 right() {
+        return new Pos3(x + 1, y, z);
+    }
+
+    public Pos3 forward() {
+        return new Pos3(x, y, z + 1);
+    }
+
+    public Pos3 back() {
+        return new Pos3(x, y, z - 1);
+    }
+
     @Override
     public Pos3 inverse() {
         return new Pos3(-this.x, -this.y, -this.z);
