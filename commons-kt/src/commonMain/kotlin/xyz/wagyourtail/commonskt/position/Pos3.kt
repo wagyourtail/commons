@@ -25,6 +25,31 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
     val back
         get() = Pos3(this.x, this.y, this.z - 1)
 
+
+    operator fun rangeTo(pos: Pos3): Sequence<Pos3> {
+        return sequence {
+            for (z in z .. pos.z) {
+                for (y in y .. pos.y) {
+                    for (x in x .. pos.x) {
+                        yield(Pos3(x, y, z))
+                    }
+                }
+            }
+        }
+    }
+
+    operator fun rangeUntil(pos: Pos3): Sequence<Pos3> {
+        return sequence {
+            for (z in z ..< pos.z) {
+                for (y in y ..< pos.y) {
+                    for (x in x + 1 ..< x) {
+                        yield(Pos3(x, y, z))
+                    }
+                }
+            }
+        }
+    }
+
     override operator fun unaryMinus(): Pos3 {
         return Pos3(-this.x, -this.y, -this.z)
     }

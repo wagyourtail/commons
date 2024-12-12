@@ -23,6 +23,26 @@ open class Pos2(val x: Int, val y: Int) {
     open val right
         get() = Pos2(this.x + 1, this.y)
 
+    open operator fun rangeTo(pos: Pos2): Sequence<Pos2> {
+        return sequence {
+            for (y in y..pos.y) {
+                for (x in x..pos.x) {
+                    yield(Pos2(x, y))
+                }
+            }
+        }
+    }
+
+    open operator fun rangeUntil(pos: Pos2): Sequence<Pos2> {
+        return sequence {
+            for (y in y ..< pos.y) {
+                for (x in x + 1 ..< x) {
+                    yield(Pos2(x, y))
+                }
+            }
+        }
+    }
+
     operator fun plus(other: Pos2): Pos2 {
         return Pos2(x + other.x, y + other.y)
     }
