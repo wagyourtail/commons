@@ -80,6 +80,48 @@ class Pos3D(x: Double, y: Double, val z: Double): Pos2D(x, y) {
         return Pos3D(this.x / scalar, this.y / scalar, this.z / scalar)
     }
 
+    operator fun rem(other: Pos3D): Pos3D {
+        return Pos3D(x % other.x, y % other.y, z % other.z)
+    }
+
+    fun rem(x: Double, y: Double, z: Double): Pos3D {
+        return Pos3D(this.x % x, this.y % y, this.z % z)
+    }
+
+    override operator fun rem(scalar: Double): Pos3D {
+        return Pos3D(x % scalar, y % scalar, z % scalar)
+    }
+
+    infix fun mod(other: Pos3D): Pos3D {
+        var x = this.x % other.x
+        var y = this.y % other.y
+        var z = this.z % other.z
+        if (x < 0) x += other.x
+        if (y < 0) y += other.y
+        if (z < 0) z += other.z
+        return Pos3D(x, y, z)
+    }
+
+    fun mod(x: Double, y: Double, z: Double): Pos3D {
+        var x2 = this.x % x
+        var y2 = this.y % y
+        var z2 = this.z % z
+        if (x2 < 0) x2 += x
+        if (y2 < 0) y2 += y
+        if (z2 < 0) z2 += z
+        return Pos3D(x2, y2, z2)
+    }
+
+    override infix fun mod(scalar: Double): Pos3D {
+        var x = this.x % scalar
+        var y = this.y % scalar
+        var z = this.z % scalar
+        if (x < 0) x += scalar
+        if (y < 0) y += scalar
+        if (z < 0) z += scalar
+        return Pos3D(x, y, z)
+    }
+
     override fun toInt(): Pos3 {
         return Pos3(x.toInt(), y.toInt(), z.toInt())
     }

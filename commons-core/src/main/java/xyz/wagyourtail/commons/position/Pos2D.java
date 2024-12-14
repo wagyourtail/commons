@@ -93,6 +93,42 @@ public class Pos2D {
         return new Pos2D(x / scalar, y / scalar);
     }
 
+    public Pos2D rem(Pos2D other) {
+        return new Pos2D(x % other.x, y % other.y);
+    }
+
+    public Pos2D rem(double x, double y) {
+        return new Pos2D(this.x % x, this.y % y);
+    }
+
+    public Pos2D rem(double scalar) {
+        return new Pos2D(x % scalar, y % scalar);
+    }
+
+    public Pos2D mod(Pos2D other) {
+        double x = this.x % other.x;
+        double y = this.y % other.y;
+        if (x < 0) x += other.x;
+        if (y < 0) y += other.y;
+        return new Pos2D(x, y);
+    }
+
+    public Pos2D mod(double x, double y) {
+        double x2 = this.x % x;
+        double y2 = this.y % y;
+        if (x2 < 0) x2 += x;
+        if (y2 < 0) y2 += y;
+        return new Pos2D(x2, y2);
+    }
+
+    public Pos2D mod(double scalar) {
+        double x = this.x % scalar;
+        double y = this.y % scalar;
+        if (x < 0) x += scalar;
+        if (y < 0) y += scalar;
+        return new Pos2D(x, y);
+    }
+
     public Pos2 toInt() {
         return new Pos2((int) x, (int) y);
     }

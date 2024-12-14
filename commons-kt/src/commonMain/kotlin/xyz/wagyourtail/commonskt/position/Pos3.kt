@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.position
 
-import kotlin.math.*
+import kotlin.math.sqrt
 
 class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
     companion object {
@@ -100,6 +100,48 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
 
     override operator fun div(scalar: Int): Pos3 {
         return Pos3(this.x / scalar, this.y / scalar, this.z / scalar)
+    }
+
+    operator fun rem(other: Pos3): Pos3 {
+        return Pos3(x % other.x, y % other.y, z % other.z)
+    }
+
+    fun rem(x: Int, y: Int, z: Int): Pos3 {
+        return Pos3(this.x % x, this.y % y, this.z % z)
+    }
+
+    override operator fun rem(scalar: Int): Pos3 {
+        return Pos3(x % scalar, y % scalar, z % scalar)
+    }
+
+    infix fun mod(other: Pos3): Pos3 {
+        var x = this.x % other.x
+        var y = this.y % other.y
+        var z = this.z % other.z
+        if (x < 0) x += other.x
+        if (y < 0) y += other.y
+        if (z < 0) z += other.z
+        return Pos3(x, y, z)
+    }
+
+    fun mod(x: Int, y: Int, z: Int): Pos3 {
+        var x2 = this.x % x
+        var y2 = this.y % y
+        var z2 = this.z % z
+        if (x2 < 0) x2 += x
+        if (y2 < 0) y2 += y
+        if (z2 < 0) z2 += z
+        return Pos3(x2, y2, z2)
+    }
+
+    override infix fun mod(scalar: Int): Pos3 {
+        var x = this.x % scalar
+        var y = this.y % scalar
+        var z = this.z % scalar
+        if (x < 0) x += scalar
+        if (y < 0) y += scalar
+        if (z < 0) z += scalar
+        return Pos3(x, y, z)
     }
 
     override fun toDouble(): Pos3D {

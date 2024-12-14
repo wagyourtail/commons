@@ -105,6 +105,50 @@ public class Pos3 extends Pos2 {
         return new Pos3(this.x / scalar, this.y / scalar, this.z / scalar);
     }
 
+    public Pos3 rem(Pos3 other) {
+        return new Pos3(x % other.x, y % other.y, z % other.z);
+    }
+
+    public Pos3 rem(int x, int y, int z) {
+        return new Pos3(this.x % x, this.y % y, this.z % z);
+    }
+
+    @Override
+    public Pos3 rem(int scalar) {
+        return new Pos3(x % scalar, y % scalar, z % scalar);
+    }
+
+    public Pos3 mod(Pos3 other) {
+        int x = this.x % other.x;
+        int y = this.y % other.y;
+        int z = this.z % other.z;
+        if (x < 0) x += other.x;
+        if (y < 0) y += other.y;
+        if (z < 0) z += other.z;
+        return new Pos3(x, y, z);
+    }
+
+    public Pos3 mod(int x, int y, int z) {
+        int x2 = this.x % x;
+        int y2 = this.y % y;
+        int z2 = this.z % z;
+        if (x2 < 0) x2 += x;
+        if (y2 < 0) y2 += y;
+        if (z2 < 0) z2 += z;
+        return new Pos3(x2, y2, z2);
+    }
+
+    @Override
+    public Pos3 mod(int scalar) {
+        int x = this.x % scalar;
+        int y = this.y % scalar;
+        int z = this.z % scalar;
+        if (x < 0) x += scalar;
+        if (y < 0) y += scalar;
+        if (z < 0) z += scalar;
+        return new Pos3(x, y, z);
+    }
+
     @Override
     public Pos3D toDouble() {
         return new Pos3D(x, y, z);

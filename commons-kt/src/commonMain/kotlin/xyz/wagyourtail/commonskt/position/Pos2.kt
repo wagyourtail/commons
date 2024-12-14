@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.position
 
-import kotlin.math.*
+import kotlin.math.sqrt
 
 open class Pos2(val x: Int, val y: Int) {
     companion object {
@@ -89,6 +89,42 @@ open class Pos2(val x: Int, val y: Int) {
 
     open operator fun div(scalar: Int): Pos2 {
         return Pos2(x / scalar, y / scalar)
+    }
+
+    operator fun rem(other: Pos2): Pos2 {
+        return Pos2(x % other.x, y % other.y)
+    }
+
+    fun rem(x: Int, y: Int): Pos2 {
+        return Pos2(this.x % x, this.y % y)
+    }
+
+    open operator fun rem(scalar: Int): Pos2 {
+        return Pos2(x % scalar, y % scalar)
+    }
+
+    infix fun mod(other: Pos2): Pos2 {
+        var x = this.x % other.x
+        var y = this.y % other.y
+        if (x < 0) x += other.x
+        if (y < 0) y += other.y
+        return Pos2(x, y)
+    }
+
+    fun mod(x: Int, y: Int): Pos2 {
+        var x2 = this.x % x
+        var y2 = this.y % y
+        if (x2 < 0) x2 += x
+        if (y2 < 0) y2 += y
+        return Pos2(x2, y2)
+    }
+
+    open infix fun mod(scalar: Int): Pos2 {
+        var x = this.x % scalar
+        var y = this.y % scalar
+        if (x < 0) x += scalar
+        if (y < 0) y += scalar
+        return Pos2(x, y)
     }
 
     open fun toDouble(): Pos2D {
