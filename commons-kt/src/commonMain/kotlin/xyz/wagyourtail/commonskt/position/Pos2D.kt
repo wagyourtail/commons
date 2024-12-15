@@ -12,6 +12,9 @@ open class Pos2D(val x: Double, val y: Double) {
 
     constructor(x: Number, y: Number) : this(x.toDouble(), y.toDouble())
 
+    operator fun component1() = x
+    operator fun component2() = y
+
     open operator fun unaryMinus(): Pos2D {
         return Pos2D(-x, -y)
     }

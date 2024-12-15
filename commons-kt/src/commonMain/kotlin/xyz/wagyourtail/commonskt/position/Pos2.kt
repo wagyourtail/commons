@@ -7,6 +7,9 @@ open class Pos2(val x: Int, val y: Int) {
         val ZERO = Pos2(0, 0)
     }
 
+    operator fun component1() = x
+    operator fun component2() = y
+
     open operator fun unaryMinus(): Pos2 {
         return Pos2(-x, -y)
     }

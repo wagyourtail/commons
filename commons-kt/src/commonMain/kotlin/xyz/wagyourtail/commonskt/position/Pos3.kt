@@ -7,6 +7,8 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
         val ZERO = Pos3(0, 0, 0)
     }
 
+    operator fun component3() = z
+
     override val up: Pos3
         get() = Pos3(this.x, this.y - 1, this.z)
 
