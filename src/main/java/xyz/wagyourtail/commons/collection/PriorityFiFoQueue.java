@@ -2,200 +2,99 @@ package xyz.wagyourtail.commons.collection;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.AbstractQueue;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-public class PriorityFiFoQueue<E> implements Queue<E> {
-    volatile E currentTask;
-    final Map<Integer, List<E>> tasks = new HashMap<>();
-    final Set<E> taskSet = new HashSet<>();
-    final Function<E, Integer> priorityFunction;
+public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
+    private final PriorityQueue<Task> underlying = new PriorityQueue<>();    /**
+     * The comparator, or null if priority queue uses elements'
+     * natural ordering.
+     */
+    private final Comparator<? super E> comparator;
+    private int insertionOrder = 0;
 
-    public PriorityFiFoQueue(Function<E, Integer> priorityFunction) {
-        this.priorityFunction = priorityFunction;
+    public PriorityFiFoQueue(Comparator<? super E> comparator) {
+        this.comparator = comparator;
     }
 
-    @Override
-    public synchronized int size() {
-        return tasks.size();
+    public PriorityFiFoQueue() {
+        comparator = (a, b) -> ((Comparable<E>) a).compareTo(b);
     }
 
-    @Override
-    public synchronized boolean isEmpty() {
-        return tasks.isEmpty();
-    }
 
     @Override
-    public synchronized boolean contains(Object o) {
-        return taskSet.contains(o);
-    }
-
-    @NotNull
-    @Override
-    public synchronized Iterator<E> iterator() {
-        return taskSet.iterator();
-    }
-
-    @NotNull
-    @Override
-    public synchronized Object[] toArray() {
-        return taskSet.toArray();
-    }
-
-    @NotNull
-    @Override
-    public synchronized <T> T[] toArray(@NotNull T[] ts) {
-        return taskSet.toArray(ts);
-    }
-
-    @Override
-    public synchronized boolean add(E e) {
-        boolean wasEmpty = taskSet.isEmpty();
-        if (taskSet.add(e)) {
-            if (wasEmpty) {
-                currentTask = e;
+    public Iterator<E> iterator() {
+        Iterator<Task> underlyingIter = underlying.iterator();
+        return new Iterator<E>() {
+            @Override
+            public boolean hasNext() {
+                return underlyingIter.hasNext();
             }
-            tasks.computeIfAbsent(priorityFunction.apply(e), k -> new ArrayList<>()).add(e);
-            this.notifyAll();
-            return true;
-        }
-        return false;
-    }
 
-    @Override
-    public synchronized boolean remove(Object o) {
-        if (taskSet.remove(o)) {
-            int prio = priorityFunction.apply((E) o);
-            List<E> list = tasks.get(prio);
-            list.remove(o);
-            if (list.isEmpty()) {
-                tasks.remove(prio);
+            @Override
+            public E next() {
+                return underlyingIter.next().element;
             }
-            return true;
-        }
-        return false;
+        };
     }
 
     @Override
-    public synchronized boolean containsAll(@NotNull Collection<?> collection) {
-        return taskSet.containsAll(collection);
+    public int size() {
+        return underlying.size();
     }
 
     @Override
-    public synchronized boolean addAll(@NotNull Collection<? extends E> collection) {
-        boolean changed = false;
-        for (E e : collection) {
-            changed |= add(e);
-        }
-        return changed;
+    public boolean add(E e) {
+        return underlying.add(new Task(e, insertionOrder++));
     }
 
     @Override
-    public synchronized boolean removeAll(@NotNull Collection<?> collection) {
-        boolean changed = false;
-        for (Object o : collection) {
-            changed |= remove(o);
-        }
-        return changed;
-    }
-
-    @Override
-    public synchronized boolean retainAll(@NotNull Collection<?> collection) {
-        boolean changed = false;
-        for (Object o : taskSet) {
-            if (!collection.contains(o)) {
-                changed |= remove(o);
-            }
-        }
-        return changed;
-    }
-
-    @Override
-    public synchronized void clear() {
-        taskSet.clear();
-        tasks.clear();
-    }
-
-    @Override
-    public synchronized boolean offer(E e) {
-        return add(e);
-    }
-
-    @Override
-    public synchronized E remove() {
-        E e = currentTask;
-        if (e != null) {
-            remove(e);
-            currentTask = getLowestPrioItem();
-        }
-        return e;
+    public boolean offer(E e) {
+        return underlying.offer(new Task(e, insertionOrder++));
     }
 
     @Override
     public E poll() {
-        return remove();
-    }
-
-    public synchronized E pollWaiting() throws InterruptedException {
-        while (taskSet.isEmpty()) {
-            this.wait();
-        }
-        return remove();
-    }
-
-    public synchronized E pollWaiting(long timeout) throws InterruptedException {
-        long timeoutLeft = timeout;
-        while (taskSet.isEmpty() && timeoutLeft > 0) {
-            long start = System.currentTimeMillis();
-            this.wait(timeoutLeft);
-            timeoutLeft -= System.currentTimeMillis() - start;
-        }
-        return remove();
-    }
-
-    public synchronized E peekWaiting() throws InterruptedException {
-        if (taskSet.isEmpty()) {
-            this.wait();
-        }
-        return currentTask;
-    }
-
-    public synchronized E peekWaiting(long timeout) throws InterruptedException {
-        if (taskSet.isEmpty()) {
-            this.wait(timeout);
-        }
-        return currentTask;
+        Task t = underlying.poll();
+        return t == null ? null : t.element;
     }
 
     @Override
-    public synchronized E element() {
-        return currentTask;
+    public E peek() {
+        Task t = underlying.peek();
+        return t == null ? null : t.element;
     }
 
-    @Override
-    public synchronized E peek() {
-        return currentTask;
-    }
 
-    private synchronized E getLowestPrioItem() {
-        if (tasks.isEmpty()) {
-            return null;
+    private class Task implements Comparable<Task> {
+        private final E element;
+        private final int insertionOrder;
+
+        public Task(E element, int insertionOrder) {
+            this.element = element;
+            this.insertionOrder = insertionOrder;
         }
-        int lowestPrio = Integer.MAX_VALUE;
-        for (int prio : tasks.keySet()) {
-            if (prio < lowestPrio) {
-                lowestPrio = prio;
+
+        @Override
+        public int compareTo(@NotNull PriorityFiFoQueue<E>.Task o) {
+            int compare = comparator.compare(element, o.element);
+            if (compare == 0) {
+                return insertionOrder - o.insertionOrder;
             }
+            return compare;
         }
-        return tasks.get(lowestPrio).get(0);
+
     }
 
 }
