@@ -54,14 +54,20 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
             val rightChildIndex = 2 * currentIndex + 2
             var smallest = currentIndex
 
-            if (leftChildIndex < heap.size && (comparator.compare(heap[leftChildIndex], heap[smallest]) < 0 || 
-               (comparator.compare(heap[leftChildIndex], heap[smallest]) == 0 && fifo && insertionOrder[leftChildIndex] < insertionOrder[smallest]))) {
-                smallest = leftChildIndex
+            if (leftChildIndex < heap.size) {
+                val value = comparator.compare(heap[leftChildIndex], heap[smallest])
+                val isLess = value < 0 || (value == 0 && fifo && insertionOrder[leftChildIndex] < insertionOrder[smallest])
+                if (isLess) {
+                    smallest = leftChildIndex
+                }
             }
 
-            if (rightChildIndex < heap.size && (comparator.compare(heap[rightChildIndex], heap[smallest]) < 0 || 
-               (comparator.compare(heap[rightChildIndex], heap[smallest]) == 0 && fifo && insertionOrder[rightChildIndex] < insertionOrder[smallest]))) {
-                smallest = rightChildIndex
+            if (rightChildIndex < heap.size) {
+                val value = comparator.compare(heap[rightChildIndex], heap[smallest])
+                val isLess = value < 0 || (value == 0 && fifo && insertionOrder[rightChildIndex] < insertionOrder[smallest])
+                if (isLess) {
+                    smallest = rightChildIndex
+                }
             }
 
             if (smallest != currentIndex) {
