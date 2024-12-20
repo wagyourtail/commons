@@ -162,6 +162,14 @@ public class Pos3D extends Pos2D {
         return new Pos3((int) Math.round(x), (int) Math.round(y), (int) Math.round(z));
     }
 
+    public double distanceTo(Pos3D other) {
+        return Math.sqrt(distanceToSquared(other));
+    }
+
+    public double distanceToSquared(Pos3D other) {
+        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y) + (z - other.z) * (z - other.z);
+    }
+
     @Override
     public double magnitude() {
         return Math.sqrt(x * x + y * y + z * z);

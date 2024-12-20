@@ -133,12 +133,28 @@ public class Pos2 {
         return new Pos2D(x, y);
     }
 
+    public double distanceTo(Pos2 other) {
+        return Math.sqrt(distanceToSquared(other));
+    }
+
+    public int distanceToSquared(Pos2 other) {
+        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y);
+    }
+
+    public int manhattanDistanceTo(Pos2 other) {
+        return Math.abs(x - other.x) + Math.abs(y - other.y);
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y);
     }
 
     public int magnitudeSquared() {
         return x * x + y * y;
+    }
+
+    public int manhattanMagnitude() {
+        return Math.abs(x) + Math.abs(y);
     }
 
     public double dot(Pos2 other) {

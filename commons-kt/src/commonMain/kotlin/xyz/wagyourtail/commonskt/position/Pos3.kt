@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.position
 
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
@@ -150,6 +151,18 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
         return Pos3D(x.toDouble(), y.toDouble(), z.toDouble())
     }
 
+    fun distanceTo(other: Pos3): Double {
+        return sqrt(distanceToSquared(other).toDouble())
+    }
+
+    fun distanceToSquared(other: Pos3): Int {
+        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y) + (z - other.z) * (z - other.z)
+    }
+
+    fun manhattanDistanceTo(other: Pos3): Int {
+        return abs(x - other.x) + abs(y - other.y) + abs(z - other.z)
+    }
+
     override val magnitude: Double
         get() {
             return sqrt((x * x + y * y + z * z).toDouble())
@@ -159,6 +172,9 @@ class Pos3(x: Int, y: Int, val z: Int) : Pos2(x, y) {
         get() {
             return x * x + y * y + z * z
         }
+
+    override val manhattanMagnitude: Int
+        get() = abs(x) + abs(y) + abs(z)
 
     fun dot(other: Pos3): Double {
         return (super.dot(other) + z * other.z).toDouble()

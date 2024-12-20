@@ -145,6 +145,14 @@ public class Pos2D {
         return new Pos2((int) Math.round(x), (int) Math.round(y));
     }
 
+    public double distanceTo(Pos2D other) {
+        return Math.sqrt(distanceToSquared(other));
+    }
+
+    public double distanceToSquared(Pos2D other) {
+        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y);
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y);
     }
