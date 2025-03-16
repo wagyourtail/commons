@@ -7,7 +7,21 @@ plugins {
 }
 
 allprojects {
-    apply(plugin = "java-library")
+    if (!project.path.endsWith("-kt")) {
+        apply(plugin = "java-library")
+
+        java {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(8))
+            }
+            if (!project.path.endsWith("-kt")) {
+                withSourcesJar()
+                withJavadocJar()
+            }
+        }
+    } else {
+        apply(plugin = "base")
+    }
     apply(plugin = "maven-publish")
 
     group = project.properties["maven_group"] as String
@@ -17,27 +31,24 @@ allprojects {
         archivesName = project.name
     }
 
-    java {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(8))
-        }
-        if (project.name != "commons-kt") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-
     repositories {
         mavenCentral()
     }
 
     dependencies {
-        testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        if (!project.path.endsWith("-kt")) {
+            val testImplementation by configurations.getting
+            val testRuntimeOnly by configurations.getting
+
+            testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+            testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        }
     }
 
-    tasks.jar {
-        from(rootProject.file("LICENSE.md"))
+    if (!project.path.endsWith("-kt")) {
+        tasks.jar {
+            from(rootProject.file("LICENSE.md"))
+        }
     }
 
     if (project.name != "commons-kt") {
@@ -52,10 +63,10 @@ allprojects {
                 languageVersion.set(JavaLanguageVersion.of(17))
             }
         }
-    }
 
-    tasks.test {
-        useJUnitPlatform()
+        tasks.test {
+            useJUnitPlatform()
+        }
     }
 
     publishing {
@@ -74,7 +85,7 @@ allprojects {
             }
         }
         // kmp does it for us
-        if (project.name != "commons-kt" && project.name != "commons-gradle" && project.name != "commons-kvision") {
+        if (!project.path.endsWith("-kt")) {
             publications {
                 create<MavenPublication>("maven") {
                     groupId = project.group as String
