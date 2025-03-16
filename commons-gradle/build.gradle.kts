@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version libs.versions.kotlin.asProvider()
+    kotlin("jvm")
     `java-gradle-plugin`
 }
 

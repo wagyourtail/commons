@@ -6,15 +6,18 @@
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="/usr/share/java/gradle" />
+        <option name="gradleJvm" value="temurin-21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/commons-asm" />
+            <option value="$PROJECT_DIR$/commons-compress" />
             <option value="$PROJECT_DIR$/commons-compress-kt" />
             <option value="$PROJECT_DIR$/commons-core" />
             <option value="$PROJECT_DIR$/commons-gradle" />
             <option value="$PROJECT_DIR$/commons-java7" />
             <option value="$PROJECT_DIR$/commons-kt" />
+            <option value="$PROJECT_DIR$/commons-kvision" />
           </set>
         </option>
       </GradleProjectSettings>

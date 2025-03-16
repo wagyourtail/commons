@@ -1,13 +1,14 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
-    kotlin("multiplatform") version libs.versions.kotlin.asProvider()
-    idea
+    kotlin("multiplatform")
 }
 
 kotlin {
     jvmToolchain(8)
     jvm {
+
+        compilerOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict")
+        }
         withJava()
     }
     js {
@@ -24,6 +25,7 @@ kotlin {
             dependencies {
                 api(libs.jetbrains.annotations.kmp)
                 api(libs.kotlin.coroutines)
+                api(libs.kotlin.datetime)
             }
         }
         val commonTest by getting {

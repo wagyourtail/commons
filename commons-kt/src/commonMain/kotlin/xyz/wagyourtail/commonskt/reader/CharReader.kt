@@ -123,7 +123,6 @@ abstract class CharReader<T: CharReader<T>> {
         var next = take()
         while (next != null) {
             if (next == quote && escapes == 0) {
-                copy().take()
                 if (escapeDoubleQuote && peek() == quote) {
                     append('\\')
                     append(take()!!)
@@ -148,6 +147,13 @@ abstract class CharReader<T: CharReader<T>> {
         val it = take()
         if (it != char) throw IllegalArgumentException("Expected $char but got $it")
         return char
+    }
+
+    fun expect(value: String): String {
+        for (char in value) {
+            expect(char)
+        }
+        return value
     }
 
     fun takeCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }): String? {

@@ -278,6 +278,13 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return (char) next;
     }
 
+    public String expect(String value) {
+        for (char c : value.toCharArray()) {
+            expect(c);
+        }
+        return value;
+    }
+
     /* CSV Specific */
     public List<String> takeRemainingCol() {
         return takeRemainingCol(true, COMMA);

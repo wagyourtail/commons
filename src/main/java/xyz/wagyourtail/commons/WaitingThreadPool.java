@@ -25,6 +25,7 @@ public class WaitingThreadPool {
             freeThreads.addLast(t);
         }
         runTask(() -> {
+            Thread.currentThread().setName(name + " Root Thread");
             while (true) {
                 synchronized (freeThreads) {
                     try {

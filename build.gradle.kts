@@ -1,6 +1,7 @@
 import java.net.URI
 
 plugins {
+    kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     `java-library`
     `maven-publish`
 }
@@ -73,7 +74,7 @@ allprojects {
             }
         }
         // kmp does it for us
-        if (project.name != "commons-kt" && project.name != "commons-gradle") {
+        if (project.name != "commons-kt" && project.name != "commons-gradle" && project.name != "commons-kvision") {
             publications {
                 create<MavenPublication>("maven") {
                     groupId = project.group as String

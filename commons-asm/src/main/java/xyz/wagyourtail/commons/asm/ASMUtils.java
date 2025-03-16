@@ -13,6 +13,8 @@ import xyz.wagyourtail.commons.core.function.IOFunction;
 
 public class ASMUtils {
 
+    public static final int ASM_LATEST = Opcodes.ASM9;
+
     /**
      * bit-bashed is class, for speed
      */

@@ -10,11 +10,13 @@ import java.nio.channels.SeekableByteChannel;
 public class SeekableByteChannelInputStream extends InputStream {
 
     private final SeekableByteChannel channel;
-    private long pos = 0;
-    private long mark = 0;
+    private long pos;
+    private long mark;
 
-    public SeekableByteChannelInputStream(SeekableByteChannel channel) {
+    public SeekableByteChannelInputStream(SeekableByteChannel channel) throws IOException {
         this.channel = channel;
+        pos = channel.position();
+        mark = pos;
     }
 
     @Override

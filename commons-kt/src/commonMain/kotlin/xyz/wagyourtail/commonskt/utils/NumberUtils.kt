@@ -4,6 +4,18 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
 
+val Long.k
+    get() = this * 1000L
+
+val Long.m
+    get() = this.k * 1000L
+
+val Long.g
+    get() = this.m * 1000L
+
+val Long.t
+    get() = this.g * 1000L
+
 val Long.kb: Long
     get() = this * 1024L
 
@@ -16,6 +28,11 @@ val Long.gb: Long
 val Long.tb: Long
     get() = this.gb * 1024L
 
+val Int.k
+    get() = this * 1000
+
+val Int.m
+    get() = this.k * 1000
 
 val Int.kb: Int
     get() = this * 1024
@@ -35,3 +52,44 @@ fun Double.ceilToMultipleOf(value: Double) = ceil(this / value) * value
 fun Float.floorToMultipleOf(value: Float) = floor(this / value) * value
 
 fun Double.floorToMultipleOf(value: Double) = floor(this / value) * value
+
+fun Int.roundToMultipleOf(value: Int): Int {
+    return if (this % value < value / 2) {
+        this - this % value
+    } else {
+        this + value - this % value
+    }
+}
+
+fun Long.roundToMultipleOf(value: Long): Long {
+    return if (this % value < value / 2) {
+        this - this % value
+    } else {
+        this + value - this % value
+    }
+}
+
+fun Int.ceilToMultipleOf(value: Int): Int {
+    return if (this % value == 0) {
+        this
+    } else {
+        this + value - this % value
+    }
+}
+
+fun Long.ceilToMultipleOf(value: Long): Long {
+    return if (this % value == 0L) {
+        this
+    } else {
+        this + value - this % value
+    }
+}
+
+fun Int.floorToMultipleOf(value: Int): Int {
+    return this - this % value
+}
+
+fun Long.floorToMultipleOf(value: Long): Long {
+    return this - this % value
+}
+

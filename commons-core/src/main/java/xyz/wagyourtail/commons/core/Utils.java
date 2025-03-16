@@ -66,4 +66,12 @@ public class Utils {
         else return version + /* Opcodes.V1_2 = */ 46 - 2;
     }
 
+    public static int nextPowerOf2(int num) {
+        return Integer.highestOneBit(num - 1) << 1;
+    }
+
+    public static long nextPowerOf2(long num) {
+        return Long.highestOneBit(num - 1) << 1;
+    }
+
 }

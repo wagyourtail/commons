@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commons.core.data;
 
 import org.jetbrains.annotations.VisibleForTesting;
+import xyz.wagyourtail.commons.core.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -8,13 +9,14 @@ import java.nio.channels.SeekableByteChannel;
 import java.util.Arrays;
 
 public class SeekableInMemoryByteChannel implements SeekableByteChannel {
-    private static final int DEFAULT_SIZE = 8096;
     private byte[] buffer;
     private int position;
     private int size;
 
     public SeekableInMemoryByteChannel() {
-        this(DEFAULT_SIZE);
+        buffer = new byte[0];
+        position = 0;
+        size = 0;
     }
 
     public SeekableInMemoryByteChannel(int size) {
@@ -76,8 +78,14 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
         return size;
     }
 
+    /**
+     * Changes the size of the channel
+     *
+     * @param size The new size, a non-negative byte count
+     * @return self for chaining
+     */
     @Override
-    public SeekableByteChannel truncate(long size) throws IOException {
+    public SeekableByteChannel truncate(long size) {
         if (size < 0 || size > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Size must be between 0 and Integer.MAX_VALUE");
         }
@@ -87,6 +95,20 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
         if (position > size) {
             this.position = (int) size;
         }
+        return this;
+    }
+
+    /**
+     * actually truncates the underlying buffer
+     * @param size The new size, a non-negative byte count
+     * @return self for chaining
+     */
+    public SeekableByteChannel hardTruncate(long size) {
+        if (size < 0 || size > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Size must be between 0 and Integer.MAX_VALUE");
+        }
+        truncate(size);
+        buffer = Arrays.copyOf(buffer, (int) size);
         return this;
     }
 
@@ -101,15 +123,16 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
     }
 
     public void expand(int wantedSize) throws IOException {
-        int size = nextPowerOf2(wantedSize);
+        if (wantedSize < buffer.length) {
+            size = wantedSize;
+        }
+        int size = Utils.nextPowerOf2(wantedSize);
         if (size < 0) {
             throw new IOException("attempted to expand greater than signed 32 bit limit");
         }
         buffer = Arrays.copyOf(buffer, size);
     }
 
-    private int nextPowerOf2(int num) {
-        return Integer.highestOneBit(num - 1) << 1;
-    }
+
 
 }

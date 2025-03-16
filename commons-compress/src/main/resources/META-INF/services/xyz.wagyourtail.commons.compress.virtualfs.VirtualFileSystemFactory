@@ -1,0 +1,10 @@
+xyz.wagyourtail.commons.compress.virtualfs.impl.DirectoryFileSystem$DirectoryFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.archive.SevenZArchiveFileSystem$SevenZArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.archive.TarArchiveFileSystem$TarArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.archive.ZipArchiveFileSystem$ZipArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.BZip2ArchiveFileSystem$BZip2ArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.GZipArchiveFileSystem$GZipArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.LZMAArchiveFileSystem$LZMAArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.Pack200ArchiveFileSystem$Pack200ArchiveFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.XZArchiveFileSystem$XZArchiveFileSystemFactory
+xyz.wagyourtail.commons.compress.virtualfs.impl.single.ZStandardArchiveFileSystem$ZStandardArchiveFileSystemFactory

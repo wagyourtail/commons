@@ -1,9 +1,22 @@
 [versions]
 asm = "9.7"
-kotlin = "2.0.20"
+kotlin = "2.1.10"
+
 jb_annotations = "24.1.0"
+
+commons-io = "2.18.0"
+tika = "3.1.0"
+
 apache_commons_compress = "1.26.2"
-kotlin_coroutines = "1.9.0-RC"
+xz = "1.10"
+zstd = "1.5.7-1"
+
+kotlin_datetime = "0.6.2"
+kotlin_coroutines = "1.10.1"
+jvm_downgrader = "1.2.2"
+
+kvision = "8.2.0"
+ktor = "3.1.0"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -12,10 +25,51 @@ asm_util = { module = "org.ow2.asm:asm-util", version.ref = "asm" }
 asm_analysis = { module = "org.ow2.asm:asm-analysis", version.ref = "asm" }
 asm_tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 
+jvm_downgrader = { module = "xyz.wagyourtail.jvmdowngrader:jvmdowngrader", version.ref = "jvm_downgrader" }
+
 jetbrains_annotations = { module = "org.jetbrains:annotations", version.ref = "jb_annotations" }
 jetbrains_annotations_j5 = { module = "org.jetbrains:annotations-java5", version.ref = "jb_annotations" }
 jetbrains_annotations_kmp = { module = "com.sschr15.annotations:jb-annotations-kmp", version.ref = "jb_annotations" }
 
+commons_io = { module = "commons-io:commons-io", version.ref = "commons_io" }
+tika_core = { module = "org.apache.tika:tika-core", version.ref = "tika" }
+tika_parsers = { module = "org.apache.tika:tika-parsers", version.ref = "tika" }
+
 appache_commons_compress = { module = "org.apache.commons:commons-compress", version.ref = "apache_commons_compress" }
+xz = { module = "org.tukaani:xz", version.ref = "xz" }
+zstd = { module = "com.github.luben:zstd-jni", version.ref = "zstd" }
 
 kotlin_coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin_coroutines" }
+kotlin_datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlin_datetime" }
+
+kvision_server_ktor_koin = { module = "io.kvision:kvision-server-ktor-koin", version.ref = "kvision" }
+
+kvision = { module = "io.kvision:kvision", version.ref = "kvision" }
+kvision-bootstrap = { module = "io.kvision:kvision-bootstrap", version.ref = "kvision" }
+kvision-tom-select = { module = "io.kvision:kvision-tom-select", version.ref = "kvision" }
+kvision-bootstrap-upload = { module = "io.kvision:kvision-bootstrap-upload", version.ref = "kvision" }
+kvision-toastify = { module = "io.kvision:kvision-toastify", version.ref = "kvision" }
+kvision-fontawesome = { module = "io.kvision:kvision-fontawesome", version.ref = "kvision" }
+kvision-pace = { module = "io.kvision:kvision-pace", version.ref = "kvision" }
+kvision-tabulator = { module = "io.kvision:kvision-tabulator", version.ref = "kvision" }
+kvision-state = { module = "io.kvision:kvision-state", version.ref = "kvision" }
+kvision-redux-kotlin = { module = "io.kvision:kvision-redux-kotlin", version.ref = "kvision" }
+kvision-react = { module = "io.kvision:kvision-react", version.ref = "kvision" }
+kvision-routing-navigo = { module = "io.kvision:kvision-routing-navigo", version.ref = "kvision" }
+kvision-chart = { module = "io.kvision:kvision-chart", version.ref = "kvision" }
+
+ktor_server = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor_server_auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktor_server_compression = { module = "io.ktor:ktor-server-compression", version.ref = "ktor" }
+ktor_server_caching_headers = { module = "io.ktor:ktor-server-caching-headers", version.ref = "ktor" }
+
+ktor_client_core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor_client_cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor_client_encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
+ktor_client_content_negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+
+ktor_serialization_kotlinx_json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+[plugins]
+jvm_downgrader = { id = "xyz.wagyourtail.jvmdowngrader", version.ref = "jvm_downgrader" }
+kvision = { id = "io.kvision", version.ref = "kvision" }
