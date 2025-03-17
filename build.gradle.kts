@@ -38,10 +38,18 @@ allprojects {
     dependencies {
         if (!project.path.endsWith("-kt")) {
             val testImplementation by configurations.getting
+            val testCompileOnly by configurations.getting
             val testRuntimeOnly by configurations.getting
+            val testAnnotationProcessor by configurations.getting
+
+            compileOnly(rootProject.libs.lombok)
+            annotationProcessor(rootProject.libs.lombok)
 
             testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
             testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+            testCompileOnly(rootProject.libs.lombok)
+            testAnnotationProcessor(rootProject.libs.lombok)
         }
     }
 

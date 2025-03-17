@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core;
 
+import lombok.SneakyThrows;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
 import java.io.ByteArrayOutputStream;
@@ -12,6 +13,8 @@ import java.net.URLStreamHandler;
 
 public class Utils {
 
+    private Utils() {}
+
     public static byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buffer = new byte[8192];
@@ -22,8 +25,9 @@ public class Utils {
         return out.toByteArray();
     }
 
-    public static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-        throw (T) t;
+    @SneakyThrows
+    public static void sneakyThrow(Throwable t) {
+        throw t;
     }
 
     public static URL bufferURL(String name, final IOSupplier<InputStream> inputStreamSupplier) throws MalformedURLException {

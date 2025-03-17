@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
 
     Map<VirtualFile, SeekableByteChannel> pendingWrites = new HashMap<>();
     private volatile boolean read = false;
+    @Getter
     private boolean closed = false;
 
     protected final FileSystemChangeListeners listeners = new FileSystemChangeListeners();
@@ -156,10 +158,6 @@ public abstract class VirtualFileSystem implements AutoCloseable {
         this.files.clear();
         this.directories.clear();
         this.closed = true;
-    }
-
-    public boolean isClosed() {
-        return this.closed;
     }
 
     public SeekableByteChannel write() throws IOException {

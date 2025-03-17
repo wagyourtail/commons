@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs.file;
 
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
+@Getter
 public class PathFile extends VirtualFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PathFile.class);
@@ -24,10 +26,6 @@ public class PathFile extends VirtualFile {
     public PathFile(Path path) {
         super((VirtualFileSystem) null, path.toAbsolutePath().toString());
         this.path = path;
-    }
-
-    public Path getPath() {
-        return this.path;
     }
 
     @Override

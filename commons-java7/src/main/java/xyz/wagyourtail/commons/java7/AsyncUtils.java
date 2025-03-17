@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.java7;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.function.IOConsumer;
@@ -27,6 +28,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AsyncUtils {
     // basically a fork-join pool similar to the commonPool, since java 7 doesn't include it.
     private static final ForkJoinPool pool = new ForkJoinPool(Math.min(Math.max(1, Runtime.getRuntime().availableProcessors() - 1), Short.MAX_VALUE), ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
+
+    private AsyncUtils() {}
 
     @SafeVarargs
     public static <T> Future<List<T>> waitForFutures(Future<T>... futures) {
@@ -80,14 +83,13 @@ public class AsyncUtils {
         final Queue<Future<Void>> futures = new ArrayDeque<>();
         for (final T path : paths) {
             futures.add(pool.submit(new Runnable() {
+
                 @Override
+                @SneakyThrows
                 public void run() {
-                    try {
-                        fileVisitor.accept(path);
-                    } catch (IOException e) {
-                        Utils.<RuntimeException>sneakyThrow(e);
-                    }
+                    fileVisitor.accept(path);
                 }
+
             }, (Void) null));
         }
         return (Future) waitForFutures(futures);
@@ -116,16 +118,17 @@ public class AsyncUtils {
                     return FileVisitResult.CONTINUE;
                 }
                 futures.add(pool.submit(new Runnable() {
+
                     @Override
+                    @SneakyThrows
                     public void run() {
                         try {
                             visitPathsAsync(dir, folderVisitor, fileVisitor).get();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
-                        } catch (ExecutionException | IOException e) {
-                            Utils.<RuntimeException>sneakyThrow(e);
                         }
                     }
+
                 }, (Void) null));
                 return FileVisitResult.SKIP_SUBTREE;
             }
@@ -133,14 +136,13 @@ public class AsyncUtils {
             @Override
             public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) {
                 futures.add(pool.submit(new Runnable() {
+
                     @Override
+                    @SneakyThrows
                     public void run() {
-                        try {
-                            fileVisitor.accept(file);
-                        } catch (IOException e) {
-                            Utils.<RuntimeException>sneakyThrow(e);
-                        }
+                        fileVisitor.accept(file);
                     }
+
                 }, (Void) null));
                 return FileVisitResult.CONTINUE;
             }

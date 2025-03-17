@@ -16,6 +16,8 @@ import java.util.zip.ZipOutputStream;
 
 public class PathUtils {
 
+    private PathUtils() {}
+
     public static void deleteRecursively(Path path) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override

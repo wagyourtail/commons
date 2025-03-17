@@ -76,7 +76,7 @@ public class ZipArchiveFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    public long getSize(VirtualFile fi) throws IOException {
+    public long getSize(VirtualFile fi) {
         ZipArchiveEntry entry = this.fileHeaders.get(fi);
         return entry.getSize();
     }

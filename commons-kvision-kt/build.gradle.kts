@@ -1,6 +1,6 @@
 plugins {
     kotlin("multiplatform")
-    alias(libs.plugins.kvision)
+    alias(kvisionLibs.plugins.kvision)
 }
 
 kotlin {
@@ -14,7 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":commons-kt"))
-                api(libs.kvision.server.ktor.koin)
+                api(kvisionLibs.kvision.server.ktor.koin)
                 api(libs.kotlin.datetime)
             }
         }
@@ -26,8 +26,8 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
-                api(libs.kvision)
-                api(libs.kvision.bootstrap)
+                api(kvisionLibs.kvision)
+                api(kvisionLibs.kvision.bootstrap)
             }
         }
         val jsTest by getting {

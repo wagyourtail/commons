@@ -15,6 +15,8 @@ public class ASMUtils {
 
     public static final int ASM_LATEST = Opcodes.ASM9;
 
+    private ASMUtils() {}
+
     /**
      * bit-bashed is class, for speed
      */
@@ -64,6 +66,7 @@ public class ASMUtils {
     /**
      * helper function to get enum value
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T extends Enum<T>> T enumValueOf(String desc, String value) throws ClassNotFoundException {
         return (T) Enum.valueOf((Class<Enum>) Class.forName(Type.getType(desc).getClassName(), true, ASMUtils.class.getClassLoader()), value);
     }
@@ -71,6 +74,7 @@ public class ASMUtils {
     /**
      * helper function to get enum value
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T extends Enum<T>> T enumValueOf(String desc, String value, ClassLoader loader) throws ClassNotFoundException {
         return (T) Enum.valueOf((Class<Enum>) Class.forName(Type.getType(desc).getClassName(), true, loader), value);
     }

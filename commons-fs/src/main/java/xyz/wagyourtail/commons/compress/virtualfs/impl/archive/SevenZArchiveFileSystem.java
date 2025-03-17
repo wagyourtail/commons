@@ -69,13 +69,13 @@ public class SevenZArchiveFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    public long getSize(VirtualFile fi) throws IOException {
+    public long getSize(VirtualFile fi) {
         SevenZArchiveEntry entry = this.fileHeaders.get(fi);
         return entry.getSize();
     }
 
     @Override
-    public long getCompressedSize(VirtualFile fi) throws IOException {
+    public long getCompressedSize(VirtualFile fi) {
         return -1;
     }
 

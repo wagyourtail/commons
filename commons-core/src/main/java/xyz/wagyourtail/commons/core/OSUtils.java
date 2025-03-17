@@ -8,6 +8,8 @@ public class OSUtils {
     public static String OSX = "osx";
     public static String UNKNOWN = "unknown";
 
+    private OSUtils() {}
+
     public static String getOsName() {
         return System.getProperty("os.name");
     }

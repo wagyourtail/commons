@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.asm.writer;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import xyz.wagyourtail.commons.asm.info.ClassInfo;
@@ -65,17 +66,13 @@ public class ASMClassWriter extends ClassWriter {
     }
 
     @Nullable
+    @SneakyThrows
     public ClassInfo getClassInfo(String name) {
-        try {
-            ClassInfo ci = infoRetriever.apply(name);
-            if (ci == null) {
-                throw new IllegalArgumentException("Class " + name + " not found");
-            }
-            return ci;
-        } catch (IOException e) {
-            Utils.<RuntimeException>sneakyThrow(e);
-            return null;
+        ClassInfo ci = infoRetriever.apply(name);
+        if (ci == null) {
+            throw new IllegalArgumentException("Class " + name + " not found");
         }
+        return ci;
     }
 
     public List<ClassInfo> getSuperTypes(ClassInfo type) {

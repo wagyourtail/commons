@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.reader;
 
+import lombok.SneakyThrows;
 import xyz.wagyourtail.commons.core.Utils;
 
 import java.io.IOException;
@@ -20,13 +21,10 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     }
 
     @Override
+    @SneakyThrows
     public int take() {
         int character = nextChar;
-        try {
-            nextChar = reader.read();
-        } catch (IOException e) {
-            Utils.<RuntimeException>sneakyThrow(e);
-        }
+        nextChar = reader.read();
         return character;
     }
 
@@ -36,22 +34,16 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     }
 
     @Override
+    @SneakyThrows
     public void mark() {
-        try {
-            reader.mark(-1);
-        } catch (IOException e) {
-            Utils.<RuntimeException>sneakyThrow(e);
-        }
+        reader.mark(-1);
     }
 
     @Override
+    @SneakyThrows
     public void reset() {
-        try {
-            reader.reset();
-            nextChar = reader.read();
-        } catch (IOException e) {
-            Utils.<RuntimeException>sneakyThrow(e);
-        }
+        reader.reset();
+        nextChar = reader.read();
     }
 
 }

@@ -2,6 +2,8 @@ package xyz.wagyourtail.commons.core;
 
 public class StringUtils {
 
+    private StringUtils() {}
+
     public static int count(String str, char c) {
         int count = 0;
         for (char ch : str.toCharArray()) {

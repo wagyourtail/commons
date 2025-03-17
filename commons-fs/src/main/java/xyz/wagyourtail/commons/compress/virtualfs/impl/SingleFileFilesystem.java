@@ -13,7 +13,7 @@ public abstract class SingleFileFilesystem extends VirtualFileSystem {
     }
 
     @Override
-    protected Map<String, VirtualFile> resolveFiles() throws IOException {
+    protected Map<String, VirtualFile> resolveFiles() {
         String name;
         int last = this.getNormalizedFileName().lastIndexOf('.');
         if (last == -1) {

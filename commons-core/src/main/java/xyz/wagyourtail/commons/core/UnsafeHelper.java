@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 
 public class UnsafeHelper {
 
+    private UnsafeHelper() {}
+
     public static Unsafe getUnsafe() {
         try {
             Field f = Unsafe.class.getDeclaredField("theUnsafe");

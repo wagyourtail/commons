@@ -46,7 +46,7 @@ public class TarArchiveFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    protected Map<String, VirtualFile> resolveFiles() throws IOException {
+    protected Map<String, VirtualFile> resolveFiles() {
         Map<String, VirtualFile> files = new HashMap<>();
         for (TarArchiveEntry entry : this.tar.getEntries()) {
             String path = entry.getName();
@@ -68,13 +68,13 @@ public class TarArchiveFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    public long getSize(VirtualFile fi) throws IOException {
+    public long getSize(VirtualFile fi) {
         TarArchiveEntry entry = this.fileHeaders.get(fi);
         return entry.getRealSize();
     }
 
     @Override
-    public long getCompressedSize(VirtualFile fi) throws IOException {
+    public long getCompressedSize(VirtualFile fi) {
         TarArchiveEntry entry = this.fileHeaders.get(fi);
         return entry.getRealSize();
     }

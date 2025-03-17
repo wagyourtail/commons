@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.logger;
 
+import lombok.SneakyThrows;
 import xyz.wagyourtail.commons.core.Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -66,6 +67,7 @@ public abstract class Logger {
         log(Level.ERROR, message, throwable);
     }
 
+    @SneakyThrows
     public void wrapPrintStream(Level level, StreamWrap ps) {
         if (isLevel(level)) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -73,8 +75,6 @@ public abstract class Logger {
                 ps.writeTo(ps2);
                 String str = baos.toString(StandardCharsets.UTF_8.name());
                 log(level, str);
-            } catch (UnsupportedEncodingException e) {
-                Utils.<RuntimeException>sneakyThrow(e);
             }
         }
     }

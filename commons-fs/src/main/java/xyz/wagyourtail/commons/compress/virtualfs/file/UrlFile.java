@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs.file;
 
+import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +60,10 @@ public class UrlFile extends VirtualFile {
     }
 
     @Override
+    @SneakyThrows
     public boolean equals(Object obj) {
         if (obj instanceof UrlFile) {
-            return this.url.equals(((UrlFile) obj).url);
+            return this.url.toURI().equals(((UrlFile) obj).url.toURI());
         }
         return false;
     }
