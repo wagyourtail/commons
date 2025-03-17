@@ -152,7 +152,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() throws IOException {
         this.files.clear();
         this.directories.clear();
         this.closed = true;

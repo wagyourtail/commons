@@ -88,7 +88,7 @@ public class ZipArchiveFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() throws IOException {
         super.close();
         this.zf.close();
     }

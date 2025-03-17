@@ -97,6 +97,12 @@ public class SevenZArchiveFileSystem extends VirtualFileSystem {
         SeekableByteChannelUtils.transferTo(buffer, os);
     }
 
+    @Override
+    public synchronized void close() throws IOException {
+        super.close();
+        this.sevenZ.close();
+    }
+
     public static class SevenZArchiveFileSystemFactory extends VirtualFileSystemFactory<SevenZArchiveFileSystem> {
 
         public String[] getValidMimes() {

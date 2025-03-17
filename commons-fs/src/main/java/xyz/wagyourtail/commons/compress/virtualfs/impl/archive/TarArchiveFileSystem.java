@@ -92,6 +92,11 @@ public class TarArchiveFileSystem extends VirtualFileSystem {
         writer.close();
     }
 
+    @Override
+    public synchronized void close() throws IOException {
+        super.close();
+        this.tar.close();
+    }
 
     public static class TarArchiveFileSystemFactory extends VirtualFileSystemFactory<TarArchiveFileSystem> {
         @Override

@@ -2,6 +2,16 @@ package xyz.wagyourtail.commons.core;
 
 public class StringUtils {
 
+    public static int count(String str, char c) {
+        int count = 0;
+        for (char ch : str.toCharArray()) {
+            if (ch == c) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public static String translateEscapes(String str) {
         return translateEscapes(str, false);
     }
