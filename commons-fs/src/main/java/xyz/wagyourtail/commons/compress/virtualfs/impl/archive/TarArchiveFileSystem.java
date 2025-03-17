@@ -117,6 +117,7 @@ public class TarArchiveFileSystem extends VirtualFileSystem {
             writer.close();
             return new TarArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

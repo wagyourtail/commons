@@ -25,7 +25,8 @@ allprojects {
     apply(plugin = "maven-publish")
 
     group = project.properties["maven_group"] as String
-    version = if (project.hasProperty("version_snapshot")) project.properties["version"] as String + "-SNAPSHOT" else project.properties["version"] as String
+    version =
+        if (project.hasProperty("version_snapshot")) project.properties["version"] as String + "-SNAPSHOT" else project.properties["version"] as String
 
     base {
         archivesName = project.name

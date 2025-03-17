@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unused")
 public class StringHashTrie implements Collection<String> {
-    private Map<String, StringHashTrie> children = new HashMap<>();
     private final Set<String> leafs = new HashSet<>();
+    private Map<String, StringHashTrie> children = new HashMap<>();
     private int keyLength;
     private StringHashTrie parent;
     private String key;

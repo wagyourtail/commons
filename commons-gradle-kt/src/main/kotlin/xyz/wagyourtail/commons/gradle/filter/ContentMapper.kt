@@ -1,7 +1,9 @@
 package xyz.wagyourtail.commons.gradle.filter
 
 import xyz.wagyourtail.commonskt.properties.MustSet
-import java.io.*
+import java.io.FilterReader
+import java.io.InputStream
+import java.io.Reader
 import java.nio.charset.StandardCharsets
 
 class ContentMapper(input: Reader) : FilterReader(input) {

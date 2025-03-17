@@ -14,7 +14,10 @@ import org.w3c.dom.events.MouseEvent
 /**
  * Easier table generation with less code
  */
-class BetterTable(className: String? = null, val selectRow: Boolean = true) : CustomTag("table", className = className + " table table-bordered table-striped table-hover") {
+class BetterTable(className: String? = null, val selectRow: Boolean = true) : CustomTag(
+    "table",
+    className = className + " table table-bordered table-striped table-hover"
+) {
 
     val activeRow = ClearableObservableValue<Any?>(null)
 
@@ -46,13 +49,18 @@ class BetterTable(className: String? = null, val selectRow: Boolean = true) : Cu
 
     }
 
-    inner class BetterTableRow(val data: Any? = null, className: String? = null) : CustomTag("tr", className = className) {
+    inner class BetterTableRow(val data: Any? = null, className: String? = null) : CustomTag(
+        "tr",
+        className = className
+    ) {
 
         init {
             if (this@BetterTable.selectRow) {
                 onClick {
                     singleRender {
-                        for (child in this@BetterTable.getChildren().filterIsInstance<BetterTableBody>().flatMap { (it as Container).getChildren() }) {
+                        for (child in this@BetterTable.getChildren()
+                            .filterIsInstance<BetterTableBody>()
+                            .flatMap { (it as Container).getChildren() }) {
                             child.removeCssClass("table-active")
                         }
                         addCssClass("table-active")
@@ -107,6 +115,7 @@ class BetterTable(className: String? = null, val selectRow: Boolean = true) : Cu
             }
 
         }
+
         inner class BetterTableCell(value: String, className: String? = null) : CustomTag("td", className = className) {
             init {
                 +(value)

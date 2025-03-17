@@ -6,7 +6,7 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
     private var orderCounter = 0
 
     companion object {
-        operator fun <T: Comparable<T>> invoke(fifo: Boolean = false) = PriorityQueue(fifo, Comparable<T>::compareTo)
+        operator fun <T : Comparable<T>> invoke(fifo: Boolean = false) = PriorityQueue(fifo, Comparable<T>::compareTo)
     }
 
     fun add(element: T) {
@@ -56,7 +56,8 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
 
             if (leftChildIndex < heap.size) {
                 val value = comparator.compare(heap[leftChildIndex], heap[smallest])
-                val isLess = value < 0 || (value == 0 && fifo && insertionOrder[leftChildIndex] < insertionOrder[smallest])
+                val isLess =
+                    value < 0 || (value == 0 && fifo && insertionOrder[leftChildIndex] < insertionOrder[smallest])
                 if (isLess) {
                     smallest = leftChildIndex
                 }
@@ -64,7 +65,8 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
 
             if (rightChildIndex < heap.size) {
                 val value = comparator.compare(heap[rightChildIndex], heap[smallest])
-                val isLess = value < 0 || (value == 0 && fifo && insertionOrder[rightChildIndex] < insertionOrder[smallest])
+                val isLess =
+                    value < 0 || (value == 0 && fifo && insertionOrder[rightChildIndex] < insertionOrder[smallest])
                 if (isLess) {
                     smallest = rightChildIndex
                 }
@@ -90,13 +92,14 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
     }
 }
 
-fun <T> priorityQueueOf(fifo: Boolean = false, comparator: Comparator<T>, vararg elements: T) = PriorityQueue(fifo, comparator).also {
-    for (element in elements) {
-        it.add(element)
+fun <T> priorityQueueOf(fifo: Boolean = false, comparator: Comparator<T>, vararg elements: T) =
+    PriorityQueue(fifo, comparator).also {
+        for (element in elements) {
+            it.add(element)
+        }
     }
-}
 
-fun <T: Comparable<T>> priorityQueueOf(fifo: Boolean = false, vararg elements: T) = PriorityQueue<T>(fifo).also {
+fun <T : Comparable<T>> priorityQueueOf(fifo: Boolean = false, vararg elements: T) = PriorityQueue<T>(fifo).also {
     for (element in elements) {
         it.add(element)
     }

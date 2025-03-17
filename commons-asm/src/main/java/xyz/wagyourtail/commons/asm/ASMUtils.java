@@ -7,15 +7,16 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
-import xyz.wagyourtail.commons.asm.writer.ASMClassWriter;
 import xyz.wagyourtail.commons.asm.info.ClassInfo;
+import xyz.wagyourtail.commons.asm.writer.ASMClassWriter;
 import xyz.wagyourtail.commons.core.function.IOFunction;
 
 public class ASMUtils {
 
     public static final int ASM_LATEST = Opcodes.ASM9;
 
-    private ASMUtils() {}
+    private ASMUtils() {
+    }
 
     /**
      * bit-bashed is class, for speed

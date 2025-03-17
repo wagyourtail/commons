@@ -2,7 +2,8 @@ package xyz.wagyourtail.commons.core;
 
 public class StringUtils {
 
-    private StringUtils() {}
+    private StringUtils() {
+    }
 
     public static int count(String str, char c) {
         int count = 0;
@@ -22,7 +23,7 @@ public class StringUtils {
         if (!str.contains("\\")) {
             return str;
         }
-        StringBuilder sb =  new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         int i = 0;
         while (i < str.length()) {
             char c = str.charAt(i++);
@@ -65,7 +66,8 @@ public class StringUtils {
                         sb.append(Character.toChars(Integer.parseInt(octal.toString(), 8)));
                         break;
                     case 'u':
-                        if (i + 4 > str.length()) throw new IllegalArgumentException("Invalid unicode escape, hit end of string");
+                        if (i + 4 > str.length())
+                            throw new IllegalArgumentException("Invalid unicode escape, hit end of string");
                         String hex = str.substring(i, i + 4);
                         sb.append(Character.toChars(Integer.parseInt(hex, 16)));
                         i += 4;

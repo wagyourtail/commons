@@ -9,7 +9,7 @@ import kotlinx.browser.window
  * Allows for virtual scrolling
  * which makes sites not freeze when there are a lot of rows
  */
-class VirtualScrollWrapper<T: SimplePanel>(
+class VirtualScrollWrapper<T : SimplePanel>(
     private val scrollElement: SimplePanel,
     private val insertElement: T,
     private val above: SimplePanel,

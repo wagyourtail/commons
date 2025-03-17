@@ -3,21 +3,13 @@ package xyz.wagyourtail.commons.collection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractQueue;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Function;
 
 public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
-    private final PriorityQueue<Task> underlying = new PriorityQueue<>();    /**
+    private final PriorityQueue<Task> underlying = new PriorityQueue<>();
+    /**
      * The comparator, or null if priority queue uses elements'
      * natural ordering.
      */

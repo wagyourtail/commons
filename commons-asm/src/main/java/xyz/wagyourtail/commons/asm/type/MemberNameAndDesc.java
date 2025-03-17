@@ -1,5 +1,7 @@
 package xyz.wagyourtail.commons.asm.type;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -11,6 +13,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Getter
+@AllArgsConstructor
 public class MemberNameAndDesc {
     private final String name;
     private final Type desc;
@@ -18,12 +22,6 @@ public class MemberNameAndDesc {
 
     public MemberNameAndDesc(String name, Type desc) {
         this(name, desc, false);
-    }
-
-    public MemberNameAndDesc(String name, Type desc, boolean ignoreReturnValue) {
-        this.name = name;
-        this.desc = desc;
-        this.ignoreReturnValue = ignoreReturnValue;
     }
 
     public static MemberNameAndDesc of(Member member) {
@@ -51,18 +49,6 @@ public class MemberNameAndDesc {
             return this;
         }
         return new MemberNameAndDesc(name, desc, true);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Type getDesc() {
-        return desc;
-    }
-
-    public boolean isIgnoreReturnValue() {
-        return ignoreReturnValue;
     }
 
     public boolean isMethodRef() {

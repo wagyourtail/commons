@@ -64,6 +64,7 @@ public class LZMAArchiveFileSystem extends SingleFileFilesystem {
             writer.close();
             return new LZMAArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

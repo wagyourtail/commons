@@ -70,6 +70,7 @@ public class XZArchiveFileSystem extends SingleFileFilesystem {
             writer.close();
             return new XZArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

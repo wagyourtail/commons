@@ -4,10 +4,8 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import xyz.wagyourtail.commons.asm.info.ClassInfo;
-import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.function.IOFunction;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

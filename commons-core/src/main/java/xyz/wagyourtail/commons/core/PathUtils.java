@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commons.core;
 
 
+import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.core.function.IOConsumer;
 
 import java.io.IOException;
@@ -16,18 +17,21 @@ import java.util.zip.ZipOutputStream;
 
 public class PathUtils {
 
-    private PathUtils() {}
+    private PathUtils() {
+    }
 
     public static void deleteRecursively(Path path) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @NotNull
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 Files.deleteIfExists(dir);
                 return FileVisitResult.CONTINUE;
             }
 
+            @NotNull
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                 Files.deleteIfExists(file);
                 return FileVisitResult.CONTINUE;
             }
@@ -36,8 +40,9 @@ public class PathUtils {
 
     public static void forEachFile(Path path, final IOConsumer<Path> visitor) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @NotNull
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                 visitor.accept(file);
                 return FileVisitResult.CONTINUE;
             }

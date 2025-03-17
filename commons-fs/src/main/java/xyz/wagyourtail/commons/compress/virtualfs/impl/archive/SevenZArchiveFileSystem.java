@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class SevenZArchiveFileSystem extends VirtualFileSystem {
 
-    SevenZFile sevenZ;
     private final Map<VirtualFile, SevenZArchiveEntry> fileHeaders = new HashMap<>();
+    SevenZFile sevenZ;
 
     public SevenZArchiveFileSystem(VirtualFile fi) throws IOException {
         super(fi);
@@ -121,4 +121,5 @@ public class SevenZArchiveFileSystem extends VirtualFileSystem {
         }
 
     }
+
 }

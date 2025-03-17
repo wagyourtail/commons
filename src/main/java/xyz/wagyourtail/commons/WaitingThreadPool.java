@@ -4,9 +4,9 @@ import java.util.ArrayDeque;
 import java.util.function.Consumer;
 
 public class WaitingThreadPool {
+    public final int maxFreeThreads;
     private final ArrayDeque<PoolThread> freeThreads = new ArrayDeque<>();
     private final String name;
-    public final int maxFreeThreads;
 
     public WaitingThreadPool() {
         this(Runtime.getRuntime().availableProcessors() * 3);
@@ -107,5 +107,7 @@ public class WaitingThreadPool {
             } catch (Throwable ignored) {
             }
         }
+
     }
+
 }

@@ -9,7 +9,68 @@ import java.util.Objects;
 
 public abstract class CharReader<T extends CharReader<? super T>> {
 
+    public static final CharAccepter WHITESPACE = new CharAccepter() {
+        @Override
+        public boolean accept(char c) {
+            return Character.isWhitespace(c);
+        }
+    };
+    public static final CharAccepter NEWLINE = new CharAccepter() {
+        @Override
+        public boolean accept(char c) {
+            return c == '\n';
+        }
+    };
+    public static final CharAccepter COMMA = new CharAccepter() {
+        @Override
+        public boolean accept(char c) {
+            return c == ',';
+        }
+    };
+    public static final CharAccepter NOT_NEWLINE_WHITESPACE = and(WHITESPACE, not(NEWLINE));
+
     public CharReader() {
+    }
+
+    public static CharAccepter and(final CharAccepter a, final CharAccepter b) {
+        Objects.requireNonNull(a);
+        Objects.requireNonNull(b);
+        return new CharAccepter() {
+            @Override
+            public boolean accept(char c) {
+                return a.accept(c) && b.accept(c);
+            }
+        };
+    }
+
+    public static CharAccepter or(final CharAccepter a, final CharAccepter b) {
+        Objects.requireNonNull(a);
+        Objects.requireNonNull(b);
+        return new CharAccepter() {
+            @Override
+            public boolean accept(char c) {
+                return a.accept(c) || b.accept(c);
+            }
+        };
+    }
+
+    public static CharAccepter not(final CharAccepter a) {
+        Objects.requireNonNull(a);
+        return new CharAccepter() {
+            @Override
+            public boolean accept(char c) {
+                return !a.accept(c);
+            }
+        };
+    }
+
+    public static CharAccepter of(final char character) {
+        return new CharAccepter() {
+            @Override
+            public boolean accept(char c) {
+                return character == c;
+            }
+        };
     }
 
     /**
@@ -270,6 +331,8 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return StringUtils.translateEscapes(sb.toString(), leinient);
     }
 
+    /* Char Acceptors */
+
     public char expect(char character) {
         int next = take();
         if (next != character) {
@@ -344,75 +407,10 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return value;
     }
 
-    /* Char Acceptors */
-
-    public static final CharAccepter WHITESPACE = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return Character.isWhitespace(c);
-        }
-    };
-
-    public static final CharAccepter NEWLINE = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return c == '\n';
-        }
-    };
-
-    public static final CharAccepter COMMA = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return c == ',';
-        }
-    };
-
-    public static final CharAccepter NOT_NEWLINE_WHITESPACE = and(WHITESPACE, not(NEWLINE));
-
-    public static CharAccepter and(final CharAccepter a, final CharAccepter b) {
-        Objects.requireNonNull(a);
-        Objects.requireNonNull(b);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return a.accept(c) && b.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter or(final CharAccepter a, final CharAccepter b) {
-        Objects.requireNonNull(a);
-        Objects.requireNonNull(b);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return a.accept(c) || b.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter not(final CharAccepter a) {
-        Objects.requireNonNull(a);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return !a.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter of(final char character) {
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return character == c;
-            }
-        };
-    }
-
     public interface CharAccepter {
 
         boolean accept(char c);
 
     }
+
 }

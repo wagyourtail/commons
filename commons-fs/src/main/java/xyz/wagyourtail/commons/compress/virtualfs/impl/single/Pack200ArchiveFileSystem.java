@@ -64,6 +64,7 @@ public class Pack200ArchiveFileSystem extends SingleFileFilesystem {
             writer.close();
             return new Pack200ArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

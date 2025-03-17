@@ -28,6 +28,27 @@ public class PathFile extends VirtualFile {
         this.path = path;
     }
 
+    public static boolean isClassFile(Path path) throws IOException {
+        if (!path.toString().endsWith(".class") && !path.toString().endsWith(".class/")) return false;
+        try (InputStream t = Files.newInputStream(path)) {
+            byte[] arr = new byte[4];
+            if (t.read(arr, 0, 4) != 4) return false;
+            return Arrays.equals(arr, CLASS_MAGIC);
+        }
+    }
+
+    public static String getMimeType(Path name) throws IOException {
+        // short circuit for class files, because they are the most common for our use case
+        if (isClassFile(name)) {
+            return "application/java-vm";
+        }
+        return tika.detect(name);
+    }
+
+    public static boolean isArchiveFile(Path path) throws IOException {
+        return VirtualFileSystemFactory.getSupportedMimes().contains(getMimeType(path));
+    }
+
     @Override
     public boolean isArchiveFile() throws IOException {
         return isArchiveFile(this.path);
@@ -77,15 +98,15 @@ public class PathFile extends VirtualFile {
     }
 
     @Override
-    public long getCompressedSize() throws IOException {
-        return Files.size(this.path);
-    }
-
-    @Override
     public synchronized void setData(SeekableByteChannel data) throws IOException {
         CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
         this.cachedContents = new SoftReference<>(cached)::get;
         Files.copy(new SeekableByteChannelInputStream(data), this.path, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    @Override
+    public long getCompressedSize() throws IOException {
+        return Files.size(this.path);
     }
 
     @Override
@@ -117,27 +138,6 @@ public class PathFile extends VirtualFile {
     @Override
     public int hashCode() {
         return this.path.hashCode();
-    }
-
-    public static boolean isClassFile(Path path) throws IOException {
-        if (!path.toString().endsWith(".class") && !path.toString().endsWith(".class/")) return false;
-        try (InputStream t = Files.newInputStream(path)) {
-            byte[] arr = new byte[4];
-            if (t.read(arr, 0, 4) != 4) return false;
-            return Arrays.equals(arr, CLASS_MAGIC);
-        }
-    }
-
-    public static String getMimeType(Path name) throws IOException {
-        // short circuit for class files, because they are the most common for our use case
-        if (isClassFile(name)) {
-            return "application/java-vm";
-        }
-        return tika.detect(name);
-    }
-
-    public static boolean isArchiveFile(Path path) throws IOException {
-        return VirtualFileSystemFactory.getSupportedMimes().contains(getMimeType(path));
     }
 
 }

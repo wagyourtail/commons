@@ -3,15 +3,18 @@ package xyz.wagyourtail.commonskt.collection.enum
 import xyz.wagyourtail.commonskt.utils.ceilToMultipleOf
 
 @PublishedApi
-internal abstract class JumboEnumSet<T: Enum<T>>(internal val bitfield: LongArray, val universe: Array<T>) : EnumSet<T> {
+internal abstract class JumboEnumSet<T : Enum<T>>(
+    internal val bitfield: LongArray,
+    val universe: Array<T>
+) : EnumSet<T> {
 
     companion object {
-        fun <T: Enum<T>> noneOf(universe: Array<T>): JumboEnumSet<T> {
+        fun <T : Enum<T>> noneOf(universe: Array<T>): JumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             return ImmutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> of(element: T, universe: Array<T>): JumboEnumSet<T> {
+        fun <T : Enum<T>> of(element: T, universe: Array<T>): JumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             val i = element.ordinal / 64
             val j = element.ordinal % 64
@@ -19,7 +22,7 @@ internal abstract class JumboEnumSet<T: Enum<T>>(internal val bitfield: LongArra
             return ImmutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> of(vararg elements: T, universe: Array<T>): JumboEnumSet<T> {
+        fun <T : Enum<T>> of(vararg elements: T, universe: Array<T>): JumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             for (element in elements) {
                 val i = element.ordinal / 64
@@ -29,7 +32,7 @@ internal abstract class JumboEnumSet<T: Enum<T>>(internal val bitfield: LongArra
             return ImmutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> allOf(universe: Array<T>): JumboEnumSet<T> {
+        fun <T : Enum<T>> allOf(universe: Array<T>): JumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             for (i in field.indices) {
                 if (i == field.size - 1) {
@@ -91,7 +94,6 @@ internal abstract class JumboEnumSet<T: Enum<T>>(internal val bitfield: LongArra
         }
     }
 
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other is JumboEnumSet<*>) {
@@ -115,4 +117,7 @@ internal abstract class JumboEnumSet<T: Enum<T>>(internal val bitfield: LongArra
 }
 
 @PublishedApi
-internal class ImmutableJumboEnumSet<T: Enum<T>>(bitfield: LongArray, universe: Array<T>) : JumboEnumSet<T>(bitfield, universe)
+internal class ImmutableJumboEnumSet<T : Enum<T>>(bitfield: LongArray, universe: Array<T>) : JumboEnumSet<T>(
+    bitfield,
+    universe
+)

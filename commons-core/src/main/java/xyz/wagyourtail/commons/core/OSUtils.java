@@ -8,7 +8,8 @@ public class OSUtils {
     public static String OSX = "osx";
     public static String UNKNOWN = "unknown";
 
-    private OSUtils() {}
+    private OSUtils() {
+    }
 
     public static String getOsName() {
         return System.getProperty("os.name");
@@ -23,7 +24,7 @@ public class OSUtils {
             return WINDOWS;
         }
         if (osName.contains("nux")) {
-           return  LINUX;
+            return LINUX;
         }
         return UNKNOWN;
     }

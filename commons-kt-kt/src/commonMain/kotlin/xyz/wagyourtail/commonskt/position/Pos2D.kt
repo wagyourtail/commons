@@ -132,7 +132,7 @@ open class Pos2D(val x: Double, val y: Double) {
     }
 
     open fun round(): Pos2 {
-        return Pos2(round(x).toInt(),round(y).toInt())
+        return Pos2(round(x).toInt(), round(y).toInt())
     }
 
     open val magnitude: Double

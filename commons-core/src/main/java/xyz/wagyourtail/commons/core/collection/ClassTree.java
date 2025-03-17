@@ -14,6 +14,7 @@ public class ClassTree<K, V> {
         this.value = value;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends K, U extends V> void registerType(Class<T> type, U value) {
         if (type.equals(this.type)) {
             this.value = value;
@@ -41,11 +42,13 @@ public class ClassTree<K, V> {
         this.subTypes.add((ClassTree) newWrapper);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends K> V get(T inputType) {
         Class<T> inputClass = (Class) inputType.getClass();
         return getSubtype(inputClass).value;
     }
 
+    @SuppressWarnings({"unchecked"})
     public <T extends K, U extends V> ClassTree<T, U> getSubtype(Class<T> type) {
         for (ClassTree<? super K, ? super V> wrap : subTypes) {
             if (wrap.type.isAssignableFrom(type)) {

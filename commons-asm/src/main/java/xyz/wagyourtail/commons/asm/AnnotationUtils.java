@@ -14,7 +14,8 @@ import java.util.Map;
 
 public class AnnotationUtils {
 
-    private AnnotationUtils() {}
+    private AnnotationUtils() {
+    }
 
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode) throws ClassNotFoundException {
         return createAnnotation(annotationNode, AnnotationUtils.class.getClassLoader());
@@ -24,9 +25,9 @@ public class AnnotationUtils {
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, ClassLoader loader) throws ClassNotFoundException {
         Class<?> annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), loader);
         return (T) Proxy.newProxyInstance(
-                loader,
-                new Class[]{annotationClass},
-                new Handler(annotationClass, annotationNode, loader)
+            loader,
+            new Class[]{annotationClass},
+            new Handler(annotationClass, annotationNode, loader)
         );
     }
 
@@ -82,6 +83,7 @@ public class AnnotationUtils {
             }
             return (T) value;
         }
+
     }
 
 }

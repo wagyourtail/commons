@@ -126,6 +126,7 @@ public class ZipArchiveFileSystem extends VirtualFileSystem {
             writer.close();
             return new ZipArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

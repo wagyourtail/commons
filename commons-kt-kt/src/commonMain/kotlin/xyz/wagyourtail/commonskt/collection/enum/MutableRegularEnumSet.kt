@@ -1,19 +1,21 @@
 package xyz.wagyourtail.commonskt.collection.enum
 
 @PublishedApi
-internal class MutableRegularEnumSet<T: Enum<T>>(override var bitfield: Long, universe: Array<T>) : RegularEnumSet<T>(universe), MutableEnumSet<T> {
+internal class MutableRegularEnumSet<T : Enum<T>>(override var bitfield: Long, universe: Array<T>) : RegularEnumSet<T>(
+    universe
+), MutableEnumSet<T> {
 
     companion object {
 
-        fun <T: Enum<T>> noneOf(universe: Array<T>): MutableRegularEnumSet<T> {
+        fun <T : Enum<T>> noneOf(universe: Array<T>): MutableRegularEnumSet<T> {
             return MutableRegularEnumSet(0L, universe)
         }
 
-        fun <T: Enum<T>> of(value: T, universe: Array<T>): MutableRegularEnumSet<T> {
+        fun <T : Enum<T>> of(value: T, universe: Array<T>): MutableRegularEnumSet<T> {
             return MutableRegularEnumSet(1L shl value.ordinal, universe)
         }
 
-        fun <T: Enum<T>> of(vararg values: T, universe: Array<T>): MutableRegularEnumSet<T> {
+        fun <T : Enum<T>> of(vararg values: T, universe: Array<T>): MutableRegularEnumSet<T> {
             var bitfield = 0L
             for (value in values) {
                 bitfield = bitfield or (1L shl value.ordinal)
@@ -21,7 +23,7 @@ internal class MutableRegularEnumSet<T: Enum<T>>(override var bitfield: Long, un
             return MutableRegularEnumSet(bitfield, universe)
         }
 
-        fun <T: Enum<T>> allOf(universe: Array<T>): MutableRegularEnumSet<T> {
+        fun <T : Enum<T>> allOf(universe: Array<T>): MutableRegularEnumSet<T> {
             return MutableRegularEnumSet(-1L ushr (64 - universe.size), universe)
         }
     }

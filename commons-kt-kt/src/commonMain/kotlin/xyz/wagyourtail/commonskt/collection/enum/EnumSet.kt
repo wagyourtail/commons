@@ -1,10 +1,10 @@
 package xyz.wagyourtail.commonskt.collection.enum
 
-sealed interface EnumSet<T: Enum<T>> : Set<T>
+sealed interface EnumSet<T : Enum<T>> : Set<T>
 
-sealed interface MutableEnumSet<T: Enum<T>> : EnumSet<T>, MutableSet<T>
+sealed interface MutableEnumSet<T : Enum<T>> : EnumSet<T>, MutableSet<T>
 
-inline fun <reified  T: Enum<T>> enumSetOf(): EnumSet<T> {
+inline fun <reified T : Enum<T>> enumSetOf(): EnumSet<T> {
     val values = enumValues<T>()
     return if (values.size > 64) {
         JumboEnumSet.noneOf(values)
@@ -13,7 +13,7 @@ inline fun <reified  T: Enum<T>> enumSetOf(): EnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> enumSetOf(vararg values: T): EnumSet<T> {
+inline fun <reified T : Enum<T>> enumSetOf(vararg values: T): EnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         JumboEnumSet.of(*values, universe = universe)
@@ -22,7 +22,7 @@ inline fun <reified T: Enum<T>> enumSetOf(vararg values: T): EnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> enumSetOf(value: T): EnumSet<T> {
+inline fun <reified T : Enum<T>> enumSetOf(value: T): EnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         JumboEnumSet.of(value, universe = universe)
@@ -31,7 +31,7 @@ inline fun <reified T: Enum<T>> enumSetOf(value: T): EnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> enumSetAllOf(): EnumSet<T> {
+inline fun <reified T : Enum<T>> enumSetAllOf(): EnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         JumboEnumSet.allOf(universe)
@@ -40,7 +40,7 @@ inline fun <reified T: Enum<T>> enumSetAllOf(): EnumSet<T> {
     }
 }
 
-inline fun <reified  T: Enum<T>> mutableEnumSetOf(): MutableEnumSet<T> {
+inline fun <reified T : Enum<T>> mutableEnumSetOf(): MutableEnumSet<T> {
     val values = enumValues<T>()
     return if (values.size > 64) {
         MutableJumboEnumSet.noneOf(values)
@@ -49,7 +49,7 @@ inline fun <reified  T: Enum<T>> mutableEnumSetOf(): MutableEnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> mutableEnumSetOf(vararg values: T): MutableEnumSet<T> {
+inline fun <reified T : Enum<T>> mutableEnumSetOf(vararg values: T): MutableEnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         MutableJumboEnumSet.of(*values, universe = universe)
@@ -58,7 +58,7 @@ inline fun <reified T: Enum<T>> mutableEnumSetOf(vararg values: T): MutableEnumS
     }
 }
 
-inline fun <reified T: Enum<T>> mutableEnumSetOf(value: T): MutableEnumSet<T> {
+inline fun <reified T : Enum<T>> mutableEnumSetOf(value: T): MutableEnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         MutableJumboEnumSet.of(value, universe = universe)
@@ -67,7 +67,7 @@ inline fun <reified T: Enum<T>> mutableEnumSetOf(value: T): MutableEnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> mutableEnumSetAllOf(): MutableEnumSet<T> {
+inline fun <reified T : Enum<T>> mutableEnumSetAllOf(): MutableEnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         MutableJumboEnumSet.allOf(universe)
@@ -76,7 +76,7 @@ inline fun <reified T: Enum<T>> mutableEnumSetAllOf(): MutableEnumSet<T> {
     }
 }
 
-inline fun <reified T: Enum<T>> Collection<T>.toEnumSet(): EnumSet<T> {
+inline fun <reified T : Enum<T>> Collection<T>.toEnumSet(): EnumSet<T> {
     val universe = enumValues<T>()
     return if (universe.size > 64) {
         JumboEnumSet.of(*this.toTypedArray(), universe = universe)

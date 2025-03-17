@@ -1,7 +1,6 @@
 package xyz.wagyourtail.commons.core.reader;
 
 import lombok.SneakyThrows;
-import xyz.wagyourtail.commons.core.Utils;
 
 import java.io.IOException;
 import java.io.Reader;

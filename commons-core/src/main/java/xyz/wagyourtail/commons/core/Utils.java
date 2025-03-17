@@ -13,7 +13,8 @@ import java.net.URLStreamHandler;
 
 public class Utils {
 
-    private Utils() {}
+    private Utils() {
+    }
 
     public static byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

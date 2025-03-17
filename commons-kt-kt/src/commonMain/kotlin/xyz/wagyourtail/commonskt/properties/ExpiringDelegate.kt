@@ -7,7 +7,8 @@ import kotlin.time.Duration.Companion.days
 
 expect fun currentTimeMillis(): Long
 
-class ExpiringDelegate<T>(private val expireAfter: Duration = 1.days, private val refCreator: () -> T) : ReadOnlyProperty<Any?, T> {
+class ExpiringDelegate<T>(private val expireAfter: Duration = 1.days, private val refCreator: () -> T) :
+    ReadOnlyProperty<Any?, T> {
 
     private var lastUpdate = 0L
     private var value: T? = null

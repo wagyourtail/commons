@@ -1,9 +1,8 @@
 package xyz.wagyourtail.commonskt.reader
 
 import xyz.wagyourtail.commonskt.utils.translateEscapes
-import kotlin.text.Typography.quote
 
-abstract class CharReader<T: CharReader<T>> {
+abstract class CharReader<T : CharReader<T>> {
 
     companion object {
         operator fun invoke(value: String) = StringCharReader(value)

@@ -100,6 +100,7 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
 
     /**
      * actually truncates the underlying buffer
+     *
      * @param size The new size, a non-negative byte count
      * @return self for chaining
      */
@@ -132,7 +133,6 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
         }
         buffer = Arrays.copyOf(buffer, size);
     }
-
 
 
 }

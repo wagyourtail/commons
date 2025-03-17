@@ -40,7 +40,6 @@ val Int.kb: Int
 val Int.mb: Int
     get() = this.kb * 1024
 
-
 fun Float.roundToMultipleOf(value: Float) = round(this / value) * value
 
 fun Double.roundToMultipleOf(value: Double) = round(this / value) * value

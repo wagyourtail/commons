@@ -35,9 +35,11 @@ fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): FileColl
                         is ModuleComponentIdentifier -> {
                             it.group == dep.group && it.module == dep.name
                         }
+
                         is ComponentArtifactIdentifier -> {
                             false
                         }
+
                         else -> {
                             println("Unknown component type: ${it.javaClass}")
                             false
@@ -45,15 +47,18 @@ fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): FileColl
                     }
                 }
             }
+
             is FileCollectionDependency -> {
                 view.componentFilter { comp ->
                     when (comp) {
                         is ModuleComponentIdentifier -> {
                             false
                         }
+
                         is ComponentIdentifier -> {
                             dep.files.any { it.name == comp.displayName }
                         }
+
                         else -> {
                             println("Unknown component type: ${comp.javaClass}")
                             false
@@ -61,6 +66,7 @@ fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): FileColl
                     }
                 }
             }
+
             else -> {
                 throw IllegalArgumentException("Unknown dependency type: ${dep.javaClass}")
             }

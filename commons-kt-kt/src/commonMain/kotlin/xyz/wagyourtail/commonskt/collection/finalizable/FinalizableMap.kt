@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.collection.finalizable
 
-class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()): MutableMap<K, V>, Map<K, V> by backing {
+class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) : MutableMap<K, V>, Map<K, V> by backing {
     private var finalized = false
 
     override val keys: MutableSet<K>
@@ -11,7 +11,9 @@ class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()): Muta
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() = object : FinalizableSet<MutableMap.MutableEntry<K, V>>(backing.entries) {
             override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> {
-                return object : FinalizableIterator<MutableMap.MutableEntry<K, V>, MutableIterator<MutableMap.MutableEntry<K, V>>>(backing.iterator()) {
+                return object : FinalizableIterator<MutableMap.MutableEntry<K, V>, MutableIterator<MutableMap.MutableEntry<K, V>>>(
+                    backing.iterator()
+                ) {
 
                     override fun next(): MutableMap.MutableEntry<K, V> {
                         return FinalizableEntry(backing.next())
@@ -80,7 +82,8 @@ class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()): Muta
         return backing.put(key, value)
     }
 
-    inner class FinalizableEntry(val backing: MutableMap.MutableEntry<K, V>): MutableMap.MutableEntry<K, V>, Map.Entry<K, V> by backing {
+    inner class FinalizableEntry(val backing: MutableMap.MutableEntry<K, V>) : MutableMap.MutableEntry<K, V>,
+        Map.Entry<K, V> by backing {
         override fun setValue(newValue: V): V {
             if (finalized) throw UnsupportedOperationException("Cannot modify finalized entry")
             return backing.setValue(newValue)

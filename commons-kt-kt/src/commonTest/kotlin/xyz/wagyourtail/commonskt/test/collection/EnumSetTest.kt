@@ -67,7 +67,16 @@ class EnumSetTest {
 
         assertTrue(largeEnumSet.containsAll(listOf(TestLargeEnum._1, TestLargeEnum._2, TestLargeEnum._3)))
         assertTrue(largeEnumSet.containsAll(enumSetOf(TestLargeEnum._1, TestLargeEnum._2, TestLargeEnum._3)))
-        assertFalse(largeEnumSet.containsAll(listOf(TestLargeEnum._1, TestLargeEnum._2, TestLargeEnum._3, TestLargeEnum._4)))
+        assertFalse(
+            largeEnumSet.containsAll(
+                listOf(
+                    TestLargeEnum._1,
+                    TestLargeEnum._2,
+                    TestLargeEnum._3,
+                    TestLargeEnum._4
+                )
+            )
+        )
 
         val mut = mutableListOf<TestLargeEnum>()
         for (testEnum in largeEnumSet) {

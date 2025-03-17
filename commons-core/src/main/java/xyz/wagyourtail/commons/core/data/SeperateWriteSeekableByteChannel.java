@@ -1,5 +1,7 @@
 package xyz.wagyourtail.commons.core.data;
 
+import lombok.Getter;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
@@ -8,14 +10,11 @@ public class SeperateWriteSeekableByteChannel implements SeekableByteChannel {
 
     private SeekableByteChannel original;
     private volatile SeekableByteChannel write;
+    @Getter
     private boolean changed = false;
 
     public SeperateWriteSeekableByteChannel(SeekableByteChannel original) {
         this.original = original;
-    }
-
-    public boolean isChanged() {
-        return this.changed;
     }
 
     @Override

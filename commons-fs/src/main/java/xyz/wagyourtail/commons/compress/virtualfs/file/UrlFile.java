@@ -50,13 +50,13 @@ public class UrlFile extends VirtualFile {
     }
 
     @Override
-    public long getCompressedSize() {
-        return -1;
+    public synchronized void setData(SeekableByteChannel data) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public synchronized void setData(SeekableByteChannel data) {
-        throw new UnsupportedOperationException();
+    public long getCompressedSize() {
+        return -1;
     }
 
     @Override

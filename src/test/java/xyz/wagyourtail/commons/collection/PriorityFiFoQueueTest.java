@@ -3,11 +3,10 @@ package xyz.wagyourtail.commons.collection;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PriorityFiFoQueueTest {
 
@@ -93,9 +92,9 @@ class PriorityFiFoQueueTest {
             @Override
             public String toString() {
                 return "Task{" +
-                        "priority=" + priority +
-                        ", name='" + name + '\'' +
-                        '}';
+                    "priority=" + priority +
+                    ", name='" + name + '\'' +
+                    '}';
             }
 
         }
@@ -133,7 +132,6 @@ class PriorityFiFoQueueTest {
         assertEquals(new Task(3, "Low priority2"), queue2.poll());
         assertNull(queue2.poll());
     }
-
 
 
 }

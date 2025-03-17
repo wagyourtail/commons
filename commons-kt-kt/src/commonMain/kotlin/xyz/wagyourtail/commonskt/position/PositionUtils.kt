@@ -1,6 +1,9 @@
 package xyz.wagyourtail.commonskt.position
+
 import kotlin.jvm.JvmName
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 fun max(a: Pos2, b: Pos2): Pos2 {
     return Pos2(max(a.x, b.x), max(a.y, b.y))

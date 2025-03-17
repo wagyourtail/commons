@@ -1,19 +1,19 @@
 package xyz.wagyourtail.commonskt.collection.enum
 
 @PublishedApi
-internal sealed class RegularEnumSet<T: Enum<T>>(val universe: Array<T>) : EnumSet<T> {
+internal sealed class RegularEnumSet<T : Enum<T>>(val universe: Array<T>) : EnumSet<T> {
 
     companion object {
 
-        fun <T: Enum<T>> noneOf(universe: Array<T>): EnumSet<T> {
+        fun <T : Enum<T>> noneOf(universe: Array<T>): EnumSet<T> {
             return ImmutableRegularEnumSet(0L, universe)
         }
 
-        fun <T: Enum<T>> of(value: T, universe: Array<T>): EnumSet<T> {
+        fun <T : Enum<T>> of(value: T, universe: Array<T>): EnumSet<T> {
             return ImmutableRegularEnumSet(1L shl value.ordinal, universe)
         }
 
-        fun <T: Enum<T>> of(vararg values: T, universe: Array<T>): EnumSet<T> {
+        fun <T : Enum<T>> of(vararg values: T, universe: Array<T>): EnumSet<T> {
             var bitfield = 0L
             for (value in values) {
                 bitfield = bitfield or (1L shl value.ordinal)
@@ -21,7 +21,7 @@ internal sealed class RegularEnumSet<T: Enum<T>>(val universe: Array<T>) : EnumS
             return ImmutableRegularEnumSet(bitfield, universe)
         }
 
-        fun <T: Enum<T>> allOf(universe: Array<T>): EnumSet<T> {
+        fun <T : Enum<T>> allOf(universe: Array<T>): EnumSet<T> {
             return ImmutableRegularEnumSet(-1L ushr (64 - universe.size), universe)
         }
 
@@ -96,4 +96,7 @@ internal sealed class RegularEnumSet<T: Enum<T>>(val universe: Array<T>) : EnumS
 }
 
 @PublishedApi
-internal class ImmutableRegularEnumSet<T: Enum<T>>(override val bitfield: Long, universe: Array<T>) : RegularEnumSet<T>(universe)
+internal class ImmutableRegularEnumSet<T : Enum<T>>(
+    override val bitfield: Long,
+    universe: Array<T>
+) : RegularEnumSet<T>(universe)

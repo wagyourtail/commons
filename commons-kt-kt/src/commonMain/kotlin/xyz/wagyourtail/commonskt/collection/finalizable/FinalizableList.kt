@@ -1,6 +1,8 @@
 package xyz.wagyourtail.commonskt.collection.finalizable
 
-class FinalizableList<E>(backing: MutableList<E>): FinalizableCollection<E, MutableList<E>>(backing), MutableList<E>, List<E> by backing {
+class FinalizableList<E>(backing: MutableList<E>) : FinalizableCollection<E, MutableList<E>>(backing),
+    MutableList<E>,
+    List<E> by backing {
 
     override fun contains(element: E): Boolean {
         return backing.contains(element)

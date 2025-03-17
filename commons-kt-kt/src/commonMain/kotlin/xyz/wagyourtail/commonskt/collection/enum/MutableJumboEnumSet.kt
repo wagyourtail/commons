@@ -3,16 +3,19 @@ package xyz.wagyourtail.commonskt.collection.enum
 import xyz.wagyourtail.commonskt.utils.ceilToMultipleOf
 
 @PublishedApi
-internal class MutableJumboEnumSet<T: Enum<T>>(bitfield: LongArray, universe: Array<T>): JumboEnumSet<T>(bitfield, universe), MutableEnumSet<T> {
+internal class MutableJumboEnumSet<T : Enum<T>>(bitfield: LongArray, universe: Array<T>) : JumboEnumSet<T>(
+    bitfield,
+    universe
+), MutableEnumSet<T> {
 
     companion object {
 
-        fun <T: Enum<T>> noneOf(universe: Array<T>): MutableJumboEnumSet<T> {
+        fun <T : Enum<T>> noneOf(universe: Array<T>): MutableJumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             return MutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> of(element: T, universe: Array<T>): MutableJumboEnumSet<T> {
+        fun <T : Enum<T>> of(element: T, universe: Array<T>): MutableJumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             val i = element.ordinal / 64
             val j = element.ordinal % 64
@@ -20,7 +23,7 @@ internal class MutableJumboEnumSet<T: Enum<T>>(bitfield: LongArray, universe: Ar
             return MutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> of(vararg elements: T, universe: Array<T>): MutableJumboEnumSet<T> {
+        fun <T : Enum<T>> of(vararg elements: T, universe: Array<T>): MutableJumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             for (element in elements) {
                 val i = element.ordinal / 64
@@ -30,7 +33,7 @@ internal class MutableJumboEnumSet<T: Enum<T>>(bitfield: LongArray, universe: Ar
             return MutableJumboEnumSet(field, universe)
         }
 
-        fun <T: Enum<T>> allOf(universe: Array<T>): MutableJumboEnumSet<T> {
+        fun <T : Enum<T>> allOf(universe: Array<T>): MutableJumboEnumSet<T> {
             val field = LongArray(universe.size.ceilToMultipleOf(64) / 64)
             for (i in field.indices) {
                 if (i == field.size - 1) {

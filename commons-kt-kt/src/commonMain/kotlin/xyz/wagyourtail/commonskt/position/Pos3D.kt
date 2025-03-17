@@ -5,7 +5,7 @@ import kotlin.math.floor
 import kotlin.math.round
 import kotlin.math.sqrt
 
-class Pos3D(x: Double, y: Double, val z: Double): Pos2D(x, y) {
+class Pos3D(x: Double, y: Double, val z: Double) : Pos2D(x, y) {
     companion object {
         val ZERO = Pos3D(0.0, 0.0, 0.0)
     }

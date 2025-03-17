@@ -71,6 +71,7 @@ open class BetterTabPanel(
                     "auto min-content"
                 }
             }
+
             else -> {
                 display = Display.FLEX
                 flexDirection = FlexDirection.COLUMN

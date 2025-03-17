@@ -18,16 +18,16 @@ import java.util.function.Supplier;
 
 public class VirtualFile {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualFile.class);
     protected static final byte[] CLASS_MAGIC = new byte[]{(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
     protected static final Tika tika = new Tika();
+    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualFile.class);
     private static final Cleaner CLEANER = Cleaner.create();
 
     public final String path;
     public final VirtualFileSystem parentFs;
+    public Icon icon;
     protected volatile Supplier<CleaningSeekableByteChannel> cachedContents = () -> null;
     protected volatile String mimeType;
-    public Icon icon;
 
     public VirtualFile(final byte[] data, final String path) {
         this(new SeekableInMemoryByteChannel(data), path);
@@ -162,6 +162,12 @@ public class VirtualFile {
         return cached;
     }
 
+    public synchronized void setData(SeekableByteChannel data) throws IOException {
+        CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
+        this.cachedContents = () -> cached;
+        this.parentFs.putData(this, cached);
+    }
+
     public SeekableByteChannel getExtraData() {
         if (this.parentFs == null) return null;
         try {
@@ -185,12 +191,6 @@ public class VirtualFile {
 
     public long getSize() throws IOException {
         return this.parentFs.getSize(this);
-    }
-
-    public synchronized void setData(SeekableByteChannel data) throws IOException {
-        CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
-        this.cachedContents = () -> cached;
-        this.parentFs.putData(this, cached);
     }
 
     public boolean isArchiveFile() throws IOException {
@@ -298,6 +298,7 @@ public class VirtualFile {
             this.data.truncate(size);
             return this;
         }
+
     }
 
 }

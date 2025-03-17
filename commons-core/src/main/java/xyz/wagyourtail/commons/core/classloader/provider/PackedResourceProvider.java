@@ -53,6 +53,25 @@ public class PackedResourceProvider implements ResourceProvider {
         return new PackedResourceProvider(temp);
     }
 
+    public static int getInt(SeekableByteChannel channel) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        channel.read(buffer);
+        buffer.flip();
+        return buffer.getInt();
+    }
+
+    public static byte[] getBytes(SeekableByteChannel channel, int length) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(length);
+        channel.read(buffer);
+        buffer.flip();
+        return buffer.array();
+    }
+
+    public static String getString(SeekableByteChannel channel, int length) throws IOException {
+        byte[] bytes = getBytes(channel, length);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         if (positions.containsKey(name)) {
@@ -82,25 +101,6 @@ public class PackedResourceProvider implements ResourceProvider {
         }
     }
 
-    public static int getInt(SeekableByteChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        channel.read(buffer);
-        buffer.flip();
-        return buffer.getInt();
-    }
-
-    public static byte[] getBytes(SeekableByteChannel channel, int length) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(length);
-        channel.read(buffer);
-        buffer.flip();
-        return buffer.array();
-    }
-
-    public static String getString(SeekableByteChannel channel, int length) throws IOException {
-        byte[] bytes = getBytes(channel, length);
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
-
     public static class PositionAndLength {
         private final long position;
         private final int length;
@@ -111,4 +111,5 @@ public class PackedResourceProvider implements ResourceProvider {
         }
 
     }
+
 }

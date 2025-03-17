@@ -29,12 +29,14 @@ fun String.translateEscapes(lenient: Boolean = false): String {
                         }
                         append(octal.toInt(8).toChar())
                     }
+
                     'u' -> {
                         val hex = this@translateEscapes.substring(i, i + 4)
                         if (hex.length != 4) throw IllegalArgumentException("Invalid unicode escape: $hex, expected 4 characters, found EOS")
                         append(hex.toInt(16).toChar())
                         i += 4
                     }
+
                     'b' -> append('\b')
                     'f' -> append('\u000C')
                     'n' -> append('\n')
@@ -72,6 +74,7 @@ fun String.escape(unicode: Boolean = false, spaces: Boolean = false, doubleQuote
                         append("\\\"")
                     }
                 }
+
                 '\'' -> append("\\'")
                 '\\' -> append("\\\\")
                 '\b' -> append("\\b")
@@ -86,6 +89,7 @@ fun String.escape(unicode: Boolean = false, spaces: Boolean = false, doubleQuote
                         append(c)
                     }
                 }
+
                 else -> {
                     if (unicode && (c.code < 0x20 || c.code > 0x7f)) {
                         append("\\u${c.code.toString(16).padStart(4, '0')}")

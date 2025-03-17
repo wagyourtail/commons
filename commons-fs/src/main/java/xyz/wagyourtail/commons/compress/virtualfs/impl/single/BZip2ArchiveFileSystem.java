@@ -66,6 +66,7 @@ public class BZip2ArchiveFileSystem extends SingleFileFilesystem {
             writer.close();
             return new BZip2ArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

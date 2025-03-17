@@ -2,6 +2,7 @@ package xyz.wagyourtail.commons.reader.test;
 
 import org.junit.jupiter.api.Test;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -167,4 +168,5 @@ class TestCharReader {
         reader.expect('\n');
         assertEquals("test4", reader.takeCol());
     }
+
 }

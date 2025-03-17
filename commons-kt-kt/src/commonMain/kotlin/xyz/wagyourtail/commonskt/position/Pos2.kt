@@ -39,8 +39,8 @@ open class Pos2(val x: Int, val y: Int) {
 
     open operator fun rangeUntil(pos: Pos2): Sequence<Pos2> {
         return sequence {
-            for (y in y ..< pos.y) {
-                for (x in x + 1 ..< x) {
+            for (y in y..<pos.y) {
+                for (x in x + 1..<x) {
                     yield(Pos2(x, y))
                 }
             }

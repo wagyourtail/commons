@@ -64,6 +64,7 @@ public class GZipArchiveFileSystem extends SingleFileFilesystem {
             writer.close();
             return new GZipArchiveFileSystem(new VirtualFile(baos.toByteArray(), fileName));
         }
+
     }
 
 }

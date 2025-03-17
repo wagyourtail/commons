@@ -2,7 +2,7 @@ package xyz.wagyourtail.commonskt.utils
 
 import kotlin.jvm.JvmName
 
-class ListCompare<T: Comparable<T>>(val list: List<T>): Comparable<ListCompare<T>> {
+class ListCompare<T : Comparable<T>>(val list: List<T>) : Comparable<ListCompare<T>> {
 
     override operator fun compareTo(other: ListCompare<T>): Int {
         val size = list.size
@@ -16,9 +16,9 @@ class ListCompare<T: Comparable<T>>(val list: List<T>): Comparable<ListCompare<T
 
 }
 
-fun <T: Comparable<T>> compareable(vararg elements: T) = ListCompare(elements.toList())
+fun <T : Comparable<T>> compareable(vararg elements: T) = ListCompare(elements.toList())
 
-fun <T: Comparable<T>> List<T>.comparable() = ListCompare(this)
+fun <T : Comparable<T>> List<T>.comparable() = ListCompare(this)
 
 fun <K, V> Map<K, V>.firstAsMap(): Map<K, V> {
     val entry = entries.first()
@@ -91,16 +91,19 @@ fun <T> Iterable<T>.permutations(size: Int): Sequence<List<T>> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <K, V> Iterable<Pair<K, V?>>.filterNotNullValues(): List<Pair<K, V>> = filter { it.second != null } as List<Pair<K, V>>
+fun <K, V> Iterable<Pair<K, V?>>.filterNotNullValues(): List<Pair<K, V>> =
+    filter { it.second != null } as List<Pair<K, V>>
 
 @Suppress("UNCHECKED_CAST")
 @JvmName("filterNotNullValuesIndexed")
-fun <V> Iterable<IndexedValue<V?>>.filterNotNullValues(): List<IndexedValue<V>> = filter { it.value != null } as List<IndexedValue<V>>
+fun <V> Iterable<IndexedValue<V?>>.filterNotNullValues(): List<IndexedValue<V>> =
+    filter { it.value != null } as List<IndexedValue<V>>
 
 @Suppress("UNCHECKED_CAST")
 fun <K, V> Map<K, V?>.filterNotNullValues(): Map<K, V> = filterValues { it != null } as Map<K, V>
 
-inline fun <K, V, U> Map<K, V>.mapNotNullValues(mapper: (Map.Entry<K, V>) -> U?): Map<K, U> = mapValues(mapper).filterNotNullValues()
+inline fun <K, V, U> Map<K, V>.mapNotNullValues(mapper: (Map.Entry<K, V>) -> U?): Map<K, U> =
+    mapValues(mapper).filterNotNullValues()
 
 fun <E> MutableList<E>.insertBefore(element: E, toAdd: E) {
     val i = indexOf(element)

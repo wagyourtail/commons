@@ -1,21 +1,16 @@
 package xyz.wagyourtail.commons.core.logger;
 
+import lombok.AllArgsConstructor;
 import xyz.wagyourtail.commons.core.AnsiColor;
 
 import java.io.PrintStream;
 
+@AllArgsConstructor
 public class SimpleLogger extends Logger {
     private final String prefix;
     private final Level level;
     private final boolean useAnsiColors;
     private final PrintStream out;
-
-    public SimpleLogger(String prefix, Level level, boolean useAnsiColors, PrintStream out) {
-        this.prefix = prefix;
-        this.level = level;
-        this.useAnsiColors = useAnsiColors;
-        this.out = out;
-    }
 
     public SimpleLogger(Class<?> clazz, Level level, boolean useAnsiColors, PrintStream out) {
         this(clazz.getSimpleName(), level, useAnsiColors, out);

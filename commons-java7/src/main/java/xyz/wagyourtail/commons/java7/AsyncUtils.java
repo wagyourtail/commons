@@ -2,7 +2,6 @@ package xyz.wagyourtail.commons.java7;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
-import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.function.IOConsumer;
 import xyz.wagyourtail.commons.core.function.IOFunction;
 
@@ -29,7 +28,8 @@ public class AsyncUtils {
     // basically a fork-join pool similar to the commonPool, since java 7 doesn't include it.
     private static final ForkJoinPool pool = new ForkJoinPool(Math.min(Math.max(1, Runtime.getRuntime().availableProcessors() - 1), Short.MAX_VALUE), ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 
-    private AsyncUtils() {}
+    private AsyncUtils() {
+    }
 
     @SafeVarargs
     public static <T> Future<List<T>> waitForFutures(Future<T>... futures) {
@@ -79,6 +79,7 @@ public class AsyncUtils {
         };
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> Future<Void> forEachAsync(final Collection<T> paths, final IOConsumer<T> fileVisitor) {
         final Queue<Future<Void>> futures = new ArrayDeque<>();
         for (final T path : paths) {
@@ -95,6 +96,7 @@ public class AsyncUtils {
         return (Future) waitForFutures(futures);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Future<Void> runAll(Runnable... runnables) {
         final Queue<Future<Void>> futures = new ArrayDeque<>();
         for (final Runnable runnable : runnables) {
@@ -103,12 +105,14 @@ public class AsyncUtils {
         return (Future) waitForFutures(futures);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Future<Void> visitPathsAsync(final Path start, final IOFunction<Path, Boolean> folderVisitor, final IOConsumer<Path> fileVisitor) throws IOException {
         final Queue<Future<Void>> futures = new ArrayDeque<>();
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
 
+            @NotNull
             @Override
-            public FileVisitResult preVisitDirectory(final Path dir, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult preVisitDirectory(final Path dir, @NotNull BasicFileAttributes attrs) throws IOException {
                 if (folderVisitor != null) {
                     if (!folderVisitor.apply(dir)) {
                         return FileVisitResult.SKIP_SUBTREE;
@@ -133,8 +137,9 @@ public class AsyncUtils {
                 return FileVisitResult.SKIP_SUBTREE;
             }
 
+            @NotNull
             @Override
-            public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) {
+            public FileVisitResult visitFile(final Path file, @NotNull BasicFileAttributes attrs) {
                 futures.add(pool.submit(new Runnable() {
 
                     @Override

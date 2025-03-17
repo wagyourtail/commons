@@ -1,15 +1,25 @@
 package xyz.wagyourtail.commons.asm.graph;
 
+import lombok.Data;
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InvokeDynamicInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.MultiANewArrayInsnNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import xyz.wagyourtail.commons.asm.ASMUtils;
 import xyz.wagyourtail.commons.asm.type.FullyQualifiedMemberNameAndDesc;
 import xyz.wagyourtail.commons.asm.type.MemberNameAndDesc;
-import xyz.wagyourtail.commons.core.logger.Logger;
 import xyz.wagyourtail.commons.core.Utils;
+import xyz.wagyourtail.commons.core.logger.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +28,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +71,7 @@ public class ReferenceGraph {
 
     /**
      * if the {@link ClassNode} is retained, this will return the {@link ClassNode} for the given type.
+     *
      * @return the {@link ClassNode} for the given type.
      */
     public ClassNode getClassFor(Type type, int version) {
@@ -69,6 +89,7 @@ public class ReferenceGraph {
      * Pre scan the root directory to find all the classes that need to be scanned.
      * <p>
      * you many override this with an async version
+     *
      * @return a map of paths to types that need to be scanned.
      */
     public Map<Path, Type> preScan(final Path root) throws IOException, ExecutionException, InterruptedException {
@@ -127,7 +148,7 @@ public class ReferenceGraph {
      * you many override this with an async version
      *
      * @param newScanTargets the paths to scan.
-     * @param filter the filter to determine if a reference should be retained.
+     * @param filter         the filter to determine if a reference should be retained.
      */
     public void scan(final Path rootPath, final Map<Path, Type> newScanTargets, final Filter filter) throws IOException, ExecutionException, InterruptedException {
         for (Map.Entry<Path, Type> pathTypeEntry : newScanTargets.entrySet()) {
@@ -308,6 +329,7 @@ public class ReferenceGraph {
     /**
      * Given a set of references, this will scan the current reference graph to determine which references are required
      * by the given references, and where they came from.
+     *
      * @param starts the references to start from.
      * @return a pair of the references required by the given references, and the resources required by the given references.
      */
@@ -395,6 +417,32 @@ public class ReferenceGraph {
 
     }
 
+    public static class ClassesAndResources {
+        private final Set<FullyQualifiedMemberNameAndDesc> classes;
+        private final Set<String> resources;
+
+        public ClassesAndResources(Set<FullyQualifiedMemberNameAndDesc> classes, Set<String> resources) {
+            this.classes = classes;
+            this.resources = resources;
+        }
+
+        public Set<FullyQualifiedMemberNameAndDesc> getClasses() {
+            return classes;
+        }
+
+        public Set<String> getResources() {
+            return resources;
+        }
+
+    }
+
+    @Data
+    public static class ClassReferencesAndResources {
+        private final Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> classes;
+        private final Set<String> resources;
+
+    }
+
     public class References {
         /**
          * The multi-release version of the class.
@@ -475,7 +523,7 @@ public class ReferenceGraph {
             }
         }
 
-        protected void scanMethod(Type currentType, MethodNode method,  Filter filter) {
+        protected void scanMethod(Type currentType, MethodNode method, Filter filter) {
             Type methodType = Type.getMethodType(method.desc);
             final MemberNameAndDesc methodMember = new MemberNameAndDesc(method.name, Type.getMethodType(method.desc));
 
@@ -603,42 +651,6 @@ public class ReferenceGraph {
             resourceList.get(member).add(resourceLocation);
         }
 
-    }
-
-    public static class ClassesAndResources {
-        private final Set<FullyQualifiedMemberNameAndDesc> classes;
-        private final Set<String> resources;
-
-        public ClassesAndResources(Set<FullyQualifiedMemberNameAndDesc> classes, Set<String> resources) {
-            this.classes = classes;
-            this.resources = resources;
-        }
-
-        public Set<FullyQualifiedMemberNameAndDesc> getClasses() {
-            return classes;
-        }
-
-        public Set<String> getResources() {
-            return resources;
-        }
-    }
-
-    public static class ClassReferencesAndResources {
-        private final Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> classes;
-        private final Set<String> resources;
-
-        public ClassReferencesAndResources(Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> classes, Set<String> resources) {
-            this.classes = classes;
-            this.resources = resources;
-        }
-
-        public Map<FullyQualifiedMemberNameAndDesc, Set<FullyQualifiedMemberNameAndDesc>> getClasses() {
-            return classes;
-        }
-
-        public Set<String> getResources() {
-            return resources;
-        }
     }
 
 }

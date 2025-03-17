@@ -1,8 +1,11 @@
 package xyz.wagyourtail.commons.core;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Iterator;
 
+@Getter
 public enum AnsiColor {
     RESET("\u001B[0m"),
     BLACK("\u001B[30m"),
@@ -27,10 +30,6 @@ public enum AnsiColor {
 
     AnsiColor(String ansiColor) {
         this.ansiColor = ansiColor;
-    }
-
-    public String getAnsiColor() {
-        return ansiColor;
     }
 
     public String wrap(String message) {

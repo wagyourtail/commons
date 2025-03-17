@@ -3,7 +3,7 @@ package xyz.wagyourtail.commons.asm.type;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FullyQualifiedMemberNameAndDescTest {
 

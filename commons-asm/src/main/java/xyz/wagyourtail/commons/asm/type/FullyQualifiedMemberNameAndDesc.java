@@ -1,5 +1,7 @@
 package xyz.wagyourtail.commons.asm.type;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -12,6 +14,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Getter
+@AllArgsConstructor
 public class FullyQualifiedMemberNameAndDesc {
     private final Type owner;
     private final String name;
@@ -20,13 +24,6 @@ public class FullyQualifiedMemberNameAndDesc {
 
     public FullyQualifiedMemberNameAndDesc(Type owner, String name, Type desc) {
         this(owner, name, desc, false);
-    }
-
-    public FullyQualifiedMemberNameAndDesc(Type owner, String name, Type desc, boolean ignoreReturnValue) {
-        this.owner = owner;
-        this.name = name;
-        this.desc = desc;
-        this.ignoreReturnValue = ignoreReturnValue;
     }
 
     public static FullyQualifiedMemberNameAndDesc of(Member member) {
@@ -44,7 +41,7 @@ public class FullyQualifiedMemberNameAndDesc {
 
     public static FullyQualifiedMemberNameAndDesc of(String value) {
         String[] vals = value.split(";", 3);
-        if (vals.length == 2 && vals[1].isEmpty()) vals = new String[] { vals[0] };
+        if (vals.length == 2 && vals[1].isEmpty()) vals = new String[]{vals[0]};
         Type owner;
         if (vals.length == 1) {
             if (value.startsWith("L") && value.endsWith(";")) {
@@ -86,22 +83,6 @@ public class FullyQualifiedMemberNameAndDesc {
             return new FullyQualifiedMemberNameAndDesc(owner, name, desc, true);
         }
         return this;
-    }
-
-    public Type getOwner() {
-        return owner;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Type getDesc() {
-        return desc;
-    }
-
-    public boolean isIgnoreReturnValue() {
-        return ignoreReturnValue;
     }
 
     public boolean isClassRef() {
@@ -150,5 +131,6 @@ public class FullyQualifiedMemberNameAndDesc {
         }
         return Objects.hash(owner, name, desc);
     }
+
 }
 

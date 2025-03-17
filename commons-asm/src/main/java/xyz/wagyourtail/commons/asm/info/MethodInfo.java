@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commons.asm.info;
 
 
+import lombok.AllArgsConstructor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
@@ -8,16 +9,11 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+@AllArgsConstructor
 public class MethodInfo {
     public final int access;
     public final String name;
     public final Type desc;
-
-    public MethodInfo(int access, String name, Type desc) {
-        this.access = access;
-        this.name = name;
-        this.desc = desc;
-    }
 
     public static MethodInfo of(Method method) {
         return new MethodInfo(

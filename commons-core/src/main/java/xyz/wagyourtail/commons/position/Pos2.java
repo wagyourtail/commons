@@ -1,17 +1,15 @@
 package xyz.wagyourtail.commons.position;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Objects;
 
+@AllArgsConstructor
 public class Pos2 {
     public static final Pos2 ZERO = new Pos2(0, 0);
 
     public final int x;
     public final int y;
-
-    public Pos2(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
 
     public static Pos2 max(Pos2 p1, Pos2 p2) {
         return new Pos2(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y));

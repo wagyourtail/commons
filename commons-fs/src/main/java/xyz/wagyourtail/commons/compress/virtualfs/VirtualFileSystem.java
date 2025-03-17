@@ -11,7 +11,12 @@ import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.SeekableByteChannel;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -23,13 +28,11 @@ public abstract class VirtualFileSystem implements AutoCloseable {
 
     protected final Map<String, VirtualFile> files = new HashMap<>();
     protected final Map<String, Set<VirtualFile>> directories = new ConcurrentHashMap<>();
-
+    protected final FileSystemChangeListeners listeners = new FileSystemChangeListeners();
     Map<VirtualFile, SeekableByteChannel> pendingWrites = new HashMap<>();
     private volatile boolean read = false;
     @Getter
     private boolean closed = false;
-
-    protected final FileSystemChangeListeners listeners = new FileSystemChangeListeners();
 
     public VirtualFileSystem(VirtualFile location) {
         this.location = location;

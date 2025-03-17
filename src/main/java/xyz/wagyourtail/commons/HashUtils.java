@@ -8,11 +8,11 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.stream.Stream;
 
 public class HashUtils {
 
-    private HashUtils() {}
+    private HashUtils() {
+    }
 
     public static boolean testSha1(long size, String sha1, Path path) throws IOException, NoSuchAlgorithmException {
         return testSha1(size, sha1, path, Duration.ofDays(1));
@@ -25,7 +25,7 @@ public class HashUtils {
                     // fallback: expire if older than a day
                     return path.toFile().lastModified() > System.currentTimeMillis() - expireTime.toMillis();
                 }
-                 return getSha1(path).equalsIgnoreCase(sha1);
+                return getSha1(path).equalsIgnoreCase(sha1);
             }
         }
         return false;

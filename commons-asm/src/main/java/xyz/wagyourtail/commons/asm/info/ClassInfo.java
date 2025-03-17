@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.asm.info;
 
+import lombok.Getter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,10 +20,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ClassInfo {
+    @Getter
     private final String name;
+    @Getter
     private final String superName;
-    private final List<String> interfaces;
+    @Getter
     private final boolean isInterface;
+    @Getter
+    private final List<String> interfaces;
     private final Lazy<List<MethodInfo>> methods;
     private final Lazy<List<FieldInfo>> fields;
 
@@ -33,30 +38,6 @@ public class ClassInfo {
         this.interfaces = new ArrayList<>(interfaces);
         this.methods = methods;
         this.fields = fields;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSuperName() {
-        return superName;
-    }
-
-    public List<String> getInterfaces() {
-        return interfaces;
-    }
-
-    public boolean isInterface() {
-        return isInterface;
-    }
-
-    public List<MethodInfo> getMethods() {
-        return methods.get();
-    }
-
-    public List<FieldInfo> getFields() {
-        return fields.get();
     }
 
     public static ClassInfo of(final Class<?> clazz) {
@@ -232,6 +213,14 @@ public class ClassInfo {
                 }
             }
         };
+    }
+
+    public List<MethodInfo> getMethods() {
+        return methods.get();
+    }
+
+    public List<FieldInfo> getFields() {
+        return fields.get();
     }
 
 }

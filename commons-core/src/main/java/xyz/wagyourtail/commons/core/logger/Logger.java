@@ -1,11 +1,10 @@
 package xyz.wagyourtail.commons.core.logger;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
-import xyz.wagyourtail.commons.core.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
@@ -79,14 +78,7 @@ public abstract class Logger {
         }
     }
 
-    public interface MessageSupplier {
-        String getMessage();
-    }
-
-    public interface StreamWrap {
-        void writeTo(PrintStream ps);
-    }
-
+    @Getter
     public enum Level {
         ALL(Integer.MIN_VALUE),
         TRACE(400),
@@ -95,8 +87,7 @@ public abstract class Logger {
         LIFECYCLE(850),
         WARNING(900),
         ERROR(1000),
-        OFF(Integer.MAX_VALUE)
-        ;
+        OFF(Integer.MAX_VALUE);
 
         private final int level;
 
@@ -104,8 +95,16 @@ public abstract class Logger {
             this.level = level;
         }
 
-        public int getLevel() {
-            return level;
-        }
     }
+
+    public interface MessageSupplier {
+        String getMessage();
+
+    }
+
+    public interface StreamWrap {
+        void writeTo(PrintStream ps);
+
+    }
+
 }
