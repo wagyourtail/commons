@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.utils
 
+import org.intellij.lang.annotations.Pattern
 import kotlin.jvm.JvmName
 
 class ListCompare<T : Comparable<T>>(val list: List<T>) : Comparable<ListCompare<T>> {
@@ -115,4 +116,15 @@ fun <E> MutableList<E>.insertBefore(element: E, vararg toAdd: E) {
     val i = indexOf(element)
     if (i < 0) throw NoSuchElementException()
     addAll(i, toAdd.toList())
+}
+
+fun Map<String, String>.resolveArgs(args: List<String>, hasDollar: Boolean = true): List<String> {
+    val pattern = Regex((if (hasDollar) "\\$" else "") + "\\{([^}]+)}")
+    return args.map { arg ->
+        pattern.replace(arg) {
+            val key = it.groups[1]!!.value
+            if (!this.containsKey(key)) throw IllegalArgumentException("Property $key not found")
+            this.getValue(key)
+        }
+    }
 }
