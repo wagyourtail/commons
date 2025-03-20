@@ -3,7 +3,7 @@ package xyz.wagyourtail.commonskt.collection
 // https://discuss.kotlinlang.org/t/map-withdefault-not-defaulting/7691/2
 // doing it anyway
 class DefaultMap<T, U>(
-    val initializer: (T) -> U,
+    val initializer: DefaultMap<T, U>.(T) -> U,
     val map: MutableMap<T, U> = mutableMapOf()
 ) : MutableMap<T, U> by map {
 
@@ -17,6 +17,6 @@ class DefaultMap<T, U>(
 
 }
 
-fun <T, U> defaultedMapOf(initializer: (T) -> U): DefaultMap<T, U> = DefaultMap(initializer)
+fun <T, U> defaultedMapOf(initializer: DefaultMap<T, U>.(T) -> U): DefaultMap<T, U> = DefaultMap(initializer)
 
-fun <T, U> defaultedMapOf(map: MutableMap<T, U>, initializer: (T) -> U): DefaultMap<T, U> = DefaultMap(initializer, map)
+fun <T, U> defaultedMapOf(map: MutableMap<T, U>, initializer: DefaultMap<T, U>.(T) -> U): DefaultMap<T, U> = DefaultMap(initializer, map)
