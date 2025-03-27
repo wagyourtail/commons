@@ -26,6 +26,7 @@ kotlin {
                 api(libs.jetbrains.annotations.kmp)
                 api(libs.kotlin.coroutines)
                 api(libs.kotlin.datetime)
+                api(libs.kotlin.atomicfu)
             }
         }
         val commonTest by getting {
