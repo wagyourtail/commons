@@ -1,10 +1,14 @@
 package xyz.wagyourtail.commonskt.properties
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 // https://stackoverflow.com/questions/47947841/kotlin-var-lazy-init :)
-class LazyMutable<T>(val initializer: () -> T) : ReadWriteProperty<Any?, T> {
+class LazyMutable<T>(val initializer: () -> T) :
+    SynchronizedObject(),
+    ReadWriteProperty<Any?, T> {
 
     @Suppress("ClassName")
     private object UNINITIALIZED_VALUE
@@ -13,9 +17,14 @@ class LazyMutable<T>(val initializer: () -> T) : ReadWriteProperty<Any?, T> {
 
     @Suppress("UNCHECKED_CAST")
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return if (prop == UNINITIALIZED_VALUE) {
-            initializer().also { prop = it }
-        } else prop as T
+        if (prop == UNINITIALIZED_VALUE) {
+            synchronized(this) {
+                if (prop == UNINITIALIZED_VALUE) {
+                    prop = initializer()
+                }
+            }
+        }
+        return prop as T
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {

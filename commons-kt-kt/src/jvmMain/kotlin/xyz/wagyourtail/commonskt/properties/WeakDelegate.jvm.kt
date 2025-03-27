@@ -1,16 +1,27 @@
 package xyz.wagyourtail.commonskt.properties
 
+import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 actual class WeakDelegate<T> actual constructor(private val refCreator: () -> T) : ReadOnlyProperty<Any?, T> {
 
-    private var ref = WeakReference(refCreator())
+    private var weak = WeakReference(refCreator())
 
     actual override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return ref.get() ?: refCreator().also {
-            ref = WeakReference(it)
+        val ref = weak.get()
+        if (ref != null) {
+            return ref
+        }
+        synchronized(this) {
+            val ref = weak.get()
+            if (ref != null) {
+                return ref
+            }
+            return refCreator().also {
+                weak = WeakReference(it)
+            }
         }
     }
 

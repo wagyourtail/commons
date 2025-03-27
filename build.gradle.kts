@@ -7,17 +7,17 @@ plugins {
 }
 
 allprojects {
-    if (!project.path.endsWith("-kt")) {
+    val kotlin = project.projectDir.name.endsWith("-kt")
+    if (!kotlin) {
         apply(plugin = "java-library")
 
         java {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(8))
             }
-            if (!project.path.endsWith("-kt")) {
-                withSourcesJar()
-                withJavadocJar()
-            }
+
+            withSourcesJar()
+            withJavadocJar()
         }
     } else {
         apply(plugin = "base")
@@ -37,7 +37,7 @@ allprojects {
     }
 
     dependencies {
-        if (!project.path.endsWith("-kt")) {
+        if (!kotlin) {
             val testImplementation by configurations.getting
             val testCompileOnly by configurations.getting
             val testRuntimeOnly by configurations.getting
@@ -46,21 +46,22 @@ allprojects {
             compileOnly(rootProject.libs.lombok)
             annotationProcessor(rootProject.libs.lombok)
 
-            testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-            testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+            testImplementation(rootProject.libs.junit.jupiter)
+            testRuntimeOnly(rootProject.libs.junit.platform.launcher)
+//            testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
             testCompileOnly(rootProject.libs.lombok)
             testAnnotationProcessor(rootProject.libs.lombok)
         }
     }
 
-    if (!project.path.endsWith("-kt")) {
+    if (!kotlin) {
         tasks.jar {
             from(rootProject.file("LICENSE.md"))
         }
     }
 
-    if (project.name != "commons-kt") {
+    if (!kotlin) {
         tasks.compileTestJava {
             javaCompiler = javaToolchains.compilerFor {
                 languageVersion.set(JavaLanguageVersion.of(17))
@@ -94,7 +95,7 @@ allprojects {
             }
         }
         // kmp does it for us
-        if (!project.path.endsWith("-kt")) {
+        if (!kotlin) {
             publications {
                 create<MavenPublication>("maven") {
                     groupId = project.group as String
@@ -112,7 +113,7 @@ allprojects {
 evaluationDependsOnChildren()
 
 dependencies {
-    compileOnly("org.jetbrains:annotations:24.1.0")
+    compileOnly(libs.jetbrains.annotations)
 
     api(project(":commons-core"))
 }

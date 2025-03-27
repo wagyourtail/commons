@@ -9,8 +9,18 @@ class SoftDelegate<T>(private val refCreator: () -> T) : ReadOnlyProperty<Any?, 
     private var soft = SoftReference<T>(null)
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return soft.get() ?: refCreator().also {
-            soft = SoftReference(it)
+        val ref = soft.get()
+        if (ref != null) {
+            return ref
+        }
+        synchronized(this) {
+            val ref = soft.get()
+            if (ref != null) {
+                return ref
+            }
+            return refCreator().also {
+                soft = SoftReference(it)
+            }
         }
     }
 

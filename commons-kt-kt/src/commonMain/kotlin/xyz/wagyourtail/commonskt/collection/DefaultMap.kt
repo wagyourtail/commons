@@ -1,5 +1,8 @@
 package xyz.wagyourtail.commonskt.collection
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+
 // https://discuss.kotlinlang.org/t/map-withdefault-not-defaulting/7691/2
 // doing it anyway
 class DefaultMap<T, U>(
@@ -7,9 +10,16 @@ class DefaultMap<T, U>(
     val map: MutableMap<T, U> = mutableMapOf()
 ) : MutableMap<T, U> by map {
 
+    private val syncLock = SynchronizedObject()
+
+
     override fun get(key: T): U {
         if (!containsKey(key)) {
-            map[key] = initializer(key)
+            synchronized(syncLock) {
+                if (!containsKey(key)) {
+                    map[key] = initializer(key)
+                }
+            }
         }
         @Suppress("UNCHECKED_CAST")
         return map[key] as U

@@ -1,6 +1,9 @@
 package xyz.wagyourtail.commonskt.collection
 
-class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Comparator<T>) {
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+
+class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Comparator<T>) : SynchronizedObject() {
     private val heap = mutableListOf<T>()
     private val insertionOrder = mutableListOf<Int>()
     private var orderCounter = 0
@@ -10,24 +13,30 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
     }
 
     fun add(element: T) {
-        heap.add(element)
-        insertionOrder.add(orderCounter++)
-        heapifyUp(heap.size - 1)
+        synchronized(this) {
+            heap.add(element)
+            insertionOrder.add(orderCounter++)
+            heapifyUp(heap.size - 1)
+        }
     }
 
     fun addAll(elements: Collection<T>) {
-        elements.forEach { add(it) }
+        synchronized(this) {
+            elements.forEach { add(it) }
+        }
     }
 
     fun poll(): T? {
         if (heap.isEmpty()) return null
-        val removed = heap[0]
-        heap[0] = heap.last()
-        insertionOrder[0] = insertionOrder.last()
-        heap.removeAt(heap.size - 1)
-        insertionOrder.removeAt(insertionOrder.size - 1)
-        heapifyDown(0)
-        return removed
+        synchronized(this) {
+            val removed = heap[0]
+            heap[0] = heap.last()
+            insertionOrder[0] = insertionOrder.last()
+            heap.removeAt(heap.size - 1)
+            insertionOrder.removeAt(insertionOrder.size - 1)
+            heapifyDown(0)
+            return removed
+        }
     }
 
     fun peek(): T? = heap.firstOrNull()

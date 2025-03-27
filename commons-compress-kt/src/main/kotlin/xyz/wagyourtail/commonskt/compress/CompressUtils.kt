@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
-fun Path.readZipContents(): List<String> {
+fun Path.listZipContents(): List<String> {
     val contents = mutableListOf<String>()
     forEachInZip { entry, _ ->
         contents.add(entry)
@@ -14,46 +14,42 @@ fun Path.readZipContents(): List<String> {
     return contents
 }
 
-fun Path.forEachInZip(action: (String, InputStream) -> Unit) {
-    Files.newByteChannel(this).use { sbc ->
-        ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(sbc).get().use { zip ->
-            for (zipArchiveEntry in zip.entries.iterator()) {
-                if (zipArchiveEntry.isDirectory) {
-                    continue
-                }
-                zip.getInputStream(zipArchiveEntry).use {
-                    action(zipArchiveEntry.name, it)
-                }
+fun Path.safeOpenZipFile(): ZipFile {
+    return ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(Files.newByteChannel(this)).get()
+}
+
+fun Path.forEachInZip(action: (String, () -> InputStream) -> Unit) {
+    safeOpenZipFile().use { zip ->
+        for (zipArchiveEntry in zip.entries.iterator()) {
+            if (zipArchiveEntry.isDirectory) {
+                continue
             }
+
+            action(zipArchiveEntry.name) { zip.getInputStream(zipArchiveEntry) }
         }
     }
 }
 
-fun Path.forEntryInZip(action: (ZipArchiveEntry, InputStream) -> Unit) {
-    Files.newByteChannel(this).use { sbc ->
-        ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(sbc).get().use { zip ->
-            for (zipArchiveEntry in zip.entries.iterator()) {
-                if (zipArchiveEntry.isDirectory) {
-                    continue
-                }
-                zip.getInputStream(zipArchiveEntry).use {
-                    action(zipArchiveEntry, it)
-                }
+fun Path.forEntryInZip(action: (ZipArchiveEntry, () -> InputStream) -> Unit) {
+    safeOpenZipFile().use { zip ->
+        for (zipArchiveEntry in zip.entries.iterator()) {
+            if (zipArchiveEntry.isDirectory) {
+                continue
             }
+
+            action(zipArchiveEntry) { zip.getInputStream(zipArchiveEntry) }
         }
     }
 }
 
 fun <T> Path.readZipInputStreamFor(path: String, throwIfMissing: Boolean = true, action: (InputStream) -> T): T {
-    Files.newByteChannel(this).use {
-        ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(it).get().use { zip ->
-            val entry = zip.getEntry(path.replace("\\", "/"))
-            if (entry != null) {
-                return zip.getInputStream(entry).use(action)
-            } else {
-                if (throwIfMissing) {
-                    throw IllegalArgumentException("Missing file $path in $this")
-                }
+    safeOpenZipFile().use { zip ->
+        val entry = zip.getEntry(path.replace("\\", "/"))
+        if (entry != null) {
+            return zip.getInputStream(entry).use(action)
+        } else {
+            if (throwIfMissing) {
+                throw IllegalArgumentException("Missing file $path in $this")
             }
         }
     }
@@ -61,12 +57,10 @@ fun <T> Path.readZipInputStreamFor(path: String, throwIfMissing: Boolean = true,
 }
 
 fun Path.zipContains(path: String): Boolean {
-    Files.newByteChannel(this).use {
-        ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(it).get().use { zip ->
-            val entry = zip.getEntry(path.replace("\\", "/"))
-            if (entry != null) {
-                return true
-            }
+    safeOpenZipFile().use { zip ->
+        val entry = zip.getEntry(path.replace("\\", "/"))
+        if (entry != null) {
+            return true
         }
     }
     return false

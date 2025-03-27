@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commonskt.utils
 
-import org.intellij.lang.annotations.Pattern
 import kotlin.jvm.JvmName
 
 class ListCompare<T : Comparable<T>>(val list: List<T>) : Comparable<ListCompare<T>> {
@@ -119,7 +118,8 @@ fun <E> MutableList<E>.insertBefore(element: E, vararg toAdd: E) {
 }
 
 fun Map<String, String>.resolveArgs(args: List<String>, hasDollar: Boolean = true): List<String> {
-    val pattern = Regex((if (hasDollar) "\\$" else "") + "\\{([^}]+)}")
+    @Suppress("RegExpRedundantEscape") // kotlin required it: Invalid regular expression: /\$\{([^}]+)}/gu: Lone quantifier brackets
+    val pattern = Regex((if (hasDollar) "\\$" else "") + "\\{([^}]+)\\}")
     return args.map { arg ->
         pattern.replace(arg) {
             val key = it.groups[1]!!.value

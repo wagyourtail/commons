@@ -1,10 +1,14 @@
 package xyz.wagyourtail.commonskt.properties
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class FinalizeOnWrite<T>(value: T) : ReadWriteProperty<Any?, T> {
+class FinalizeOnWrite<T>(value: T) :
+    SynchronizedObject(),
+    ReadWriteProperty<Any?, T> {
 
     var finalized = false
 
@@ -20,8 +24,12 @@ class FinalizeOnWrite<T>(value: T) : ReadWriteProperty<Any?, T> {
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        if (finalized) {
-            throw IllegalStateException("Cannot set finalized property")
+        synchronized(this) {
+            if (!finalized) {
+                finalized = true
+            } else {
+                throw IllegalStateException("Cannot set finalized property")
+            }
         }
         finalized = true
         if (value is ReadWriteProperty<*, *>) {

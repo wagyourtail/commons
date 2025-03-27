@@ -14,7 +14,7 @@ public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
      * natural ordering.
      */
     private final Comparator<? super E> comparator;
-    private int insertionOrder = 0;
+    private long insertionOrder = 0;
 
     public PriorityFiFoQueue(Comparator<? super E> comparator) {
         this.comparator = comparator;
@@ -71,9 +71,9 @@ public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
 
     private class Task implements Comparable<Task> {
         private final E element;
-        private final int insertionOrder;
+        private final long insertionOrder;
 
-        public Task(E element, int insertionOrder) {
+        public Task(E element, long insertionOrder) {
             this.element = element;
             this.insertionOrder = insertionOrder;
         }
@@ -82,7 +82,10 @@ public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
         public int compareTo(@NotNull PriorityFiFoQueue<E>.Task o) {
             int compare = comparator.compare(element, o.element);
             if (compare == 0) {
-                return insertionOrder - o.insertionOrder;
+                long l = insertionOrder - o.insertionOrder;
+                if (l < 0) return -1;
+                if (l > 0) return 1;
+                return 0;
             }
             return compare;
         }

@@ -36,3 +36,10 @@ fun StringBuilder.appendCodePoint(value: Int) {
         throw IllegalArgumentException("Invalid unicode code point: $value")
     }
 }
+
+//fun String.codePointCount(start: Int = 0, end: Int = this.length): Int {
+//    var count = 0
+//    for (i in start until end) {
+//
+//    }
+//}
