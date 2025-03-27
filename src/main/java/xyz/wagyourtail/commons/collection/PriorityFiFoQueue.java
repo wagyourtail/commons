@@ -6,9 +6,10 @@ import java.util.AbstractQueue;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
-    private final PriorityQueue<Task> underlying = new PriorityQueue<>();
+    private final AbstractQueue<Task> underlying;
     /**
      * The comparator, or null if priority queue uses elements'
      * natural ordering.
@@ -16,12 +17,25 @@ public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
     private final Comparator<? super E> comparator;
     private long insertionOrder = 0;
 
-    public PriorityFiFoQueue(Comparator<? super E> comparator) {
+    public PriorityFiFoQueue(Comparator<? super E> comparator, boolean sync) {
         this.comparator = comparator;
+        if (sync) {
+            underlying = new PriorityBlockingQueue<>();
+        } else {
+            underlying = new PriorityQueue<>();
+        }
+    }
+
+    public PriorityFiFoQueue(boolean sync) {
+        this((a, b) -> ((Comparable<E>) a).compareTo(b), sync);
+    }
+
+    public PriorityFiFoQueue(Comparator<? super E> comparator) {
+        this(comparator, false);
     }
 
     public PriorityFiFoQueue() {
-        comparator = (a, b) -> ((Comparable<E>) a).compareTo(b);
+        this(false);
     }
 
 
