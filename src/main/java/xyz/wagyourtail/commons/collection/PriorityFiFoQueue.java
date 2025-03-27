@@ -82,10 +82,7 @@ public class PriorityFiFoQueue<E> extends AbstractQueue<E> {
         public int compareTo(@NotNull PriorityFiFoQueue<E>.Task o) {
             int compare = comparator.compare(element, o.element);
             if (compare == 0) {
-                long l = insertionOrder - o.insertionOrder;
-                if (l < 0) return -1;
-                if (l > 0) return 1;
-                return 0;
+                return Long.signum(insertionOrder - o.insertionOrder);
             }
             return compare;
         }
