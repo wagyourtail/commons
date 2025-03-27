@@ -3,10 +3,10 @@ package xyz.wagyourtail.commons.gradle
 import org.gradle.api.logging.LogLevel
 import xyz.wagyourtail.commons.core.logger.Logger
 
-class GradleLogWrapper(val prefix: String, val logger: org.gradle.api.logging.Logger) : Logger() {
+class GradleLogWrapper(val prefix: MessageSupplier, val logger: org.gradle.api.logging.Logger) : Logger() {
 
     override fun subLogger(targetClass: Class<*>): Logger {
-        return GradleLogWrapper("$prefix/${targetClass.simpleName}", logger)
+        return GradleLogWrapper(messageSupplierOf("$prefix/${targetClass.simpleName}"), logger)
     }
 
     fun mapLevel(level: Level): LogLevel? {

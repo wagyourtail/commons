@@ -7,18 +7,23 @@ import java.io.PrintStream;
 
 @AllArgsConstructor
 public class SimpleLogger extends Logger {
-    private final String prefix;
+    private final MessageSupplier prefix;
     private final Level level;
     private final boolean useAnsiColors;
     private final PrintStream out;
 
     public SimpleLogger(Class<?> clazz, Level level, boolean useAnsiColors, PrintStream out) {
-        this(clazz.getSimpleName(), level, useAnsiColors, out);
+        this(messageSupplierOf(clazz.getSimpleName()), level, useAnsiColors, out);
     }
 
     @Override
-    public Logger subLogger(Class<?> targetClass) {
-        return new SimpleLogger(prefix + "/" + targetClass.getSimpleName(), level, useAnsiColors, out);
+    public Logger subLogger(final Class<?> targetClass) {
+        return new SimpleLogger(new MessageSupplier() {
+            @Override
+            public String getMessage() {
+                return prefix.getMessage() + "/" + targetClass.getSimpleName();
+            }
+        }, level, useAnsiColors, out);
     }
 
     protected AnsiColor getColor(Level level) {

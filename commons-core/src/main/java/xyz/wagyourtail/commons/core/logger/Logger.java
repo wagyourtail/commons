@@ -70,11 +70,11 @@ public abstract class Logger {
     public void wrapPrintStream(Level level, StreamWrap ps) {
         if (isLevel(level)) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (PrintStream ps2 = new PrintStream(baos)) {
+            try (PrintStream ps2 = new PrintStream(baos, true, StandardCharsets.UTF_8.name())) {
                 ps.writeTo(ps2);
-                String str = baos.toString(StandardCharsets.UTF_8.name());
-                log(level, str);
             }
+            String str = baos.toString(StandardCharsets.UTF_8.name());
+            log(level, str);
         }
     }
 
@@ -97,9 +97,17 @@ public abstract class Logger {
 
     }
 
+    public static MessageSupplier messageSupplierOf(final String message) {
+        return new MessageSupplier() {
+            @Override
+            public String getMessage() {
+                return message;
+            }
+        };
+    }
+
     public interface MessageSupplier {
         String getMessage();
-
     }
 
     public interface StreamWrap {
