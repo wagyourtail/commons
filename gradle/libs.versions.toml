@@ -44,7 +44,7 @@ zstd = { module = "com.github.luben:zstd-jni", version.ref = "zstd" }
 
 kotlin_coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin_coroutines" }
 kotlin_datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlin_datetime" }
-kotlin_atomicfu = { module = "org.jetbrains.kotlinx:kotlinx-atomicfu", version.ref = "kotlin_atomicfu" }
+kotlin_atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlin_atomicfu" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
