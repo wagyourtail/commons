@@ -5,10 +5,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
-import org.gradle.api.artifacts.component.ComponentIdentifier
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.configurationcache.extensions.capitalized
@@ -21,60 +17,43 @@ val Project.sourceSets
 val Project.javaToolchains
     get() = extensions.findByType(JavaToolchainService::class.java)!!
 
-/**
- * ignores the version and classifier, because gradle's dumb and deprecated
- * [Configuration.files] without a proper replacement.
- */
-fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): FileCollection {
+fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File> {
     resolve()
-    return incoming.artifactView { view ->
-        when (dep) {
-            is ModuleDependency -> {
-                view.componentFilter {
-                    when (it) {
-                        is ModuleComponentIdentifier -> {
-                            it.group == dep.group && it.module == dep.name
-                        }
-
-                        is ComponentArtifactIdentifier -> {
-                            false
-                        }
-
-                        else -> {
-                            println("Unknown component type: ${it.javaClass}")
-                            false
-                        }
+    val files = mutableSetOf<File>()
+    when (dep) {
+        is ModuleDependency -> {
+            val resolvedArtifacts = resolvedConfiguration.resolvedArtifacts
+            for (artifact in dep.artifacts) {
+                val group = dep.group
+                val name = dep.name
+                val version = dep.version
+                val classifier = artifact.classifier
+                val ext = artifact.extension
+                for (resolvedArtifact in resolvedArtifacts) {
+                    if (resolvedArtifact.moduleVersion.id.group == group &&
+                        resolvedArtifact.moduleVersion.id.name == name &&
+                        resolvedArtifact.moduleVersion.id.version == version &&
+                        resolvedArtifact.classifier == classifier &&
+                        resolvedArtifact.extension == ext
+                    ) {
+                        files.add(resolvedArtifact.file)
                     }
                 }
-            }
-
-            is FileCollectionDependency -> {
-                view.componentFilter { comp ->
-                    when (comp) {
-                        is ModuleComponentIdentifier -> {
-                            false
-                        }
-
-                        is ComponentIdentifier -> {
-                            dep.files.any { it.name == comp.displayName }
-                        }
-
-                        else -> {
-                            println("Unknown component type: ${comp.javaClass}")
-                            false
-                        }
-                    }
-                }
-            }
-
-            else -> {
-                throw IllegalArgumentException("Unknown dependency type: ${dep.javaClass}")
             }
         }
-    }.files.filter(filter)
+        is FileCollectionDependency -> {
+            for (file in dep.files) {
+                files.add(file)
+            }
+        }
+        else -> {
+            throw IllegalArgumentException("Unsupported dependency type: ${dep::class.java}")
+        }
+    }
+    return files.filter {filter(it) }.toSet()
 }
 
-fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): FileCollection {
+fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): Set<File> {
     return getFiles(dep) { it.extension == extension }
 }
 
