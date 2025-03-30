@@ -5,10 +5,13 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.jvm.toolchain.JavaToolchainService
+import xyz.wagyourtail.commonskt.maven.MavenCoords
 import java.io.File
 
 val Project.sourceSets
@@ -59,3 +62,48 @@ fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): Set<File
 
 fun String.withSourceSet(sourceSet: SourceSet) =
     if (sourceSet.name == "main") this else "${sourceSet.name}${this.capitalized()}"
+
+
+fun ResolvedArtifactResult.getCoords(): MavenCoords {
+    val owner = this.variant.owner
+
+    var location = if (owner is ModuleComponentIdentifier) {
+        MavenCoords(owner.group, owner.module, owner.version)
+    } else {
+        null
+    }
+
+    val capabilityLocations = this.variant.capabilities.map {
+        MavenCoords(it.group, it.name, it.version)
+    }
+
+    if (!capabilityLocations.isEmpty() && (location == null || !capabilityLocations.contains(location))) {
+        location = capabilityLocations[0]
+    }
+
+    if (location == null) {
+        error("unknown dependency type ${this.variant.owner}")
+    }
+
+    val classifierPrefix = "${location.artifact}-${location.version}-"
+
+    if (this.file.name.startsWith(classifierPrefix)) {
+        location = MavenCoords(
+            location.group!!,
+            location.artifact,
+            location.version,
+            this.file.nameWithoutExtension.substring(classifierPrefix.length),
+            this.file.extension
+        )
+    } else {
+        location = MavenCoords(
+            location.group!!,
+            location.artifact,
+            location.version,
+            null,
+            this.file.extension
+        )
+    }
+
+    return location
+}
