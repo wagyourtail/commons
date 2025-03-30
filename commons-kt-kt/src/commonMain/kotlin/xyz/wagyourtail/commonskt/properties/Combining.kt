@@ -18,3 +18,7 @@ class CombiningDelegate<T>(private var value: T, val combiner: (T, T) -> T): Syn
     }
 
 }
+
+fun <T> combining(value: T, combiner: (T, T) -> T): ReadWriteProperty<Any?, T> {
+    return CombiningDelegate(value, combiner)
+}
