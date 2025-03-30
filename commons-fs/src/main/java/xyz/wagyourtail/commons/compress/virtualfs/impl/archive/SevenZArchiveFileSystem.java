@@ -9,7 +9,7 @@ import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
 import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
 import xyz.wagyourtail.commons.core.data.SeekableByteChannelInputStream;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelUtils;
+import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.data.SeekableInMemoryByteChannel;
 
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class SevenZArchiveFileSystem extends VirtualFileSystem {
             }
         }
         buffer.position(0);
-        SeekableByteChannelUtils.transferTo(buffer, os);
+        IOUtils.transferTo(buffer, os);
     }
 
     @Override

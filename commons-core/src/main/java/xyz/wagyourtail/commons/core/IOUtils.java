@@ -1,11 +1,11 @@
-package xyz.wagyourtail.commons.core.data;
+package xyz.wagyourtail.commons.core;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 
-public class SeekableByteChannelUtils {
+public class IOUtils {
 
     public static void transferTo(SeekableByteChannel in, OutputStream os) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(8096);

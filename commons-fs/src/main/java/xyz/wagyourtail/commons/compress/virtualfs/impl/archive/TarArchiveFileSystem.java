@@ -8,7 +8,7 @@ import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
 import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelUtils;
+import xyz.wagyourtail.commons.core.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class TarArchiveFileSystem extends VirtualFileSystem {
             writer.putArchiveEntry(new TarArchiveEntry(entry.path));
             SeekableByteChannel data = entry.getData();
             data.position(0);
-            SeekableByteChannelUtils.transferTo(data, writer);
+            IOUtils.transferTo(data, writer);
             writer.closeArchiveEntry();
         }
         writer.close();

@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
+import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class ZipArchiveFileSystem extends VirtualFileSystem {
             writer.putArchiveEntry(new ZipArchiveEntry(entry.path));
             SeekableByteChannel data = entry.getData();
             data.position(0);
-            SeekableByteChannelUtils.transferTo(data, writer);
+            IOUtils.transferTo(data, writer);
             writer.closeArchiveEntry();
         }
         writer.close();

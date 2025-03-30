@@ -10,7 +10,7 @@ import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.file.PathFile;
 import xyz.wagyourtail.commons.compress.virtualfs.listener.FileSystemChangeListener;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelUtils;
+import xyz.wagyourtail.commons.core.IOUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -217,7 +217,7 @@ public class DirectoryFileSystem extends VirtualFileSystem {
         } else if (location instanceof PathFile) {
             PathFile path = (PathFile) this.location;
             try (OutputStream os = Files.newOutputStream(path.getPath().resolve(fi.path), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-                SeekableByteChannelUtils.transferTo(data, os);
+                IOUtils.transferTo(data, os);
             }
         } else {
             throw new IOException("Cannot put data for non-path file");

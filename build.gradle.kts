@@ -55,10 +55,8 @@ allprojects {
         }
     }
 
-    if (!kotlin) {
-        tasks.jar {
-            from(rootProject.file("LICENSE.md"))
-        }
+    tasks.withType<Jar> {
+        from(rootProject.file("LICENSE.md"))
     }
 
     if (!kotlin) {

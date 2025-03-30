@@ -8,7 +8,7 @@ import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.impl.SingleFileFilesystem;
 import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
 import xyz.wagyourtail.commons.core.data.SeekableByteChannelInputStream;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelUtils;
+import xyz.wagyourtail.commons.core.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class BZip2ArchiveFileSystem extends SingleFileFilesystem {
         }
         SeekableByteChannel data = files.iterator().next().getData();
         data.position(0);
-        SeekableByteChannelUtils.transferTo(data, writer);
+        IOUtils.transferTo(data, writer);
         writer.close();
     }
 
