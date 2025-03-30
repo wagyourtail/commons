@@ -10,7 +10,8 @@ public class FastWrapOutputStream extends ByteArrayOutputStream {
 
     @Override
     public synchronized void reset() {
-        throw new UnsupportedOperationException();
+        count = 0;
+        this.buf = new byte[32];
     }
 
     @SuppressWarnings("resource")
