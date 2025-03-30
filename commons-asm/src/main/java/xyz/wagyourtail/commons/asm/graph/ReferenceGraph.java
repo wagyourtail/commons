@@ -59,7 +59,7 @@ public class ReferenceGraph {
     }
 
     public ReferenceGraph(Logger logger, boolean retainClassNodes, boolean retainInsns) {
-        this.logger = logger.subLogger(ReferenceGraph.class);
+        this.logger = logger.subLogger(ReferenceGraph.class.getSimpleName());
         this.retainClassNodes = retainClassNodes;
         this.retainInsns = retainInsns;
         if (retainInsns && !retainClassNodes) {

@@ -6,7 +6,7 @@ public class NullLogger extends Logger {
     private NullLogger() {}
 
     @Override
-    public Logger subLogger(Class<?> targetClass) {
+    public Logger subLogger(String targetName) {
         return this;
     }
 

@@ -2,15 +2,19 @@ package xyz.wagyourtail.commons.core.logger;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 public abstract class Logger {
 
-    public abstract Logger subLogger(Class<?> targetClass);
+    public abstract Logger subLogger(String subloggerName);
 
     public abstract boolean isLevel(Level level);
 
@@ -34,20 +38,60 @@ public abstract class Logger {
 
     public abstract void log(Level level, String message, Throwable throwable);
 
+    public void trace(MessageSupplier messageSupplier) {
+        log(Level.TRACE, messageSupplier);
+    }
+
+    public void trace(String message) {
+        log(Level.TRACE, message);
+    }
+
     public void trace(String message, Object... args) {
         log(Level.TRACE, message, args);
+    }
+
+    public void debug(MessageSupplier messageSupplier) {
+        log(Level.DEBUG, messageSupplier);
+    }
+
+    public void debug(String message) {
+        log(Level.DEBUG, message);
     }
 
     public void debug(String message, Object... args) {
         log(Level.DEBUG, message, args);
     }
 
+    public void info(MessageSupplier messageSupplier) {
+        log(Level.INFO, messageSupplier);
+    }
+
+    public void info(String message) {
+        log(Level.INFO, message);
+    }
+
     public void info(String message, Object... args) {
         log(Level.INFO, message, args);
     }
 
+    public void lifecycle(MessageSupplier messageSupplier) {
+        log(Level.LIFECYCLE, messageSupplier);
+    }
+
+    public void lifecycle(String message) {
+        log(Level.LIFECYCLE, message);
+    }
+
     public void lifecycle(String message, Object... args) {
-        log(Level.INFO, message, args);
+        log(Level.LIFECYCLE, message, args);
+    }
+
+    public void warning(MessageSupplier messageSupplier) {
+        log(Level.WARNING, messageSupplier);
+    }
+
+    public void warning(String message) {
+        log(Level.WARNING, message);
     }
 
     public void warning(String message, Object... args) {
@@ -56,6 +100,14 @@ public abstract class Logger {
 
     public void warning(String message, Throwable throwable) {
         log(Level.WARNING, message, throwable);
+    }
+
+    public void error(MessageSupplier messageSupplier) {
+        log(Level.ERROR, messageSupplier);
+    }
+
+    public void error(String message) {
+        log(Level.ERROR, message);
     }
 
     public void error(String message, Object... args) {
@@ -67,14 +119,32 @@ public abstract class Logger {
     }
 
     @SneakyThrows
-    public void wrapPrintStream(Level level, StreamWrap ps) {
+    public void wrapPrintStream(final Level level, final StreamWrap ps) {
         if (isLevel(level)) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (PrintStream ps2 = new PrintStream(baos, true, StandardCharsets.UTF_8.name())) {
-                ps.writeTo(ps2);
-            }
-            String str = baos.toString(StandardCharsets.UTF_8.name());
-            log(level, str);
+            ps.writeTo(new PrintStream(new OutputStream() {
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                @Override
+                public void write(int b) throws UnsupportedEncodingException {
+                    if (b == '\n' || b == -1) {
+                        log(level, baos.toString(StandardCharsets.UTF_8.name()));
+                        baos.reset();
+                    } else {
+                        baos.write(b);
+                    }
+                }
+
+                @Override
+                public void close() throws IOException {
+                    super.close();
+                    if (baos.size() > 0) {
+                        log(level, baos.toString(StandardCharsets.UTF_8.name()));
+                    }
+                }
+
+            }, true, StandardCharsets.UTF_8.name()));
+
+
         }
     }
 
@@ -97,22 +167,12 @@ public abstract class Logger {
 
     }
 
-    public static MessageSupplier messageSupplierOf(final String message) {
-        return new MessageSupplier() {
-            @Override
-            public String getMessage() {
-                return message;
-            }
-        };
+    public interface StreamWrap {
+        void writeTo(PrintStream ps);
     }
 
     public interface MessageSupplier {
         String getMessage();
-    }
-
-    public interface StreamWrap {
-        void writeTo(PrintStream ps);
-
     }
 
 }

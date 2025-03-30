@@ -1,29 +1,52 @@
 package xyz.wagyourtail.commons.core.logger;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import xyz.wagyourtail.commons.core.AnsiColor;
+import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix;
+import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix;
 
 import java.io.PrintStream;
+import java.util.Objects;
 
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class SimpleLogger extends Logger {
-    private final MessageSupplier prefix;
-    private final Level level;
-    private final boolean useAnsiColors;
-    private final PrintStream out;
+    @Builder.Default
+    private final LoggingPrefix prefix = new DefaultLoggingPrefix();
+    @Builder.Default
+    private final Level level = Level.INFO;
+    @Builder.Default
+    private final boolean useAnsiColors = true;
+    @Builder.Default
+    private final PrintStream out = System.out;
 
-    public SimpleLogger(Class<?> clazz, Level level, boolean useAnsiColors, PrintStream out) {
-        this(messageSupplierOf(clazz.getSimpleName()), level, useAnsiColors, out);
+    public static Logger forCaller() {
+        return forClass(Objects.requireNonNull(DefaultLoggingPrefix.getCallingClass()));
+    }
+
+    public static Logger forClass(Class<?> clazz) {
+        return builder()
+            .prefix(DefaultLoggingPrefix.builder()
+                .loggerName(clazz.getSimpleName())
+                .build()
+            )
+            .build();
     }
 
     @Override
-    public Logger subLogger(final Class<?> targetClass) {
-        return new SimpleLogger(new MessageSupplier() {
-            @Override
-            public String getMessage() {
-                return prefix.getMessage() + "/" + targetClass.getSimpleName();
-            }
-        }, level, useAnsiColors, out);
+    public Logger subLogger(final String subloggerName) {
+        return new SimpleLogger(prefix.subSupplier(subloggerName), level, useAnsiColors, out);
+    }
+
+    public Logger subLogger(final Class<?> clazz) {
+        return subLogger(clazz.getSimpleName());
+    }
+
+    public Logger subLogger() {
+        return subLogger(Objects.requireNonNull(DefaultLoggingPrefix.getCallingClass()).getSimpleName());
     }
 
     protected AnsiColor getColor(Level level) {
@@ -55,7 +78,7 @@ public class SimpleLogger extends Logger {
     @Override
     public void log(Level level, String message) {
         if (isLevel(level)) {
-            String content = "[" + prefix + "] " + level + ": " + message;
+            String content = prefix.getPrefix(level) + message;
             if (useAnsiColors) {
                 out.println(getColor(level).wrap(content));
             } else {
