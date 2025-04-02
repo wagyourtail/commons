@@ -130,13 +130,13 @@ open class FooterComponent(
 
 }
 
-fun Container.footerComponent(
+inline fun Container.footerComponent(
     poweredBy: Boolean = true,
     author: String = "",
     date: String = "",
     init: FooterComponent.() -> Unit = {}
-) {
-    FooterComponent(poweredBy, "$author $date").also {
+): FooterComponent {
+    return FooterComponent(poweredBy, "$author $date").also {
         it.init()
         this.add(it)
     }

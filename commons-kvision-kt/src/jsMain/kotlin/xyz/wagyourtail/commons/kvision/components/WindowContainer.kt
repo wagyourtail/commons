@@ -1,19 +1,31 @@
 package xyz.wagyourtail.commons.kvision.components
 
+import io.kvision.core.Border
+import io.kvision.core.BorderStyle
+import io.kvision.core.Col
+import io.kvision.core.Color
+import io.kvision.core.Container
+import io.kvision.core.JustifyContent
 import io.kvision.core.Overflow
 import io.kvision.html.div
+import io.kvision.panel.FlexPanel
 import io.kvision.panel.StackPanel
 import io.kvision.panel.VPanel
+import io.kvision.panel.flexPanel
 import io.kvision.utils.auto
 import io.kvision.utils.perc
+import io.kvision.utils.px
 import io.kvision.utils.vh
 
-open class WindowContainer(init: WindowContainer.() -> Unit) : VPanel() {
+open class WindowContainer() : VPanel() {
     init {
         height = 100.vh
     }
 
-    val titlebar = div {}
+    val titlebar = flexPanel(justify = JustifyContent.SPACEBETWEEN) {
+        width = 100.perc
+        borderBottom = Border(2.px, BorderStyle.SOLID, Color.name(Col.LIGHTGRAY))
+    }
 
     val main = StackPanel {
 
@@ -33,4 +45,23 @@ open class WindowContainer(init: WindowContainer.() -> Unit) : VPanel() {
 
     }
 
+    inline fun titlebar(function: FlexPanel.() -> Unit) {
+        titlebar.function()
+    }
+
+    inline fun main(function: StackPanel.() -> Unit) {
+        main.function()
+    }
+
+    inline fun footer(function: FooterComponent.() -> Unit) {
+        footer.function()
+    }
+
+}
+
+inline fun Container.windowContainer(init: WindowContainer.() -> Unit): WindowContainer {
+    return WindowContainer().also {
+        it.init()
+        this.add(it)
+    }
 }
