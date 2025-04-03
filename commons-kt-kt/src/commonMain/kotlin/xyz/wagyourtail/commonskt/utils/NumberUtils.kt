@@ -92,3 +92,15 @@ fun Long.floorToMultipleOf(value: Long): Long {
     return this - this % value
 }
 
+operator fun Number.unaryMinus(): Number {
+    return when (this) {
+        is Int -> -this
+        is Long -> -this
+        is Float -> -this
+        is Double -> -this
+        is Byte -> -this
+        is Short -> -this
+        else -> throw IllegalArgumentException()
+    }
+}
+
