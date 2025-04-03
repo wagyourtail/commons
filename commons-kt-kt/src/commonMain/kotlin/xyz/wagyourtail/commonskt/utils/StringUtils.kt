@@ -108,3 +108,21 @@ fun String.maybeEscape(): String {
     }
     return this
 }
+
+fun String.removeSuffix(suffix: String, ignoreCase: Boolean = false): String {
+    if (endsWith(suffix, ignoreCase)) {
+        return substring(0, length - suffix.length)
+    }
+    return this
+}
+
+fun String.removePrefix(prefix: String, ignoreCase: Boolean = false): String {
+    if (startsWith(prefix, ignoreCase)) {
+        return substring(prefix.length)
+    }
+    return this
+}
+
+fun String.removeSurrounding(prefix: String, suffix: String, ignoreCase: Boolean = false): String {
+    return removePrefix(prefix, ignoreCase).removeSuffix(suffix, ignoreCase)
+}
