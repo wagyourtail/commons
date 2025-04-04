@@ -95,11 +95,11 @@ fun Long.floorToMultipleOf(value: Long): Long {
 operator fun Number.unaryMinus(): Number {
     return when (this) {
         is Double -> -this
-        is Float -> -this
         is Long -> -this
+        is Float -> -this
         is Int -> -this
-        is Byte -> -this
         is Short -> -this
+        is Byte -> -this
         else -> throw IllegalArgumentException()
     }
 }
