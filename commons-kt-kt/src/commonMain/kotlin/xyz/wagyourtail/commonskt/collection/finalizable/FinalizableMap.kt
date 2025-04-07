@@ -1,6 +1,10 @@
 package xyz.wagyourtail.commonskt.collection.finalizable
 
-class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) : MutableMap<K, V>, Map<K, V> by backing {
+class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) :
+    MutableMap<K, V>,
+    Map<K, V> by backing,
+    Finalizable
+{
     private var finalized = false
 
     override val keys: MutableSet<K>
@@ -58,8 +62,9 @@ class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) : Mut
             if (finalized) it.finalize()
         }
 
-    fun finalize() {
+    override fun finalize() {
         finalized = true
+        values.forEach { if (it is Finalizable) it.finalize() }
     }
 
     override fun clear() {

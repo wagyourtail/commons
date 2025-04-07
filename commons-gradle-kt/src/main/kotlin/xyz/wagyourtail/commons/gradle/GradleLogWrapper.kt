@@ -30,12 +30,12 @@ class GradleLogWrapper(val prefix: LoggingPrefix, val logger: org.gradle.api.log
 
     override fun log(level: Level, message: String) {
         val lv = mapLevel(level) ?: return
-        logger.log(lv, "[$prefix] $message")
+        logger.log(lv, "[${prefix.getPrefix(level)}] $message")
     }
 
     override fun log(level: Level, message: String, throwable: Throwable) {
         val lv = mapLevel(level) ?: return
-        logger.log(lv, "[$prefix] $message", throwable)
+        logger.log(lv, "[${prefix.getPrefix(level)}] $message", throwable)
     }
 
     inline fun trace(message: () -> String) {

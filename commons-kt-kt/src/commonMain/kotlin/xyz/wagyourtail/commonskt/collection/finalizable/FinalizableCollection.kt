@@ -2,7 +2,8 @@ package xyz.wagyourtail.commonskt.collection.finalizable
 
 open class FinalizableCollection<E, T : MutableCollection<E>>(backing: T) : FinalizableIterable<E, T>(backing),
     MutableCollection<E>,
-    Collection<E> by backing {
+    Collection<E> by backing
+{
 
     override fun iterator(): MutableIterator<E> {
         return super.iterator()
