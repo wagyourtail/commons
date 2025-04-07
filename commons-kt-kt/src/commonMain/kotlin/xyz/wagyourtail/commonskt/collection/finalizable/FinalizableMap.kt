@@ -5,7 +5,8 @@ class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) :
     Map<K, V> by backing,
     Finalizable
 {
-    private var finalized = false
+    override var finalized = false
+        private set
 
     override val keys: MutableSet<K>
         get() = FinalizableSet<K>(backing.keys).also {

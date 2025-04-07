@@ -5,7 +5,9 @@ open class FinalizableIterable<E, T : MutableIterable<E>>(val backing: T) :
     Iterable<E> by backing,
     Finalizable
 {
-    protected var finalized = false
+
+    override var finalized = false
+        protected set
 
     override fun finalize() {
         finalized = true
