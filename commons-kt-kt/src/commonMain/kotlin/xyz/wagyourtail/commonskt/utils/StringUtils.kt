@@ -126,3 +126,7 @@ fun String.removePrefix(prefix: String, ignoreCase: Boolean = false): String {
 fun String.removeSurrounding(prefix: String, suffix: String, ignoreCase: Boolean = false): String {
     return removePrefix(prefix, ignoreCase).removeSuffix(suffix, ignoreCase)
 }
+
+fun String.capitalized() = replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
+fun String.decapitalized() = replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
