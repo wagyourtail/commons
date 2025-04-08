@@ -1,18 +1,24 @@
 package xyz.wagyourtail.commons.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.internal.AbstractTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.jvm.toolchain.JavaToolchainService
 import xyz.wagyourtail.commonskt.maven.MavenCoords
 import java.io.File
+import kotlin.jvm.java
 
 val Project.sourceSets
     get() = extensions.findByType(SourceSetContainer::class.java)!!
@@ -106,4 +112,14 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
     }
 
     return location
+}
+
+inline fun <reified T: Task> TaskContainer.maybeRegister(name: String, noinline action: T.() -> Unit = {}): TaskProvider<T> {
+    return try {
+        named(name, T::class.java) as TaskProvider<T>
+    } catch (ex: UnknownTaskException) {
+        register(name, T::class.java)
+    }.also {
+        it.configure(action)
+    }
 }
