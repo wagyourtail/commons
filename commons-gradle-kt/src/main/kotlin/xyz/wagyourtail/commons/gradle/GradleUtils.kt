@@ -123,3 +123,6 @@ inline fun <reified T: Task> TaskContainer.maybeRegister(name: String, noinline 
         it.configure(action)
     }
 }
+
+val isIdeaSync: Boolean
+    get() = System.getProperty("idea.sync.active", "false").toBoolean()
