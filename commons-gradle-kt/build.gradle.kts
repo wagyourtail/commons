@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.lombok")
     `java-gradle-plugin`
 }
 

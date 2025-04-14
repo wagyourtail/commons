@@ -2,9 +2,18 @@ package xyz.wagyourtail.commons.gradle
 
 import org.gradle.api.logging.LogLevel
 import xyz.wagyourtail.commons.core.logger.Logger
+import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
 
 class GradleLogWrapper(val prefix: LoggingPrefix, val logger: org.gradle.api.logging.Logger) : Logger() {
+
+    constructor(name: String, logger: org.gradle.api.logging.Logger) : this(
+        DefaultLoggingPrefix.builder()
+            .loggerName(name)
+            .includeThreadName(false)
+            .build(),
+        logger
+    )
 
     override fun subLogger(subloggerName: String): Logger {
         return GradleLogWrapper(prefix.subSupplier(subloggerName), logger)
