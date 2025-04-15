@@ -2,7 +2,6 @@ package xyz.wagyourtail.commons.core.logger;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

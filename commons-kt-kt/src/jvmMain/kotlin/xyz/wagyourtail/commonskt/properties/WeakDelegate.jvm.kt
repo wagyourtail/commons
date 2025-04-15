@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commonskt.properties
 
-import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty

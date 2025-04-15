@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
-import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
 import xyz.wagyourtail.commons.core.IOUtils;
+import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

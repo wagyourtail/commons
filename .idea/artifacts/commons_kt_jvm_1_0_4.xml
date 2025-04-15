@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="commons-kt-jvm-1.0.4">
+    <output-path>$PROJECT_DIR$/commons-kt-kt/build/libs</output-path>
+    <root id="archive" name="commons-kt-jvm-1.0.4.jar">
+      <element id="module-output" name="xyz.wagyourtail.commons.commons.commons-kt.jvmMain" />
+    </root>
+  </artifact>
+</component>

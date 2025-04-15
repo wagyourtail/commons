@@ -11,10 +11,8 @@ import java.io.IOException
 import java.nio.file.Files
 import java.util.*
 import java.util.stream.Stream
-import kotlin.NoSuchElementException
 import kotlin.io.path.toPath
 import kotlin.test.assertEquals
-
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FlexVerTest {

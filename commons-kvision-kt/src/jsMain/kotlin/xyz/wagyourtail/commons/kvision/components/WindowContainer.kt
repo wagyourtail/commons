@@ -1,12 +1,6 @@
 package xyz.wagyourtail.commons.kvision.components
 
-import io.kvision.core.Border
-import io.kvision.core.BorderStyle
-import io.kvision.core.Col
-import io.kvision.core.Color
-import io.kvision.core.Container
-import io.kvision.core.JustifyContent
-import io.kvision.core.Overflow
+import io.kvision.core.*
 import io.kvision.html.div
 import io.kvision.panel.FlexPanel
 import io.kvision.panel.StackPanel

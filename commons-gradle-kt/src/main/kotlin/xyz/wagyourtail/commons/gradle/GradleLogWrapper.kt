@@ -2,7 +2,6 @@ package xyz.wagyourtail.commons.gradle
 
 import org.gradle.api.logging.LogLevel
 import xyz.wagyourtail.commons.core.logger.Logger
-import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix
 import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix.getCallingClass
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
 import xyz.wagyourtail.commons.gradle.logging.GradleLoggingPrefix
