@@ -3,15 +3,14 @@ package xyz.wagyourtail.commons.gradle
 import org.gradle.api.logging.LogLevel
 import xyz.wagyourtail.commons.core.logger.Logger
 import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix
+import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix.getCallingClass
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
+import xyz.wagyourtail.commons.gradle.logging.GradleLoggingPrefix
 
 class GradleLogWrapper(val prefix: LoggingPrefix, val logger: org.gradle.api.logging.Logger) : Logger() {
 
-    constructor(name: String, logger: org.gradle.api.logging.Logger) : this(
-        DefaultLoggingPrefix.builder()
-            .loggerName(name)
-            .includeThreadName(false)
-            .build(),
+    constructor(path: String, name: String?, logger: org.gradle.api.logging.Logger) : this(
+        GradleLoggingPrefix(path, name ?: getCallingClass().simpleName),
         logger
     )
 

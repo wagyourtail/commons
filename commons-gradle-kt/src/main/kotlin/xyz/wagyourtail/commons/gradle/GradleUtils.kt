@@ -1,5 +1,8 @@
 package xyz.wagyourtail.commons.gradle
 
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.NamedDomainObjectProvider
+import org.gradle.api.PolymorphicDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
@@ -66,6 +69,7 @@ fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): Set<File
     return getFiles(dep) { it.extension == extension }
 }
 
+@Deprecated(message = "use sourceSet.getTaskName() instead", replaceWith = ReplaceWith("sourceSet.getTaskName(null, this)"))
 fun String.withSourceSet(sourceSet: SourceSet) =
     if (sourceSet.name == "main") this else "${sourceSet.name}${this.capitalized()}"
 
@@ -114,11 +118,21 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
     return location
 }
 
-inline fun <reified T: Task> TaskContainer.maybeRegister(name: String, noinline action: T.() -> Unit = {}): TaskProvider<T> {
+fun <T> NamedDomainObjectContainer<T>.maybeRegister(name: String, action: T.() -> Unit = {}): NamedDomainObjectProvider<T> {
     return try {
-        named(name, T::class.java) as TaskProvider<T>
+        named(name) as NamedDomainObjectProvider<T>
     } catch (ex: UnknownTaskException) {
-        register(name, T::class.java)
+        register(name)
+    }.also {
+        it.configure(action)
+    }
+}
+
+inline fun <reified S: T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, noinline action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+    return try {
+        named(name, S::class.java) as NamedDomainObjectProvider<S>
+    } catch (ex: UnknownTaskException) {
+        register(name, S::class.java)
     }.also {
         it.configure(action)
     }
