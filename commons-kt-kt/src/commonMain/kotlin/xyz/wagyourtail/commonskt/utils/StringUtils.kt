@@ -7,7 +7,7 @@ fun String.translateEscapes(lenient: Boolean = false): String {
     if (this.isEmpty() || !this.contains("\\")) {
         return this
     }
-    return buildString {
+    return buildString(this.length) {
         var i = 0
         while (i < this@translateEscapes.length) {
             val c = this@translateEscapes[i++]
@@ -63,7 +63,7 @@ fun String.translateEscapes(lenient: Boolean = false): String {
 
 fun String.escape(unicode: Boolean = false, spaces: Boolean = false, doubleQuote: Boolean = false): String {
     if (this.isEmpty()) return this
-    return buildString {
+    return buildString(this.length) {
         var i = 0
         while (i < this@escape.length) {
             when (val c = this@escape[i++]) {

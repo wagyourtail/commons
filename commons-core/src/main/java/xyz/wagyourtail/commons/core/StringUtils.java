@@ -20,10 +20,10 @@ public class StringUtils {
     }
 
     public static String translateEscapes(String str, boolean lenient) {
-        if (!str.contains("\\")) {
+        if (str.isEmpty() || !str.contains("\\")) {
             return str;
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(str.length());
         int i = 0;
         while (i < str.length()) {
             char c = str.charAt(i++);
@@ -115,7 +115,7 @@ public class StringUtils {
 
     public static String escape(String str, boolean unicode, boolean spaces, boolean doubleQuote) {
         if (str.isEmpty()) return str;
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(str.length());
         int i = 0;
         while (i < str.length()) {
             char c = str.charAt(i++);
