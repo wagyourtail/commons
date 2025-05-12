@@ -115,6 +115,10 @@ public class ASMUtils {
         }
     }
 
+    public static boolean equals(Type type, Class<?> clazz) {
+        return type.getClassName().equals(clazz.getName());
+    }
+
     public ClassNode copy(ClassNode node) {
         ClassNode copy = new ClassNode();
         node.accept(new ClassVisitor(Opcodes.ASM9, copy) {

@@ -21,14 +21,32 @@ public class AnnotationUtils {
         return createAnnotation(annotationNode, AnnotationUtils.class.getClassLoader());
     }
 
+    /**
+     *
+     * This is the recommended method in this class to create annotations
+     *
+     * @param annotationNode the node to construct the annotation from
+     * @param annotationClass the class of the annotation
+     * @return the annotation
+     * @param <T> the type of the annotation
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, Class<T> annotationClass) {
+        ClassLoader loader = annotationClass.getClassLoader();
+        if (!ASMUtils.equals(Type.getType(annotationNode.desc), annotationClass)) {
+            throw new IllegalArgumentException("AnnotationNode type (" + annotationNode.desc + ") does not match annotation class (" + annotationClass.getName() + ")");
+        }
+        return (T) Proxy.newProxyInstance(
+                loader,
+                new Class[]{annotationClass},
+                new Handler(annotationClass, annotationNode, loader)
+        );
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, ClassLoader loader) throws ClassNotFoundException {
         Class<?> annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), loader);
-        return (T) Proxy.newProxyInstance(
-            loader,
-            new Class[]{annotationClass},
-            new Handler(annotationClass, annotationNode, loader)
-        );
+        return createAnnotation(annotationNode, (Class<T>) annotationClass);
     }
 
 
