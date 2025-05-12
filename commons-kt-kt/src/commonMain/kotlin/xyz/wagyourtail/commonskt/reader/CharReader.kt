@@ -144,7 +144,7 @@ abstract class CharReader<T : CharReader<T>> {
 
     fun expect(char: Char): Char {
         val it = take()
-        if (it != char) throw IllegalArgumentException("Expected $char but got $it")
+        if (it != char) throw IllegalArgumentException("Expected $char but got ${it ?: "EOS"}")
         return char
     }
 

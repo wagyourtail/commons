@@ -33,7 +33,7 @@ fun String.translateEscapes(lenient: Boolean = false): String {
                     'u' -> {
                         val hex = this@translateEscapes.substring(i, i + 4)
                         if (hex.length != 4) throw IllegalArgumentException("Invalid unicode escape: $hex, expected 4 characters, found EOS")
-                        append(hex.toInt(16).toChar())
+                        append(hex.toInt(16).toUnicode())
                         i += 4
                     }
 

@@ -336,7 +336,13 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public char expect(char character) {
         int next = take();
         if (next != character) {
-            throw new IllegalArgumentException("Expected " + character + " but got " + next);
+            String message = "Expected " + character + " but got ";
+            if (next == -1) {
+                message += "EOF";
+            } else {
+                message += (char) next;
+            }
+            throw new IllegalArgumentException(message);
         }
         return (char) next;
     }
