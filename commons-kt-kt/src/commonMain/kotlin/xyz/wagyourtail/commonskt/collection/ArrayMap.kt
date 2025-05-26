@@ -1,8 +1,8 @@
 package xyz.wagyourtail.commonskt.collection
 
-class ArrayMap<K, V>(initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableMap<K, V>() {
-    private var ks = arrayOfNulls<Any>(initialSize)
-    private var vs = arrayOfNulls<Any>(initialSize)
+class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableMap<K, V>() {
+    private var ks = arrayOfNulls<Any?>(initialSize)
+    private var vs = arrayOfNulls<Any?>(initialSize)
 
     init {
         if (resizeAmount < 1) {
@@ -136,8 +136,8 @@ class ArrayMap<K, V>(initialSize: Int = 0, val resizeAmount: Int = 1) : Abstract
 
     override fun clear() {
         size = 0
-        ks.fill(null)
-        vs.fill(null)
+        ks = arrayOfNulls(initialSize)
+        vs = arrayOfNulls(initialSize)
     }
 
 }
