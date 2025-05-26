@@ -31,7 +31,6 @@ class FinalizeOnWrite<T>(value: T) :
                 throw IllegalStateException("Cannot set finalized property")
             }
         }
-        finalized = true
         if (value is ReadWriteProperty<*, *>) {
             (value as ReadWriteProperty<Any?, T>).setValue(thisRef, property, value)
         } else {

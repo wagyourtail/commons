@@ -10,14 +10,17 @@ class ListMap<K, V> : AbstractMutableMap<K, V>() {
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() = object : AbstractMutableSet<MutableMap.MutableEntry<K, V>>() {
             override val size: Int
-                    = ks.size
+                get() = ks.size
 
             override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> {
                 return object : MutableIterator<MutableMap.MutableEntry<K, V>> {
                     var i = 0
+
                     override fun hasNext(): Boolean = i < ks.size
-                    override fun next(): MutableMap.MutableEntry<K, V> =
-                        object : MutableMap.MutableEntry<K, V> {
+
+                    override fun next(): MutableMap.MutableEntry<K, V> {
+                        if (!hasNext()) throw NoSuchElementException()
+                        return object : MutableMap.MutableEntry<K, V> {
                             var j = i++
 
                             override val key: K
@@ -31,6 +34,7 @@ class ListMap<K, V> : AbstractMutableMap<K, V>() {
                                 return old!!
                             }
                         }
+                    }
 
                     override fun remove() {
                         if (i > 0 && i <= ks.size) {

@@ -6,22 +6,30 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class FinalizeOnRead<T>(value: T) :
-    SynchronizedObject(),
+class Finalizable<T>(
+    value: T,
+    val finalized: () -> Boolean,
+    val sync: SynchronizedObject = SynchronizedObject(),
+) :
     ReadWriteProperty<Any?, T> {
 
-    var finalized = false
+    private var finalizedValue: Boolean = false
+        get() {
+            if (field) {
+                return true
+            } else {
+                synchronized(sync) {
+                    field = finalized()
+                }
+            }
+            return field
+        }
 
     var value: Any? = value
 
-    constructor(prop: ReadWriteProperty<Any?, T>) : this(prop as T)
+    constructor(prop: ReadWriteProperty<Any?, T>, finalized: () -> Boolean, sync: SynchronizedObject) : this(prop as T, finalized, sync)
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        if (finalized == false) {
-            synchronized(this) {
-                finalized = true
-            }
-        }
         if (value is ReadWriteProperty<*, *>) {
             return (value as ReadWriteProperty<Any?, T>).getValue(thisRef, property)
         }
@@ -29,8 +37,8 @@ class FinalizeOnRead<T>(value: T) :
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        synchronized(this) {
-            if (finalized) {
+        synchronized(sync) {
+            if (finalizedValue) {
                 throw IllegalStateException("Cannot set finalized property")
             }
 
@@ -43,7 +51,7 @@ class FinalizeOnRead<T>(value: T) :
     }
 
     fun setValueIntl(value: ReadWriteProperty<Any?, T>) {
-        if (finalized) {
+        if (finalizedValue) {
             throw IllegalStateException("Cannot set finalized property")
         }
         this.value = value

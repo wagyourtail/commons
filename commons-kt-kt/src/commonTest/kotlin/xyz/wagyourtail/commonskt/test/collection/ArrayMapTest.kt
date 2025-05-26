@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.test.collection
 
-import xyz.wagyourtail.commonskt.collection.ListMap
+import xyz.wagyourtail.commonskt.collection.ArrayMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -8,11 +8,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ListMapTest {
+class ArrayMapTest {
 
     @Test
     fun testBasicOperations() {
-        val map = ListMap<String, String>()
+        val map = ArrayMap<String, String>()
 
         // Test empty map
         assertEquals(0, map.size)
@@ -51,7 +51,7 @@ class ListMapTest {
 
     @Test
     fun testCollectionViews() {
-        val map = ListMap<String, Int>()
+        val map = ArrayMap<String, Int>()
         map["one"] = 1
         map["two"] = 2
         map["three"] = 3
@@ -80,7 +80,7 @@ class ListMapTest {
 
     @Test
     fun testBulkOperations() {
-        val map = ListMap<String, Int>()
+        val map = ArrayMap<String, Int>()
         map["one"] = 1
 
         // Test putAll
@@ -100,7 +100,7 @@ class ListMapTest {
 
     @Test
     fun testNullValues() {
-        val map = ListMap<String, String?>()
+        val map = ArrayMap<String, String?>()
 
         // Test null values
         map["nullKey"] = null
@@ -118,7 +118,7 @@ class ListMapTest {
 
     @Test
     fun testIterator() {
-        val map = ListMap<String, Int>()
+        val map = ArrayMap<String, Int>()
         map["one"] = 1
         map["two"] = 2
         map["three"] = 3
@@ -159,7 +159,7 @@ class ListMapTest {
 
     @Test
     fun testOrderPreservation() {
-        val map = ListMap<String, Int>()
+        val map = ArrayMap<String, Int>()
 
         // Add entries
         map["three"] = 3
