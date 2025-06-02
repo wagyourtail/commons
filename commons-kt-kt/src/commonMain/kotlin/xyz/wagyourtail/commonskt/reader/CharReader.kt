@@ -33,6 +33,13 @@ abstract class CharReader<T : CharReader<T>> {
     abstract fun copy(): T
 
     /**
+     * @return a copy of the reader at the current position, with a limit.
+     * @since 1.0.4
+     */
+    abstract fun copy(limit: Int): T
+
+
+    /**
      * set this position as remembered.
      */
     abstract fun mark()

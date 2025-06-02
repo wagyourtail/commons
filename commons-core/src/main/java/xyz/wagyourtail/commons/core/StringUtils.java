@@ -184,4 +184,10 @@ public class StringUtils {
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 
+    public static int indexOf(String str, char c, int startIndex, int endIndex) {
+        int index = str.indexOf(c, startIndex);
+        if (index >= endIndex) return -1;
+        return index;
+    }
+
 }

@@ -27,12 +27,14 @@ kotlin {
                 api(libs.kotlin.coroutines)
                 api(libs.kotlin.datetime)
                 api(libs.kotlin.atomicfu)
+                api(libs.kotlin.serialization)
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotlin.serialization.json)
             }
         }
         val jvmMain by getting {

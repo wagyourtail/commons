@@ -33,6 +33,11 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     }
 
     @Override
+    public ReaderCharReader copy(int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     @SneakyThrows
     public void mark() {
         reader.mark(-1);

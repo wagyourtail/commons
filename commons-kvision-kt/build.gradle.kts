@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     alias(kvisionLibs.plugins.kvision)
 }
 

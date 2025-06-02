@@ -169,4 +169,16 @@ class TestCharReader {
         assertEquals("test4", reader.takeCol());
     }
 
+    @Test
+    public void testCopyWithLimit() {
+        var reader = new StringCharReader("abcdefghijkl");
+        assertEquals('a', reader.take());
+        var copy = reader.copy(5);
+        assertEquals("bcde", copy.takeRemaining());
+        copy.reset();
+        assertEquals("bcd", copy.takeUntil('e'));
+        assertEquals("e", copy.takeUntil('h'));
+        assertEquals("bcdefghijkl", reader.takeRemaining());
+    }
+
 }

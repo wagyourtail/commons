@@ -3,9 +3,9 @@ package io.github.anifin.components.improved
 import io.kvision.state.ObservableState
 import io.kvision.state.ObservableValue
 
-class ClearableObservableValue<T>(initial: T) : ObservableValue<T>(initial) {
+open class ClearableObservableValue<T>(initial: T) : ObservableValue<T>(initial) {
 
-    fun clearSubscribers() {
+    open fun clearSubscribers() {
         observers.clear()
     }
 

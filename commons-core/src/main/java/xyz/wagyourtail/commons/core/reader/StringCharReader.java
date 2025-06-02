@@ -1,7 +1,10 @@
 package xyz.wagyourtail.commons.core.reader;
 
+import xyz.wagyourtail.commons.core.StringUtils;
+
 public class StringCharReader extends CharReader<StringCharReader> {
     private final String buffer;
+    private final int limit;
     private int pos;
     private int mark;
 
@@ -10,18 +13,30 @@ public class StringCharReader extends CharReader<StringCharReader> {
     }
 
     public StringCharReader(String buffer, int pos) {
+        this(buffer, pos, buffer.length());
+    }
+
+    public StringCharReader(String buffer, int pos, int limit) {
         this.buffer = buffer;
         this.pos = pos;
+        this.limit = limit;
     }
 
     @Override
     public StringCharReader copy() {
-        return new StringCharReader(buffer, pos);
+        return copy(limit);
+    }
+
+    @Override
+    public StringCharReader copy(int limit) {
+        StringCharReader copy = new StringCharReader(buffer, pos, limit);
+        copy.mark();
+        return copy;
     }
 
     @Override
     public int peek() {
-        if (pos >= buffer.length()) {
+        if (pos >= limit) {
             return -1;
         }
         return buffer.charAt(pos);
@@ -29,7 +44,7 @@ public class StringCharReader extends CharReader<StringCharReader> {
 
     @Override
     public int take() {
-        if (pos >= buffer.length()) {
+        if (pos >= limit) {
             return -1;
         }
         return buffer.charAt(pos++);
@@ -37,10 +52,10 @@ public class StringCharReader extends CharReader<StringCharReader> {
 
     @Override
     public String take(int count) {
-        if (pos >= buffer.length()) {
+        if (pos >= limit) {
             return "";
         }
-        int end = Math.min(pos + count, buffer.length());
+        int end = Math.min(pos + count, limit);
         String str = buffer.substring(pos, end);
         pos = end;
         return str;
@@ -48,20 +63,20 @@ public class StringCharReader extends CharReader<StringCharReader> {
 
     @Override
     public String takeRemaining() {
-        if (pos >= buffer.length()) {
+        if (pos >= limit) {
             return "";
         }
-        String value = buffer.substring(pos);
-        pos = buffer.length();
+        String value = buffer.substring(pos, limit);
+        pos = limit;
         return value;
     }
 
     @Override
     public String takeUntil(char character) {
-        int next = buffer.indexOf(character, pos);
+        int next = StringUtils.indexOf(buffer, character, pos, limit);
         if (next == -1) {
-            String str = buffer.substring(pos);
-            pos = buffer.length();
+            String str = buffer.substring(pos, limit);
+            pos = limit;
             return str;
         }
         String value = buffer.substring(pos, next);

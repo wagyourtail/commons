@@ -102,6 +102,12 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public abstract T copy();
 
     /**
+     * @return a copy of the reader at the current position, with a limit to the number of characters it can read.
+     * @since 1.0.4
+     */
+    public abstract T copy(int limit);
+
+    /**
      * set this position as remembered.
      */
     public abstract void mark();

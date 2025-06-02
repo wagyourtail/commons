@@ -3,6 +3,7 @@ import java.net.URI
 plugins {
     kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.lombok") version libs.versions.kotlin.asProvider() apply false
+    kotlin("plugin.serialization") version libs.versions.kotlin.asProvider() apply false
     `java-library`
     `maven-publish`
 }

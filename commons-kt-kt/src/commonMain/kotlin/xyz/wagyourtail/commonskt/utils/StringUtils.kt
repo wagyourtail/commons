@@ -1,5 +1,7 @@
 package xyz.wagyourtail.commonskt.utils
 
+import kotlin.text.indexOf
+
 /**
  * unlike java, this will translate unicode escapes as well
  */
@@ -130,3 +132,9 @@ fun String.removeSurrounding(prefix: String, suffix: String, ignoreCase: Boolean
 fun String.capitalized() = replaceFirstChar { if (it.isLowerCase()) it.uppercase() else it.toString() }
 
 fun String.decapitalized() = replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
+
+fun String.indexOf(other: Char, startIndex: Int, endIndex: Int, ignoreCase: Boolean = false): Int {
+    val i = indexOf(other, startIndex, ignoreCase)
+    if (i >= endIndex) return -1
+    return i
+}

@@ -4,6 +4,7 @@ import xyz.wagyourtail.commonskt.reader.StringCharReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+
 class TestCharReader {
 
     @Test
@@ -163,5 +164,17 @@ class TestCharReader {
         assertEquals(null, reader.takeCol())
         reader.expect('\n')
         assertEquals("test4", reader.takeCol())
+    }
+
+    @Test
+    fun testCopyWithLimit() {
+        val reader = StringCharReader("abcdefghijkl")
+        assertEquals('a', reader.take())
+        val copy = reader.copy(5)
+        assertEquals("bcde", copy.takeRemaining())
+        copy.reset()
+        assertEquals("bcd", copy.takeUntil('e'))
+        assertEquals("e", copy.takeUntil('h'))
+        assertEquals("bcdefghijkl", reader.takeRemaining())
     }
 }
