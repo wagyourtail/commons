@@ -7,6 +7,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import xyz.wagyourtail.commons.core.ReflectionUtils;
 import xyz.wagyourtail.commons.core.function.IOFunction;
 import xyz.wagyourtail.commons.core.lazy.Lazy;
 
@@ -67,6 +68,11 @@ public class ClassInfo {
                     for (Constructor<?> c : clazz.getDeclaredConstructors()) {
                         methods.add(MethodInfo.of(c));
                     }
+
+                    if (ReflectionUtils.hasStaticInitializer(clazz)) {
+                        methods.add(MethodInfo.createClinit());
+                    }
+
                     return methods;
                 }
             },
@@ -173,6 +179,29 @@ public class ClassInfo {
         };
     }
 
+    @SafeVarargs
+    public static IOFunction<String, ClassInfo> infoWithFallbacks(final IOFunction<String, ClassInfo>... infoRetrievers) {
+        return new IOFunction<String, ClassInfo>() {
+            @Override
+            public ClassInfo apply(String name) throws IOException {
+                IOException ioe = null;
+                for (IOFunction<String, ClassInfo> infoRetriever : infoRetrievers) {
+                    try {
+                        ClassInfo info = infoRetriever.apply(name);
+                        if (info != null) {
+                            return info;
+                        }
+                    } catch (IOException e) {
+                        if (ioe != null) e.addSuppressed(ioe);
+                        ioe = e;
+                    }
+                }
+                if (ioe != null) throw ioe;
+                return null;
+            }
+        };
+    }
+
     public static IOFunction<String, ClassInfo> infoFromByteSupplier(final IOFunction<String, byte[]> infoRetriever) {
         return new IOFunction<String, ClassInfo>() {
             @Override
@@ -213,6 +242,10 @@ public class ClassInfo {
                 }
             }
         };
+    }
+
+    public static IOFunction<String, ClassInfo> infoFromCurrent() {
+        return infoFromClassloader(ClassInfo.class.getClassLoader());
     }
 
     public List<MethodInfo> getMethods() {

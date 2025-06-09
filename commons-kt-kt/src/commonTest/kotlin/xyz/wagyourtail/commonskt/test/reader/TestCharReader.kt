@@ -176,5 +176,6 @@ class TestCharReader {
         assertEquals("bcd", copy.takeUntil('e'))
         assertEquals("e", copy.takeUntil('h'))
         assertEquals("bcdefghijkl", reader.takeRemaining())
+        assertEquals(null, copy.take())
     }
 }

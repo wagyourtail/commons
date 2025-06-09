@@ -1,10 +1,19 @@
 package xyz.wagyourtail.commons.gradle
 
+import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.Logging
 import xyz.wagyourtail.commons.core.logger.Logger
 import xyz.wagyourtail.commons.core.logger.prefix.DefaultLoggingPrefix.getCallingClass
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
 import xyz.wagyourtail.commons.gradle.logging.GradleLoggingPrefix
+
+val Task.commonsLogger
+    get() = GradleLogWrapper(this.path.substringBeforeLast(":").ifEmpty { ":" }, this.name, this.logger)
+
+val Project.commonsLogger
+    get() = GradleLogWrapper(this.path, this.name, this.logger)
 
 class GradleLogWrapper(val prefix: LoggingPrefix, val logger: org.gradle.api.logging.Logger) : Logger() {
 

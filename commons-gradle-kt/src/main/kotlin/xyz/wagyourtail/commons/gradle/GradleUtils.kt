@@ -7,18 +7,24 @@ import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.jvm.toolchain.JavaToolchainService
 import xyz.wagyourtail.commonskt.maven.MavenCoords
 import java.io.File
+import kotlin.jvm.java
+import kotlin.reflect.KClass
 
 val Project.sourceSets
     get() = extensions.findByType(SourceSetContainer::class.java)!!
 
 val Project.javaToolchains
     get() = extensions.findByType(JavaToolchainService::class.java)!!
+
+val Project.base
+    get() = extensions.findByType(BasePluginExtension::class.java)!!
 
 fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File> {
     resolve()
@@ -112,17 +118,37 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
 fun <T> NamedDomainObjectContainer<T>.maybeRegister(name: String, action: T.() -> Unit = {}): NamedDomainObjectProvider<T> {
     return try {
         named(name) as NamedDomainObjectProvider<T>
-    } catch (ex: UnknownTaskException) {
+    } catch (_: UnknownTaskException) {
         register(name)
     }.also {
         it.configure(action)
     }
 }
 
+fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, classType: KClass<S>, action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+    return try {
+        named(name, classType.java) as NamedDomainObjectProvider<S>
+    } catch (_: UnknownTaskException) {
+        register(name, classType.java)
+    }.also {
+        it.configure(action)
+    } as NamedDomainObjectProvider<S>
+}
+
+fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, classType: Class<S>, action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+    return try {
+        named(name, classType) as NamedDomainObjectProvider<S>
+    } catch (_: UnknownTaskException) {
+        register(name, classType)
+    }.also {
+        it.configure(action)
+    } as NamedDomainObjectProvider<S>
+}
+
 inline fun <reified S: T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, noinline action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
     return try {
         named(name, S::class.java) as NamedDomainObjectProvider<S>
-    } catch (ex: UnknownTaskException) {
+    } catch (_: UnknownTaskException) {
         register(name, S::class.java)
     }.also {
         it.configure(action)

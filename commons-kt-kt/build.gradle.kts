@@ -23,7 +23,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(libs.jetbrains.annotations.kmp)
+                api(libs.jetbrains.annotations)
                 api(libs.kotlin.coroutines)
                 api(libs.kotlin.datetime)
                 api(libs.kotlin.atomicfu)

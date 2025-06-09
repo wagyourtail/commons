@@ -39,6 +39,14 @@ public class MethodInfo {
         );
     }
 
+    public static MethodInfo createClinit() {
+        return new MethodInfo(
+            Opcodes.ACC_STATIC,
+            "<clinit>",
+            Type.getMethodType("()V")
+        );
+    }
+
     public boolean isInheritable() {
         return (access & (Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC)) == 0 && !name.startsWith("<");
     }
