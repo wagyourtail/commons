@@ -2,11 +2,11 @@ package xyz.wagyourtail.commonskt.data
 
 abstract class LazyData<T, E: LazyData.Content<*>>(unparsed: T) {
 
-    val data by lazy {
-        parseData()
+    val content by lazy {
+        parseContent(unparsed)
     }
 
-    abstract fun parseData(): E
+    abstract fun parseContent(unparsed: T): E
 
 
     interface Content<E> {

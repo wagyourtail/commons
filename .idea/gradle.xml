@@ -18,6 +18,8 @@
             <option value="$PROJECT_DIR$/commons-java7" />
             <option value="$PROJECT_DIR$/commons-kt-kt" />
             <option value="$PROJECT_DIR$/commons-kvision-kt" />
+            <option value="$PROJECT_DIR$/commons-parsers" />
+            <option value="$PROJECT_DIR$/commons-parsers-kt-kt" />
           </set>
         </option>
       </GradleProjectSettings>

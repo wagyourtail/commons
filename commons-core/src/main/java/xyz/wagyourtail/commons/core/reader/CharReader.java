@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.reader;
 
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import xyz.wagyourtail.commons.core.StringUtils;
 
@@ -84,6 +85,20 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public abstract int take();
 
     /**
+     * @param count the number of chars to skip
+     * @return the number of chars skipped
+     */
+    public int skip(int count) {
+        for (int i = 0; i < count; i++) {
+            int ch = take();
+            if (ch == -1) {
+                return i;
+            }
+        }
+        return count;
+    }
+
+    /**
      * @return a string of the next count chars
      */
     public String take(int count) {
@@ -99,7 +114,9 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     /**
      * @return a copy of the reader at the current position
      */
-    public abstract T copy();
+    public T copy() {
+        return copy(Integer.MAX_VALUE);
+    }
 
     /**
      * @return a copy of the reader at the current position, with a limit to the number of characters it can read.
@@ -340,24 +357,47 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     /* Char Acceptors */
 
     public char expect(char character) {
+        return expect(character, false);
+    }
+
+    public char expect(char character, boolean ignoreCase) {
         int next = take();
-        if (next != character) {
-            String message = "Expected " + character + " but got ";
-            if (next == -1) {
-                message += "EOF";
-            } else {
-                message += (char) next;
+        if (next == -1) throw createException("Expected " + character + " but got EOS");
+        if (ignoreCase) {
+            if (Character.toLowerCase((char) next) != Character.toLowerCase(character)) {
+                throw createException("Expected " + character + " but got " + (char) next);
             }
-            throw new IllegalArgumentException(message);
+        } else {
+            if ((char) next != character) {
+                throw createException("Expected " + character + " but got " + (char) next);
+            }
         }
         return (char) next;
     }
 
     public String expect(String value) {
+        return expect(value, false);
+    }
+
+    public String expect(String value, boolean ignoreCase) {
         for (char c : value.toCharArray()) {
-            expect(c);
+            expect(c, ignoreCase);
         }
         return value;
+    }
+
+    public void expectEOF() {
+        val c = take();
+        if (c != -1) {
+            throw createException("Expected EOF but got " + (char) c);
+        }
+    }
+
+    public void expectEOS() {
+        val c = take();
+        if (c != -1) {
+            throw createException("Expected EOS but got " + (char) c);
+        }
     }
 
     /* CSV Specific */
@@ -399,7 +439,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             // check if string actually ends column
             if (next != '\n' && next != -1 && !sep.accept((char) next)) {
                 if (!leinient) {
-                    throw new IllegalArgumentException("Expected separator char, got " + next);
+                    throw createException("Expected separator char, got " + next);
                 }
                 return value + whiteSpace + takeCol(true, sep);
             }
@@ -419,10 +459,120 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return value;
     }
 
+    public <R> R parse(StringCharReader.ElementReader<R> reader) {
+        this.mark();
+        try {
+            return reader.read(new WrappingReader(this, Integer.MAX_VALUE));
+        } catch (ParseException t) {
+            this.reset();
+            throw t;
+        }
+    }
+
+    @SafeVarargs
+    public final <R> R parse(StringCharReader.ElementReader<R>... readers) {
+        List<ParseException> exceptions = new ArrayList<>();
+        for (StringCharReader.ElementReader<R> reader : readers) {
+            try {
+                return parse(reader);
+            } catch (ParseException e) {
+                exceptions.add(e);
+            }
+        }
+        throw createCompositeException("Failed to parse as any of", exceptions.toArray(new ParseException[0]));
+    }
+
+    public ParseException createException(String message) {
+        return createException(message, null);
+    }
+
+    public ParseException createException(String message, Throwable cause) {
+        return new ParseException(message, cause);
+    }
+
+    public ParseException createCompositeException(String message, ParseException... exceptions) {
+        val exception = createException(message);
+        for (ParseException e : exceptions) {
+            exception.addSuppressed(e);
+        }
+        return exception;
+    }
+
+    public interface ElementReader<R> {
+
+        R read(CharReader<?> reader) throws ParseException;
+
+    }
+
     public interface CharAccepter {
-
         boolean accept(char c);
+    }
 
+    /**
+     * This wrapping class uses the reader class as a delegate,
+     * so don't do multithreaded stuff, or interleave using the outer reader
+     * with the wrapped reader.
+     */
+    public static class WrappingReader extends CharReader<WrappingReader> {
+        private final StringBuilder sb = new StringBuilder();
+        private final CharReader<?> reader;
+        private final int limit;
+        private int position = 0;
+        private int mark = 0;
+
+        public WrappingReader(CharReader<?> reader, int limit) {
+            this.reader = reader;
+            this.limit = limit;
+        }
+
+        @Override
+        public int peek() {
+            if (position == limit) {
+                return -1;
+            }
+            if (position >= sb.length()) {
+                int next = reader.take();
+                if (next == -1) return -1;
+                sb.append((char) next);
+                return next;
+            }
+            return sb.charAt(position);
+        }
+
+        @Override
+        public int take() {
+            if (position == limit) {
+                return -1;
+            }
+            if (position >= sb.length()) {
+                int next = reader.take();
+                position++;
+                if (next == -1) return -1;
+                sb.append((char) next);
+                return next;
+            }
+            return sb.charAt(position++);
+        }
+
+        @Override
+        public WrappingReader copy() {
+            return new WrappingReader(reader, limit - position);
+        }
+
+        @Override
+        public WrappingReader copy(int limit) {
+            return new WrappingReader(reader, limit);
+        }
+
+        @Override
+        public void mark() {
+            mark = position;
+        }
+
+        @Override
+        public void reset() {
+            position = mark;
+        }
     }
 
 }

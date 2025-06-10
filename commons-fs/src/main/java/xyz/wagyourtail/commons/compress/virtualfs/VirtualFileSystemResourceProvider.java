@@ -2,7 +2,7 @@ package xyz.wagyourtail.commons.compress.virtualfs;
 
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelInputStream;
+import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
 
 import java.io.IOException;
 import java.net.URL;

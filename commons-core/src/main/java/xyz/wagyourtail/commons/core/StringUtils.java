@@ -184,10 +184,25 @@ public class StringUtils {
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 
+    public static String decapitalize(String str) {
+        return uncapitalize(str);
+    }
+
     public static int indexOf(String str, char c, int startIndex, int endIndex) {
         int index = str.indexOf(c, startIndex);
         if (index >= endIndex) return -1;
         return index;
+    }
+
+    public static String joinToString(String separator, Iterable<?> iterable) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Object o : iterable) {
+            if (first) first = false;
+            else sb.append(separator);
+            sb.append(o);
+        }
+        return sb.toString();
     }
 
 }

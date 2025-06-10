@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.core.data;
+package xyz.wagyourtail.commons.core.io;
 
 import org.jetbrains.annotations.VisibleForTesting;
 import xyz.wagyourtail.commons.core.Utils;

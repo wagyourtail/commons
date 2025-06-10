@@ -19,6 +19,19 @@ abstract class CharReader<T : CharReader<T>> {
     abstract fun take(): Char?
 
     /**
+     * @return the number of chars skipped
+     */
+    fun skip(count: Int): Int {
+        var skipped = 0
+        while (skipped < count) {
+            val ch = take()
+            if (ch == null) break
+            skipped++
+        }
+        return skipped
+    }
+
+    /**
      * @return a string of the next count chars
      */
     open fun take(count: Int) = buildString {
@@ -30,7 +43,9 @@ abstract class CharReader<T : CharReader<T>> {
     /**
      * @return a copy of the reader at the current position
      */
-    abstract fun copy(): T
+    open fun copy(): T {
+        return copy(Int.MAX_VALUE)
+    }
 
     /**
      * @return a copy of the reader at the current position, with a limit.
@@ -149,17 +164,27 @@ abstract class CharReader<T : CharReader<T>> {
         }
     }.translateEscapes(leinient)
 
-    fun expect(char: Char): Char {
+    fun expect(char: Char, ignoreCase: Boolean = false): Char {
         val it = take()
-        if (it != char) throw IllegalArgumentException("Expected $char but got ${it ?: "EOS"}")
+        if (it?.equals(char, ignoreCase) != true) createException("Expected $char but got ${it ?: "EOS"}")
         return char
     }
 
-    fun expect(value: String): String {
+    fun expect(value: String, ignoreCase: Boolean = false): String {
         for (char in value) {
-            expect(char)
+            expect(char, ignoreCase)
         }
         return value
+    }
+
+    fun expectEOF() {
+        val it = take()
+        if (it != null) createException("Expected EOF but got $it")
+    }
+
+    fun expectEOS() {
+        val it = take()
+        if (it != null) createException("Expected EOS but got $it")
     }
 
     fun takeCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }): String? {
@@ -173,7 +198,7 @@ abstract class CharReader<T : CharReader<T>> {
             next = peek()
             if (next != null && next != '\n' && !sep(next)) {
                 if (!leinient) {
-                    throw IllegalArgumentException("Expected separator char, got $next")
+                    throw createException("Expected separator char, got $next")
                 }
                 return value + whiteSpace + takeCol(true, sep)
             }
@@ -202,5 +227,85 @@ abstract class CharReader<T : CharReader<T>> {
     }
 
     fun takeRemainingCol(leinient: Boolean = true, sep: Char) = takeRemainingCol(leinient) { it == sep }
+
+    open fun <R> parse(reader: CharReader<*>.() -> R): R {
+        this.mark()
+        try {
+            return reader(WrappingReader(this, Int.MAX_VALUE))
+        } catch (e: ParseException) {
+            this.reset()
+            throw e
+        }
+    }
+
+    fun <R> parse(vararg readers: CharReader<*>.() -> R): R {
+        val exceptions = mutableListOf<ParseException>()
+        for (reader in readers) {
+            try {
+                return parse(reader)
+            } catch (e: ParseException) {
+                exceptions.add(e)
+            }
+        }
+        throw createCompositeException("Failed to parse", *exceptions.toTypedArray())
+    }
+
+    open fun createException(msg: String, cause: Throwable? = null) = ParseException(msg, cause)
+
+    fun createCompositeException(msg: String, vararg exceptions: ParseException) = createException(msg, null).also {
+        for (e in exceptions) {
+            it.addSuppressed(e)
+        }
+    }
+
+    class WrappingReader(private val reader: CharReader<*>, private val limit: Int) : CharReader<WrappingReader>() {
+        private val sb = StringBuilder()
+        private var position = 0
+        private var mark = 0
+
+        override fun peek(): Char? {
+            if (position == limit) {
+                return null
+            }
+            if (position >= sb.length) {
+                val next = reader.take()
+                if (next == null) return null
+                sb.append(next)
+                return next
+            }
+            return sb[position]
+        }
+
+        override fun take(): Char? {
+            if (position == limit) {
+                return null
+            }
+            if (position >= sb.length) {
+                val next = reader.take()
+                position++
+                if (next == null) return null
+                sb.append(next)
+                return next
+            }
+            return sb[position++]
+        }
+
+        override fun copy(): WrappingReader {
+            return WrappingReader(reader, limit - position)
+        }
+
+        override fun copy(limit: Int): WrappingReader {
+            return WrappingReader(reader, limit)
+        }
+
+        override fun mark() {
+            mark = position
+        }
+
+        override fun reset() {
+            position = mark
+        }
+
+    }
 
 }

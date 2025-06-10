@@ -28,6 +28,12 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     }
 
     @Override
+    @SneakyThrows
+    public int skip(int count) {
+        return (int) reader.skip(count);
+    }
+
+    @Override
     public ReaderCharReader copy() {
         throw new UnsupportedOperationException();
     }

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.listener.FileSystemChangeListener;
 import xyz.wagyourtail.commons.compress.virtualfs.listener.FileSystemChangeListeners;
-import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
+import xyz.wagyourtail.commons.core.io.FastWrapOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;

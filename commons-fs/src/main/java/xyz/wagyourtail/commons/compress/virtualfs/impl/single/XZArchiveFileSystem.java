@@ -8,8 +8,8 @@ import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.impl.SingleFileFilesystem;
 import xyz.wagyourtail.commons.core.IOUtils;
-import xyz.wagyourtail.commons.core.data.FastWrapOutputStream;
-import xyz.wagyourtail.commons.core.data.SeekableByteChannelInputStream;
+import xyz.wagyourtail.commons.core.io.FastWrapOutputStream;
+import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

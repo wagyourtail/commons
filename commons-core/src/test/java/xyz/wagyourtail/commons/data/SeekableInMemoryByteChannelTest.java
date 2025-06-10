@@ -1,7 +1,7 @@
 package xyz.wagyourtail.commons.data;
 
 import org.junit.jupiter.api.Test;
-import xyz.wagyourtail.commons.core.data.SeekableInMemoryByteChannel;
+import xyz.wagyourtail.commons.core.io.SeekableInMemoryByteChannel;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

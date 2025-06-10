@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.configurationcache.extensions.capitalized
@@ -25,6 +26,9 @@ val Project.javaToolchains
 
 val Project.base
     get() = extensions.findByType(BasePluginExtension::class.java)!!
+
+val Project.java
+    get() = extensions.findByType(JavaPluginExtension::class.java)!!
 
 fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File> {
     resolve()
@@ -59,7 +63,7 @@ fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File
             throw IllegalArgumentException("Unsupported dependency type: ${dep::class.java}")
         }
     }
-    return files.filter {filter(it) }.toSet()
+    return files.filter { filter(it) }.toSet()
 }
 
 fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): Set<File> {

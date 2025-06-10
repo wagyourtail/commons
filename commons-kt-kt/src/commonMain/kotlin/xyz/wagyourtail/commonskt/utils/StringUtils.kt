@@ -131,7 +131,9 @@ fun String.removeSurrounding(prefix: String, suffix: String, ignoreCase: Boolean
 
 fun String.capitalized() = replaceFirstChar { if (it.isLowerCase()) it.uppercase() else it.toString() }
 
-fun String.decapitalized() = replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
+fun String.uncapitalized() = replaceFirstChar { if (it.isUpperCase()) it.lowercase() else it.toString() }
+
+fun String.decapitalized() = uncapitalized()
 
 fun String.indexOf(other: Char, startIndex: Int, endIndex: Int, ignoreCase: Boolean = false): Int {
     val i = indexOf(other, startIndex, ignoreCase)

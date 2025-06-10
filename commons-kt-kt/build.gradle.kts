@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     alias(libs.plugins.kotlinx.atomicfu)
 }
 
@@ -9,7 +10,6 @@ kotlin {
         compilerOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
         }
-        withJava()
     }
     js {
         browser {

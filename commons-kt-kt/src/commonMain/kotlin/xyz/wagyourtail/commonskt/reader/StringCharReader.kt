@@ -3,26 +3,26 @@ package xyz.wagyourtail.commonskt.reader
 import xyz.wagyourtail.commonskt.utils.indexOf
 import kotlin.math.min
 
-class StringCharReader(val buffer: String, var pos: Int = 0, val limit: Int = buffer.length) : CharReader<StringCharReader>() {
+class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = buffer.length) : CharReader<StringCharReader>() {
     private var mark: Int = 0
 
     override fun peek(): Char? {
-        if (pos < limit) {
+        if (pos < endPos) {
             return buffer[pos]
         }
         return null
     }
 
     override fun take(): Char? {
-        if (pos < limit) {
+        if (pos < endPos) {
             return buffer[pos++]
         }
         return null
     }
 
     override fun take(count: Int): String {
-        if (pos < limit) {
-            val end = min(pos + count, limit)
+        if (pos < endPos) {
+            val end = min(pos + count, endPos)
             val str = buffer.substring(pos, end)
             pos = end
             return str
@@ -30,24 +30,24 @@ class StringCharReader(val buffer: String, var pos: Int = 0, val limit: Int = bu
         return ""
     }
 
-    override fun copy() = copy(limit)
+    override fun copy() = copy(endPos - pos)
 
     override fun copy(limit: Int): StringCharReader {
-        return StringCharReader(buffer, pos, limit).also { it.mark() }
+        return StringCharReader(buffer, pos, pos + limit).also { it.mark() }
     }
 
     override fun takeRemaining(): String {
-        if (pos < limit) {
-            return buffer.substring(pos, limit)
+        if (pos < endPos) {
+            return buffer.substring(pos, endPos)
         }
         return ""
     }
 
     override fun takeUntil(char: Char): String {
-        val next = buffer.indexOf(char, pos, limit)
+        val next = buffer.indexOf(char, pos, endPos)
         if (next == -1) {
-            val str = buffer.substring(pos, limit)
-            pos = limit
+            val str = buffer.substring(pos, endPos)
+            pos = endPos
             return str
         }
         val str = buffer.substring(pos, next)
@@ -61,6 +61,32 @@ class StringCharReader(val buffer: String, var pos: Int = 0, val limit: Int = bu
 
     override fun reset() {
         pos = mark
+    }
+
+    override fun <R> parse(reader: CharReader<*>.() -> R): R {
+        mark()
+        try {
+            val wrapping = copy()
+            val value = reader(wrapping)
+            pos = wrapping.pos
+            return value
+        } catch (e: ParseException) {
+            reset()
+            throw e
+        }
+    }
+
+    override fun createException(msg: String, cause: Throwable?): ParseException {
+        return super.createException(msg + " (at " + getPosition() + ")", cause)
+    }
+
+    fun getPosition(): String {
+        if (!buffer.contains("\n")) {
+            return "$pos"
+        }
+        val line = buffer.substring(0, pos).count { it == '\n' }
+        val column = pos - buffer.substring(0, pos).lastIndexOf('\n')
+        return "$line:$column"
     }
 }
 
