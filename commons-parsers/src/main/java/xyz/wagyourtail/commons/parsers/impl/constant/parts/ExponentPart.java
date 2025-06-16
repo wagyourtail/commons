@@ -3,12 +3,13 @@ package xyz.wagyourtail.commons.parsers.impl.constant.parts;
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ExponentPart extends StringData.OnlyRaw {
+public class ExponentPart extends StringData.OnlyRaw<Data.ListContent> {
 
     public ExponentPart(String rawContent) {
         super(rawContent, ExponentPart::getContentChecked);
@@ -29,8 +30,8 @@ public class ExponentPart extends StringData.OnlyRaw {
         return new ExponentPart(rawContent);
     }
 
-    private static Content getContentChecked(CharReader<?> reader) {
-        Set<Object> content = new LinkedHashSet<>(2);
+    private static ListContent getContentChecked(CharReader<?> reader) {
+        List<Object> content = new ArrayList<>(2);
 
         val first = reader.peek();
         if (first == '-' || first == '+') {
@@ -39,6 +40,6 @@ public class ExponentPart extends StringData.OnlyRaw {
 
         content.add(new DecimalPart(reader));
 
-        return new DefaultContent(content);
+        return new ListContent(content);
     }
 }

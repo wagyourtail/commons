@@ -74,6 +74,46 @@ abstract class CharReader<T : CharReader<T>> {
 
     open fun takeUntil(char: Char) = takeUntil { it == char }
 
+    fun takeUntil(characters: String): String? {
+        val sb = StringBuilder()
+        var next = peek()
+        var taken = ""
+        while (next != null) {
+            do {
+                if (characters.startsWith(taken + next)) {
+                    if (taken.isEmpty()) {
+                        mark()
+                    }
+                    taken += next.toChar()
+                    break
+                } else if (!taken.isEmpty()) {
+                    val newStart = taken.indexOf(characters[0], 1)
+                    if (newStart == -1) {
+                        taken = ""
+                        if (characters.startsWith(taken + next)) {
+                            mark()
+                            taken += next
+                        }
+                        break
+                    }
+                    reset()
+                    skip(newStart)
+                    mark()
+                    taken = taken.substring(newStart)
+                    skip(taken.length)
+                }
+            } while (!taken.isEmpty())
+            sb.append(take() as Char)
+            if (characters == taken) {
+                val out = sb.removeSuffix(characters)
+                reset()
+                return out.toString()
+            }
+            next = peek()
+        }
+        return sb.toString()
+    }
+
     inline fun takeUntil(sep: (Char) -> Boolean) = buildString {
         var next = peek()
         while (next != null && !sep(next)) {

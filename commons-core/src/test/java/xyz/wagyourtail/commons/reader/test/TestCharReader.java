@@ -33,6 +33,14 @@ class TestCharReader {
         var reader2 = new StringCharReader("test");
         assertEquals("t", reader2.takeUntil(e -> e == 'e'));
         assertEquals("est", reader2.takeUntil(e -> false));
+
+        var reader3 = new StringCharReader("abcdabcabcdeabcdefabcdefg");
+        assertEquals("abcdabcabcde", reader3.takeUntil("abcdef"));
+        assertEquals("abcdefabcdefg", reader3.takeRemaining());
+
+        var reader4 = new StringCharReader("abaacabcababababcd");
+        assertEquals("abaacabcabab", reader4.takeUntil("ababc"));
+        assertEquals("ababcd", reader4.takeRemaining());
     }
 
     @Test
@@ -104,11 +112,12 @@ class TestCharReader {
     public void testTakeNextLiteralWithNewline() {
         var reader = new StringCharReader("test\ntest2");
         assertEquals("test", reader.takeNextLiteral());
-        assertEquals(null, reader.takeNextLiteral());
+        assertNull(reader.takeNextLiteral());
         reader.expect('\n');
         assertEquals("test2", reader.takeNextLiteral());
     }
 
+    @Test
     public void testTakeString() {
         var reader = new StringCharReader("\"test\"");
         assertEquals("test", reader.takeString());
@@ -118,12 +127,21 @@ class TestCharReader {
     public void testTakeStringWithEscapes() {
         var reader = new StringCharReader("\"te\\\"st\"");
         assertEquals("te\"st", reader.takeString());
-    }
 
-    @Test
-    public void testTakeStringWithEscapes2() {
-        var reader = new StringCharReader("\"te\\\\st\"");
-        assertEquals("te\\st", reader.takeString());
+        var reader4 = new StringCharReader("\"te\\\\st\"");
+        assertEquals("te\\st", reader4.takeString());
+
+        var reader2 = new StringCharReader("\"te\"\"st\"");
+        assertEquals("te\"st", reader2.takeString(StringCharReader.TAKE_STRING_ESCAPE_DOUBLE_QUOTE, "\""));
+
+        var reader3 = new StringCharReader("\"\"\"test\nmultiline\"\"\"");
+        assertEquals("test\nmultiline", reader3.takeString(StringCharReader.TAKE_STRING_MULTILINE, "\"\"\""));
+
+        var reader5 = new StringCharReader("\"\"\"test\nmultiline\\\"\"\"string\"\"\"");
+        assertEquals("test\nmultiline\"\"\"string", reader5.takeString(StringCharReader.TAKE_STRING_MULTILINE, "\"\"\""));
+
+        var reader6 = new StringCharReader("\"\"\"test\nmultiline\\\"\"\"string\"\"\"");
+        assertEquals("\"\"\"test\nmultiline\\\"\"\"string\"\"\"", reader6.takeString(StringCharReader.TAKE_STRING_MULTILINE | StringCharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\"\"\""));
     }
 
     @Test
@@ -132,7 +150,7 @@ class TestCharReader {
         assertEquals("test", reader.takeCol());
         assertEquals("test2", reader.takeCol());
         assertEquals("test3", reader.takeCol());
-        assertEquals(null, reader.takeCol());
+        assertNull(reader.takeCol());
         reader.expect('\n');
         assertEquals("test4", reader.takeCol());
     }
@@ -154,7 +172,7 @@ class TestCharReader {
         assertEquals("test,test", reader.takeCol());
         assertEquals("test2", reader.takeCol());
         assertEquals("test3", reader.takeCol());
-        assertEquals(null, reader.takeCol());
+        assertNull(reader.takeCol());
         reader.expect('\n');
         assertEquals("test4", reader.takeCol());
     }
@@ -164,7 +182,7 @@ class TestCharReader {
         var reader = new StringCharReader("test,test2,test3\ntest4");
         assertEquals("test", reader.takeCol());
         assertEquals(List.of("test2", "test3"), reader.takeRemainingCol());
-        assertEquals(null, reader.takeCol());
+        assertNull(reader.takeCol());
         reader.expect('\n');
         assertEquals("test4", reader.takeCol());
     }
@@ -174,10 +192,10 @@ class TestCharReader {
         var reader = new StringCharReader("abcdefghijkl");
         assertEquals('a', reader.take());
         var copy = reader.copy(5);
-        assertEquals("bcde", copy.takeRemaining());
+        assertEquals("bcdef", copy.takeRemaining());
         copy.reset();
         assertEquals("bcd", copy.takeUntil('e'));
-        assertEquals("e", copy.takeUntil('h'));
+        assertEquals("ef", copy.takeUntil('h'));
         assertEquals("bcdefghijkl", reader.takeRemaining());
         assertEquals(-1, copy.take());
     }

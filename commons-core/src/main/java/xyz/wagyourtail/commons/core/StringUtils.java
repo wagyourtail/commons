@@ -205,4 +205,14 @@ public class StringUtils {
         return sb.toString();
     }
 
+    public static String removePrefix(String str, String prefix) {
+        if (str.startsWith(prefix)) return str.substring(prefix.length());
+        else return str;
+    }
+
+    public static String removeSuffix(String str, String suffix) {
+        if (str.endsWith(suffix)) return str.substring(0, str.length() - suffix.length());
+        else return str;
+    }
+
 }

@@ -39,7 +39,7 @@ commons_io = { module = "commons-io:commons-io", version.ref = "commons_io" }
 tika_core = { module = "org.apache.tika:tika-core", version.ref = "tika" }
 tika_parsers = { module = "org.apache.tika:tika-parsers", version.ref = "tika" }
 
-appache_commons_compress = { module = "org.apache.commons:commons-compress", version.ref = "apache_commons_compress" }
+apache_commons_compress = { module = "org.apache.commons:commons-compress", version.ref = "apache_commons_compress" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 zstd = { module = "com.github.luben:zstd-jni", version.ref = "zstd" }
 

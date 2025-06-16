@@ -30,6 +30,14 @@ class TestCharReader {
         val reader2 = StringCharReader("test")
         assertEquals("t", reader2.takeUntil { it == 'e' })
         assertEquals("est", reader2.takeUntil { false })
+
+        val reader3 = StringCharReader("abcdabcabcdeabcdefabcdefg")
+        assertEquals("abcdabcabcde", reader3.takeUntil("abcdef"))
+        assertEquals("abcdefabcdefg", reader3.takeRemaining())
+
+        val reader4 = StringCharReader("abaacabcababababcd")
+        assertEquals("abaacabcabab", reader4.takeUntil("ababc"))
+        assertEquals("ababcd", reader4.takeRemaining())
     }
 
     @Test
@@ -106,6 +114,7 @@ class TestCharReader {
         assertEquals("test2", reader.takeNextLiteral())
     }
 
+    @Test
     fun testTakeString() {
         val reader = StringCharReader("\"test\"")
         assertEquals("test", reader.takeString())
@@ -171,10 +180,10 @@ class TestCharReader {
         val reader = StringCharReader("abcdefghijkl")
         assertEquals('a', reader.take())
         val copy = reader.copy(5)
-        assertEquals("bcde", copy.takeRemaining())
+        assertEquals("bcdef", copy.takeRemaining())
         copy.reset()
         assertEquals("bcd", copy.takeUntil('e'))
-        assertEquals("e", copy.takeUntil('h'))
+        assertEquals("ef", copy.takeUntil('h'))
         assertEquals("bcdefghijkl", reader.takeRemaining())
         assertEquals(null, copy.take())
     }

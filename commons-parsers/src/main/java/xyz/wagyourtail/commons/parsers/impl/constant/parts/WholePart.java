@@ -3,11 +3,12 @@ package xyz.wagyourtail.commons.parsers.impl.constant.parts;
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
 import java.util.Collections;
 
-public class WholePart extends StringData.OnlyRaw {
+public class WholePart extends StringData.OnlyRaw<Data.SingleContent<String>> {
 
     public WholePart(String rawContent) {
         super(rawContent, WholePart::getContentChecked);
@@ -28,7 +29,7 @@ public class WholePart extends StringData.OnlyRaw {
         return new WholePart(rawContent);
     }
 
-    private static Content getContentChecked(CharReader<?> reader) {
+    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
         val first = reader.peek();
         if (first == '0') {
             throw reader.createException("Whole number cannot start with 0");
@@ -37,7 +38,7 @@ public class WholePart extends StringData.OnlyRaw {
             throw reader.createException("Not a whole number: " + (char) first);
         }
 
-        return new DefaultContent(Collections.singleton(reader.takeWhile(e -> e >= '0' && e <= '9')));
+        return new SingleContent<>(reader.takeWhile(e -> e >= '0' && e <= '9'));
     }
 
 }

@@ -7,5 +7,5 @@ kotlin {
 }
 
 dependencies {
-    api(libs.appache.commons.compress)
+    api(libs.apache.commons.compress)
 }

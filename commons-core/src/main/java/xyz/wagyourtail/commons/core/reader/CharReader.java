@@ -114,6 +114,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     /**
      * @return a copy of the reader at the current position
      */
+    @Deprecated
     public T copy() {
         return copy(Integer.MAX_VALUE);
     }
@@ -122,6 +123,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
      * @return a copy of the reader at the current position, with a limit to the number of characters it can read.
      * @since 1.0.4
      */
+    @Deprecated
     public abstract T copy(int limit);
 
     /**
@@ -155,6 +157,46 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         int next = peek();
         while (next != -1 && next != character) {
             sb.append((char) take());
+            next = peek();
+        }
+        return sb.toString();
+    }
+
+    public String takeUntil(String characters) {
+        StringBuilder sb = new StringBuilder();
+        int next = peek();
+        String taken = "";
+        while (next != -1) {
+            do {
+                if (characters.startsWith(taken + (char) next)) {
+                    if (taken.isEmpty()) {
+                        mark();
+                    }
+                    taken += (char) next;
+                    break;
+                } else if (!taken.isEmpty()) {
+                    val newStart = taken.indexOf(characters.charAt(0), 1);
+                    if (newStart == -1) {
+                        taken = "";
+                        if (characters.startsWith(taken + (char) next)) {
+                            mark();
+                            taken += (char) next;
+                        }
+                        break;
+                    }
+                    reset();
+                    skip(newStart);
+                    mark();
+                    taken = taken.substring(newStart);
+                    skip(taken.length());
+                }
+            } while (!taken.isEmpty());
+            sb.append((char) take());
+            if (characters.equals(taken)) {
+                val out = StringUtils.removeSuffix(sb.toString(), characters);
+                reset();
+                return out;
+            }
             next = peek();
         }
         return sb.toString();
@@ -314,44 +356,113 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return args;
     }
 
+    public static final int TAKE_STRING_LEINIENT             = 0b1;
+    public static final int TAKE_STRING_ESCAPE_DOUBLE_QUOTE  = 0b10;
+    public static final int TAKE_STRING_ESCAPE_NEWLINE       = 0b100;
+    public static final int TAKE_STRING_MULTILINE            = 0b1000;
+    public static final int TAKE_STRING_NO_START_QUOTE       = 0b10000;
+    public static final int TAKE_STRING_NO_TRANSLATE_ESCAPES = 0b100000;
+
     public String takeString() {
-        return takeString(true, false);
+        return takeString(TAKE_STRING_LEINIENT, "\"");
     }
 
+    @Deprecated
     public String takeString(boolean leinient) {
-        return takeString(leinient, false);
+        return takeString((leinient ? TAKE_STRING_LEINIENT : 0), "\"");
     }
 
+    @Deprecated
     public String takeString(boolean leinient, boolean escapeDoubleQuote) {
-        return takeString(leinient, escapeDoubleQuote, '"');
+        return takeString( (leinient ? TAKE_STRING_LEINIENT : 0) | (escapeDoubleQuote ? TAKE_STRING_ESCAPE_DOUBLE_QUOTE : 0), "\"");
     }
 
+    @Deprecated
     public String takeString(boolean leinient, boolean escapeDoubleQuote, char quote) {
-        expect(quote);
+        return takeString((leinient ? TAKE_STRING_LEINIENT : 0) | (escapeDoubleQuote ? TAKE_STRING_ESCAPE_DOUBLE_QUOTE : 0), String.valueOf(quote));
+    }
+
+    public String takeString(int flags, String quote) {
+        if ((flags & TAKE_STRING_NO_START_QUOTE) == 0) expect(quote);
         StringBuilder sb = new StringBuilder();
-        int escapes = 0;
-        int next = take();
-        while (next != -1) {
-            if (next == quote && escapes == 0) {
-                if (escapeDoubleQuote && peek() == quote) {
-                    sb.append('\\');
-                    sb.append((char) take());
+        while (!exhausted()) {
+            String[] lines = takeUntil(quote).split("\r?\n", -1);
+            String last = lines[lines.length - 1];
+            if ((flags & (TAKE_STRING_MULTILINE | TAKE_STRING_ESCAPE_NEWLINE)) != 0) {
+                for (int i = 0; i < lines.length - 1; i++) {
+                    String next = lines[i];
+                    if ((flags & TAKE_STRING_ESCAPE_NEWLINE) != 0) {
+                        // count ending \'s
+                        int count = 0;
+                        for (int j = next.length() - 1; j >= 0; j--) {
+                            if (next.charAt(j) == '\\') {
+                                count++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (count % 2 != 0) {
+                            // escaped
+                            if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) == 0) {
+                                next = next.substring(0, next.length() - 1);
+                            }
+                            sb.append(next);
+                            if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) != 0) {
+                                sb.append('\n');
+                            }
+                        } else if (((flags & TAKE_STRING_MULTILINE) != 0)) {
+                            sb.append(next).append('\n');
+                        } else {
+                            throw createException("Unexpected EOL in string literal");
+                        }
+                    } else if ((flags & TAKE_STRING_MULTILINE) != 0) {
+                        sb.append(next).append('\n');
+                    } else {
+                        throw new AssertionError("unreachable");
+                    }
+                }
+            } else if (lines.length > 1) {
+                throw createException("Unexpected EOL in string literal");
+            }
+
+            // count ending \'s
+            int count = 0;
+            for (int i = last.length() - 1; i >= 0; i--) {
+                if (last.charAt(i) == '\\') {
+                    count++;
                 } else {
                     break;
                 }
             }
-            if (next == '\\') {
-                escapes++;
+            if (count % 2 != 0) {
+                // escaped
+                if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) == 0) {
+                    last = last.substring(0, last.length() - 1);
+                }
+                sb.append(last);
+                sb.append(expect(quote));
             } else {
-                escapes = 0;
+                sb.append(last);
+                if ((flags & TAKE_STRING_ESCAPE_DOUBLE_QUOTE) != 0) {
+                    mark();
+                    expect(quote);
+                    try {
+                        sb.append(expect(quote));
+                        if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) != 0) {
+                            sb.append(quote);
+                        }
+                    } catch (ParseException e) {
+                        reset();
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
-            sb.append((char) next);
-            if (escapes == 2) {
-                escapes = 0;
-            }
-            next = take();
         }
-        return StringUtils.translateEscapes(sb.toString(), leinient);
+        expect(quote);
+        if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) != 0) return quote + sb + quote;
+        return StringUtils.translateEscapes(sb.toString(), (flags & TAKE_STRING_LEINIENT) != 0);
     }
 
     /* Char Acceptors */
@@ -371,6 +482,15 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             if ((char) next != character) {
                 throw createException("Expected " + character + " but got " + (char) next);
             }
+        }
+        return (char) next;
+    }
+
+    public char expect(String valueType, CharAccepter accepter) {
+        int next = take();
+        if (next == -1) throw createException("Expected " + valueType + " but got EOS");
+        if (!accepter.accept((char) next)) {
+            throw createException("Expected " + valueType + " but got " + (char) next);
         }
         return (char) next;
     }
@@ -433,7 +553,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             return null;
         }
         if (next == '"') {
-            String value = takeString(leinient, true);
+            String value = takeString(TAKE_STRING_ESCAPE_DOUBLE_QUOTE | (leinient ? TAKE_STRING_LEINIENT : 0), "\"");
             String whiteSpace = takeNonNewlineWhitespace();
             next = peek();
             // check if string actually ends column
@@ -479,7 +599,31 @@ public abstract class CharReader<T extends CharReader<? super T>> {
                 exceptions.add(e);
             }
         }
-        throw createCompositeException("Failed to parse as any of", exceptions.toArray(new ParseException[0]));
+        throw createCompositeException("Failed to parse as any", exceptions.toArray(new ParseException[0]));
+    }
+
+    @SafeVarargs
+    public final <R> R parse(String type, StringCharReader.ElementReader<R>... readers) {
+        List<ParseException> exceptions = new ArrayList<>();
+        for (StringCharReader.ElementReader<R> reader : readers) {
+            try {
+                return parse(reader);
+            } catch (ParseException e) {
+                exceptions.add(e);
+            }
+        }
+        throw createCompositeException("Failed to parse as any of " + type, exceptions.toArray(new ParseException[0]));
+    }
+
+    @Nullable
+    @SafeVarargs
+    public final <R> R parseOrNull(StringCharReader.ElementReader<R>... readers) {
+        for (StringCharReader.ElementReader<R> reader : readers) {
+            try {
+                return parse(reader);
+            } catch (ParseException ignored) {}
+        }
+        return null;
     }
 
     public ParseException createException(String message) {

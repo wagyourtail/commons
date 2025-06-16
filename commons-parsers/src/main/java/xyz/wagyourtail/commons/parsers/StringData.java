@@ -6,25 +6,14 @@ import xyz.wagyourtail.commons.core.reader.StringCharReader;
 
 import java.util.function.Function;
 
-public abstract class StringData extends Data<String, Data.Content> {
-    private final Function<CharReader<?>, Data.Content> contentBuilder;
+public abstract class StringData<E extends Data.Content> extends Data<String, E> {
 
-    public StringData(String rawContent, Function<CharReader<?>, Data.Content> contentBuilder) {
+    public StringData(String rawContent) {
         super(rawContent);
-        this.contentBuilder = contentBuilder;
     }
 
-    public StringData(Data.Content content, Function<CharReader<?>, Data.Content> contentBuilder) {
+    public StringData(E content) {
         super(content);
-        this.contentBuilder = contentBuilder;
-    }
-
-    @Override
-    protected Content buildContent() {
-        StringCharReader reader = new StringCharReader(getRawContent());
-        val content = contentBuilder.apply(reader);
-        reader.expectEOS();
-        return content;
     }
 
     @Override
@@ -37,25 +26,45 @@ public abstract class StringData extends Data<String, Data.Content> {
         return getRawContent();
     }
 
-    public abstract static class OnlyRaw extends StringData {
+    public abstract static class OnlyRaw<E extends Data.Content> extends StringData<E> {
+        private final Function<CharReader<?>, E> contentBuilder;
 
-        public OnlyRaw(String rawContent, Function<CharReader<?>, Data.Content> contentBuilder) {
-            super(rawContent, contentBuilder);
+        public OnlyRaw(String rawContent, Function<CharReader<?>, E> contentBuilder) {
+            super(rawContent);
+            this.contentBuilder = contentBuilder;
         }
 
-        public OnlyRaw(CharReader<?> reader, Function<CharReader<?>, Data.Content> contentBuilder) {
+        public OnlyRaw(CharReader<?> reader, Function<CharReader<?>, E> contentBuilder) {
             this(contentBuilder.apply(reader).toString(), contentBuilder);
         }
 
         @Override
-        public Data.Content getContent() {
+        public E getContent() {
             return buildContent();
+        }
+
+        @Override
+        protected E buildContent() {
+            StringCharReader reader = new StringCharReader(getRawContent());
+            val content = contentBuilder.apply(reader);
+            reader.expectEOS();
+            return content;
         }
 
         protected String buildRawContent() {
             throw new IllegalStateException("raw content should always be present");
         }
+    }
 
+    public abstract static class OnlyParsed<E extends Data.Content> extends StringData<E> {
+
+        public OnlyParsed(E content) {
+            super(content);
+        }
+
+        protected E buildContent() {
+            throw new IllegalStateException("content should always be present");
+        }
     }
 
     public static class BuildStringVisitor implements DataVisitor {

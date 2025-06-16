@@ -4,11 +4,10 @@ import lombok.val;
 import xyz.wagyourtail.commons.core.StringUtils;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.Collections;
-
-public class StringConstant extends StringData.OnlyRaw {
+public class StringConstant extends StringData.OnlyRaw<Data.SingleContent<String>> {
 
 
     private StringConstant(String content) {
@@ -35,8 +34,8 @@ public class StringConstant extends StringData.OnlyRaw {
         return StringUtils.translateEscapes(content.substring(1, content.length() - 1));
     }
 
-    private static Content getContentChecked(CharReader<?> reader) {
-        return new DefaultContent(Collections.singleton("\"" + StringUtils.escape(reader.takeString(), true) + "\""));
+    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
+        return new SingleContent<>(reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\""));
     }
 
 }

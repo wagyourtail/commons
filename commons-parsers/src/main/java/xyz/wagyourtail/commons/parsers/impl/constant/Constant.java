@@ -3,11 +3,12 @@ package xyz.wagyourtail.commons.parsers.impl.constant;
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
 import java.util.Collections;
 
-public class Constant extends StringData.OnlyRaw {
+public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
 
     private Constant(String rawContent) {
         super(rawContent, Constant::getContentChecked);
@@ -75,8 +76,9 @@ public class Constant extends StringData.OnlyRaw {
         throw new IllegalStateException();
     }
 
-    private static Content getContentChecked(CharReader<?> reader) {
-        return new DefaultContent(Collections.singleton(reader.parse(
+    private static SingleContent<?> getContentChecked(CharReader<?> reader) {
+        return new SingleContent<>(reader.parse(
+                "constant",
                 BooleanConstant::new,
                 StringConstant::new,
                 NumberConstant::new,
@@ -84,7 +86,7 @@ public class Constant extends StringData.OnlyRaw {
                     r.expect("null");
                     return null;
                 }
-        )));
+        ));
     }
 
 

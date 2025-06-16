@@ -11,7 +11,7 @@ java {
 dependencies {
     api(project(":commons-core"))
 
-    api(libs.appache.commons.compress)
+    api(libs.apache.commons.compress)
     implementation(libs.xz)
     implementation(libs.zstd)
 

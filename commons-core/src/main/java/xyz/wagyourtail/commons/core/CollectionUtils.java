@@ -1,8 +1,9 @@
 package xyz.wagyourtail.commons.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.val;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,52 @@ public class CollectionUtils {
         }
 
         return newArgs;
+    }
+
+    @SafeVarargs
+    public static <T> Iterable<T> concat(final Iterable<? extends T>... iterables) {
+        return new Iterable<T>() {
+
+            @NotNull
+            @Override
+            public Iterator<T> iterator() {
+                val iterators = new Iterator[iterables.length];
+                for (int i = 0; i < iterables.length; i++) {
+                    iterators[i] = iterables[i].iterator();
+                }
+                return concat(iterators);
+            }
+
+        };
+    }
+
+    @SafeVarargs
+    public static <T> Iterator<T> concat(final Iterator<? extends T>... iterators) {
+        return new Iterator<T>() {
+            final ArrayDeque<Iterator<? extends T>> queue = new ArrayDeque<>(Arrays.asList(iterators));
+            Iterator<? extends T> current = queue.removeFirst();
+            Iterator<? extends T> previous = null;
+
+            @Override
+            public boolean hasNext() {
+                if (current.hasNext()) return true;
+                if (queue.isEmpty()) return false;
+                current = queue.removeFirst();
+                return hasNext();
+            }
+
+            @Override
+            public T next() {
+                previous = current;
+                return current.next();
+            }
+
+            @Override
+            public void remove() {
+                previous.remove();
+            }
+
+        };
     }
 
 }

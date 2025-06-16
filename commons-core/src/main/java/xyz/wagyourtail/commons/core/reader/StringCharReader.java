@@ -3,6 +3,9 @@ package xyz.wagyourtail.commons.core.reader;
 import lombok.val;
 import xyz.wagyourtail.commons.core.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StringCharReader extends CharReader<StringCharReader> {
     private final String buffer;
     private final int endPos;
@@ -110,15 +113,45 @@ public class StringCharReader extends CharReader<StringCharReader> {
 
     @Override
     public ParseException createException(String message, Throwable cause) {
-        return super.createException(message + " (at " + getPosition() + ")", cause);
+        int line;
+        int column = pos - buffer.substring(0, pos).lastIndexOf('\n');
+        if (!buffer.contains("\n")) {
+            line = -1;
+        } else {
+            line = StringUtils.count(buffer.substring(0, pos), '\n') + 1;
+        }
+        return new ParseException(message, line, column, cause);
     }
 
-    public String getPosition() {
-        if (!buffer.contains("\n")) {
-            return String.valueOf(pos);
+    @Override
+    public ParseException createCompositeException(String message, ParseException... exceptions) {
+        // find furthest exception
+        List<ParseException> lastExceptions = new ArrayList<>();
+        ParseException lastException = null;
+        for (ParseException e : exceptions) {
+            if (lastException == null) {
+                lastException = e;
+                lastExceptions.add(e);
+                continue;
+            }
+            int compare = lastException.compareTo(e);
+            if (compare < 0) {
+                lastExceptions.clear();
+                lastExceptions.add(e);
+                lastException = e;
+            } else if (compare == 0) {
+                lastExceptions.add(e);
+            }
         }
-        int line = StringUtils.count(buffer.substring(0, pos), '\n') + 1;
-        int column = pos - buffer.substring(0, pos).lastIndexOf('\n');
-        return line + ":" + column;
+        if (lastExceptions.size() == 1) {
+            return createException(message, lastException);
+        } else {
+            val exception = createException(message);
+            for (ParseException e : lastExceptions) {
+                exception.addSuppressed(e);
+            }
+            return exception;
+        }
     }
+
 }

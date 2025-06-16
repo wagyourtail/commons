@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.parsers.utils;
+package xyz.wagyourtail.commons.lazy;
 
 import lombok.val;
 import xyz.wagyourtail.commons.core.lazy.Lazy;

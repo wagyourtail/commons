@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.Map;
 
 public class Utils {
 
@@ -31,10 +32,13 @@ public class Utils {
         throw t;
     }
 
-    public static URL bufferURL(String name, final IOSupplier<InputStream> inputStreamSupplier) throws MalformedURLException {
+    public static URL bufferURL(final String name, final IOSupplier<InputStream> inputStreamSupplier) throws MalformedURLException {
         return new URL("x-buffer", null, -1, name, new URLStreamHandler() {
             @Override
             protected URLConnection openConnection(final URL u1) {
+                if (!u1.getPath().equals(name)) {
+                    return null;
+                }
                 return new URLConnection(u1) {
                     @Override
                     public void connect() {
@@ -43,6 +47,29 @@ public class Utils {
                     @Override
                     public InputStream getInputStream() throws IOException {
                         return inputStreamSupplier.get();
+                    }
+                };
+            }
+        });
+    }
+
+    public static URL multiBufferURL(final Map<String, IOSupplier<InputStream>> inputStreamSuppliers) throws MalformedURLException {
+        return new URL("x-buffer", null, -1, "/", new URLStreamHandler() {
+
+            @Override
+            protected URLConnection openConnection(final URL u) {
+                if (!inputStreamSuppliers.containsKey(u.getPath())) {
+                    return null;
+                }
+                return new URLConnection(u) {
+
+                    @Override
+                    public void connect() {
+                    }
+
+                    @Override
+                    public InputStream getInputStream() throws IOException {
+                        return inputStreamSuppliers.get(u.getPath()).get();
                     }
                 };
             }

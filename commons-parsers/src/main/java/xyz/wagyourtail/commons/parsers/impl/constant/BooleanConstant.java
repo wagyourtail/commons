@@ -3,12 +3,12 @@ package xyz.wagyourtail.commons.parsers.impl.constant;
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
+import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.Collections;
 import java.util.Locale;
 
-public class BooleanConstant extends StringData.OnlyRaw {
+public class BooleanConstant extends StringData.OnlyRaw<Data.SingleContent<Boolean>> {
 
     private BooleanConstant(String content) {
         super(content, BooleanConstant::getContentChecked);
@@ -33,8 +33,9 @@ public class BooleanConstant extends StringData.OnlyRaw {
         return Boolean.parseBoolean(getRawContent().toLowerCase(Locale.ROOT));
     }
 
-    private static Content getContentChecked(CharReader<?> reader) {
+    private static SingleContent<Boolean> getContentChecked(CharReader<?> reader) {
         val value = reader.parse(
+                "boolean",
                 (r) -> {
                     r.expect("true");
                     return true;
@@ -47,7 +48,7 @@ public class BooleanConstant extends StringData.OnlyRaw {
         if (value == null) {
             throw reader.createException("Expected true/false but got: " + reader.take(5));
         }
-        return new DefaultContent(Collections.singleton(value));
+        return new SingleContent<>(value);
     }
 
 }

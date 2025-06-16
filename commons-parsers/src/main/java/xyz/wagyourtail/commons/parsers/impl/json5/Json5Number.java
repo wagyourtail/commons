@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.parsers.impl.constant;
+package xyz.wagyourtail.commons.parsers.impl.json5;
 
 import lombok.val;
 import lombok.var;
@@ -7,37 +7,38 @@ import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
+import xyz.wagyourtail.commons.parsers.impl.constant.NumberConstant;
 import xyz.wagyourtail.commons.parsers.impl.constant.parts.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
+public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
 
-    private NumberConstant(String rawContent) {
-        super(rawContent, NumberConstant::getContentChecked);
+    private Json5Number(String rawContent) {
+        super(rawContent, Json5Number::getContentChecked);
     }
 
-    public NumberConstant(CharReader<?> reader) {
-        super(reader, NumberConstant::getContentChecked);
+    public Json5Number(CharReader<?> reader) {
+        super(reader, Json5Number::getContentChecked);
     }
 
-    public static NumberConstant parse(String rawContent) {
+    public static Json5Number parse(String rawContent) {
         StringCharReader reader = new StringCharReader(rawContent);
-        val number = new NumberConstant(reader);
+        val number = new Json5Number(reader);
         reader.expectEOS();
         return number;
     }
 
-    public static NumberConstant unchecked(String rawContent) {
-        return new NumberConstant(rawContent);
+    public static Json5Number unchecked(String rawContent) {
+        return new Json5Number(rawContent);
     }
 
     public boolean isNegative() {
         return getRawContent().charAt(0) == '-';
     }
 
-    public NumberConstant asPositive() {
+    public Json5Number asPositive() {
         String raw = getRawContent();
         if (raw.charAt(0) == '-') {
             return unchecked(raw.substring(1));
@@ -45,7 +46,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         return this;
     }
 
-    public NumberConstant asNegative() {
+    public Json5Number asNegative() {
         String raw = getRawContent();
         if (raw.charAt(0) != '-') {
             return unchecked("-" + raw);
@@ -74,17 +75,14 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
 
     public boolean isDecimal() {
         val raw = getRawContent();
-        val last = raw.charAt(raw.length() - 1);
 
-        if (last == 'd' || last == 'D' || last == 'f' || last == 'F') {
+        if (raw.contains(".") || raw.contains("e") || raw.contains("E")) {
             return true;
         }
 
-        if (last == 'l' || last == 'L') {
-            return false;
-        }
+        val positive = asPositive().getRawContent();
 
-        return raw.contains(".") || raw.contains("e") || raw.contains("E");
+        return positive.startsWith("I") || positive.startsWith("N");
     }
 
     public boolean isHex() {
@@ -97,89 +95,22 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         return positive.startsWith("0b") || positive.startsWith("0B");
     }
 
-    public boolean isOctal() {
-        val positive = asPositive().getRawContent();
-
-        if (positive.length() == 1) {
-            return false;
-        }
-
-        val second = positive.charAt(1);
-        return positive.charAt(0) == '0' && (second >= '0' && second <= '9');
-    }
-
-    public boolean isFloat() {
-        val raw = getRawContent();
-        val last = raw.charAt(raw.length() - 1);
-        return (last == 'f' || last == 'F') && !isHex();
-    }
-
-    public boolean isLong() {
-        val raw = getRawContent();
-        val last = raw.charAt(raw.length() - 1);
-        return last == 'l' || last == 'L';
-    }
-
-    public boolean isDouble() {
-        val positive = asPositive().getRawContent();
-
-        if (positive.startsWith("I") || positive.startsWith("N")) {
-            return true;
-        }
-
-        if (isDecimal()) {
-            val last = positive.charAt(positive.length() - 1);
-            return last != 'f' && last != 'F';
-        }
-        return false;
-    }
-
-    public boolean isInteger() {
-        return isWhole() && !isLong();
-    }
-
     public Number getValue() {
         if (isNegative()) {
             return NumberUtils.negate(asPositive().getValue());
         }
         val raw = getRawContent();
         if (isHex()) {
-            if (isLong()) {
-                return Long.parseLong(raw.substring(2, raw.length() - 1), 16);
-            } else {
-                return Integer.parseInt(raw.substring(2), 16);
-            }
+            return Long.parseLong(raw.substring(2), 16);
         }
         if (isBinary()) {
-            if (isLong()) {
-                return Long.parseLong(raw.substring(2, raw.length() - 1), 2);
-            } else {
-                return Integer.parseInt(raw.substring(2), 2);
-            }
+            return Long.parseLong(raw.substring(2), 2);
         }
-        if (isOctal()) {
-            if (isLong()) {
-                return Long.parseLong(raw.substring(1, raw.length() - 1), 8);
-            } else {
-                return Integer.parseInt(raw.substring(1), 8);
-            }
+        if (isDecimal()) {
+            return Double.parseDouble(raw);
         }
-        if (isFloat()) {
-            return Float.parseFloat(raw.substring(0, raw.length() - 1));
-        }
-        if (isLong()) {
-            return Long.parseLong(raw.substring(raw.length() - 1));
-        }
-        if (isDouble()) {
-            val last = raw.charAt(raw.length() - 1);
-            if (last == 'd' || last == 'D') {
-                return Double.parseDouble(raw.substring(0, raw.length() - 1));
-            } else {
-                return Double.parseDouble(raw);
-            }
-        }
-        if (isInteger()) {
-            return Integer.parseInt(raw);
+        if (isWhole()) {
+            return Long.parseLong(raw);
         }
         throw new IllegalStateException();
     }
@@ -191,14 +122,13 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         if (first == '-') {
             content.add((char) reader.take());
         }
+        if (first == '+') {
+            content.add((char) reader.take());
+        }
         var next = reader.peek();
         if (next > '0' && next <= '9') {
-            content.add(new WholePart(reader));
+            content.add(new DecimalPart(reader));
             next = reader.peek();
-            if (next == 'l' || next == 'L') {
-                content.add((char) reader.take());
-                return new ListContent(content);
-            }
             if (next == '.') {
                 content.add((char) reader.take());
                 next = reader.peek();
@@ -210,7 +140,6 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             if (next == 'e' || next == 'E') {
                 content.add((char) reader.take());
                 content.add(new ExponentPart(reader));
-                next = reader.peek();
             }
         } else if (next == '0') {
             content.add((char) reader.take());
@@ -226,7 +155,6 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
                     if (next == 'e' || next == 'E') {
                         content.add((char) reader.take());
                         content.add(new ExponentPart(reader));
-                        next = reader.peek();
                     }
                     break;
                 case 'x':
@@ -234,30 +162,15 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
                     content.add((char) reader.take());
                     content.add(new HexPart(reader));
                     next = reader.peek();
-                    if (next == 'l' || next == 'L') {
-                        content.add((char) reader.take());
-                    }
                     return new ListContent(content);
                 case 'b':
                 case 'B':
                     content.add((char) reader.take());
                     content.add(new BinaryPart(reader));
-                    next = reader.peek();
-                    if (next == 'l' || next == 'L') {
-                        content.add((char) reader.take());
-                    }
                     return new ListContent(content);
                 case -1:
-                    break;
                 default:
-                    if (next >= '0' && next < '8') {
-                        content.add(new OctalPart(reader));
-                        next = reader.peek();
-                        if (next == 'l' || next == 'L') {
-                            content.add((char) reader.take());
-                        }
-                        return new ListContent(content);
-                    }
+                    break;
             }
         } else if (next == '.') {
             content.add((char) reader.take());
@@ -266,22 +179,13 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             if (next == 'e' || next == 'E') {
                 content.add((char) reader.take());
                 content.add(new ExponentPart(reader));
-                next = reader.peek();
             }
         } else if (next == 'I') {
             content.add(reader.expect("Infinity"));
-            next = reader.peek();
         } else if (next == 'N') {
             content.add(reader.expect("NaN"));
-            next = reader.peek();
         } else {
             throw reader.createException("Not a number character: " + (char) next);
-        }
-
-        if (next == -1) return new ListContent(content);
-        if (next == 'f' || next == 'F'
-        || next == 'd' || next == 'D') {
-            content.add((char) reader.take());
         }
 
         return new ListContent(content);

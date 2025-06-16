@@ -1,8 +1,11 @@
 package xyz.wagyourtail.commons.parsers;
 
+import lombok.Getter;
 import xyz.wagyourtail.commons.core.StringUtils;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class Data<T, E extends Data.Content> {
     private volatile T rawContent;
@@ -79,29 +82,66 @@ public abstract class Data<T, E extends Data.Content> {
         protected T buildRawContent() {
             throw new IllegalStateException("raw content should always be present");
         }
+    }
 
+    public abstract static class OnlyParsed<T, E extends Content> extends Data<T, E> {
+
+        public OnlyParsed(E content) {
+            super(content);
+        }
+
+        @Override
+        public T getRawContent() {
+            return buildRawContent();
+        }
+
+        @Override
+        protected E buildContent() {
+            throw new IllegalStateException("content should always be present");
+        }
     }
 
     public static abstract class Content {
 
-        public abstract Set<Object> getEntries();
+        public abstract Iterable<Object> getEntries();
 
         @Override
         public String toString() {
             return StringUtils.joinToString("", getEntries());
         }
-
     }
 
-    public static class DefaultContent extends Data.Content {
-        private final Set<Object> entries;
+    @Getter
+    public static class SingleContent<T> extends Data.Content {
+        private final T value;
 
-        public DefaultContent(Set<Object> entries) {
+        public SingleContent(T content) {
+            this.value = content;
+        }
+
+        @Deprecated
+        public SingleContent(Collection<T> content) {
+            if (content.size() != 1) {
+                throw new IllegalArgumentException("Content must have exactly one element");
+            }
+            this.value = content.iterator().next();
+        }
+
+        @Override
+        public Iterable<Object> getEntries() {
+            return Collections.singletonList(value);
+        }
+    }
+
+    public static class ListContent extends Data.Content {
+        private final List<Object> entries;
+
+        public ListContent(List<Object> entries) {
             this.entries = entries;
         }
 
         @Override
-        public Set<Object> getEntries() {
+        public Iterable<Object> getEntries() {
             return entries;
         }
     }
