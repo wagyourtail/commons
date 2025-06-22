@@ -77,16 +77,48 @@ class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = b
     }
 
     override fun createException(msg: String, cause: Throwable?): ParseException {
-        return super.createException(msg + " (at " + getPosition() + ")", cause)
+        var count = 0
+        var lineStart = 0
+        if (!buffer.contains("\n")) {
+            count = -1
+        } else {
+            do {
+                val next = buffer.indexOf('\n', lineStart) + 1
+                if (next == 0 || next > pos) break
+                lineStart = next
+                count++
+            } while (true)
+        }
+        return ParseException(msg, count + 1, pos - lineStart + 1, cause)
     }
 
-    fun getPosition(): String {
-        if (!buffer.contains("\n")) {
-            return "$pos"
+    override fun createCompositeException(msg: String, vararg exceptions: ParseException): ParseException {
+        val lastExceptions = mutableListOf<ParseException>()
+        var lastException: ParseException? = null
+        for (e in exceptions) {
+            if (lastException == null) {
+                lastException = e
+                lastExceptions.add(e)
+                continue
+            }
+            val compare = lastException.compareTo(e)
+            if (compare < 0) {
+                lastExceptions.clear()
+                lastExceptions.add(e)
+                lastException = e
+            } else if (compare == 0) {
+                lastExceptions.add(e)
+            }
         }
-        val line = buffer.substring(0, pos).count { it == '\n' }
-        val column = pos - buffer.substring(0, pos).lastIndexOf('\n')
-        return "$line:$column"
+        if (lastExceptions.size == 1) {
+            return createException(msg, lastException)
+        } else {
+            val exception = createException(msg)
+            for (e in lastExceptions) {
+                exception.addSuppressed(e)
+            }
+            return exception
+        }
     }
 }
 

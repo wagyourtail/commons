@@ -7,12 +7,13 @@ import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
 class FinalizeOnWrite<T>(value: T) :
-    SynchronizedObject(),
     ReadWriteProperty<Any?, T> {
 
     var finalized = false
 
     var value: Any? = value
+
+    private val lock = SynchronizedObject()
 
     constructor(prop: ReadWriteProperty<Any?, T>) : this(prop as T)
 
@@ -24,7 +25,7 @@ class FinalizeOnWrite<T>(value: T) :
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        synchronized(this) {
+        synchronized(lock) {
             if (!finalized) {
                 finalized = true
             } else {

@@ -5,19 +5,19 @@ import kotlinx.atomicfu.locks.synchronized
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class MustSet<T> :
-    SynchronizedObject(),
-    ReadWriteProperty<Any?, T> {
+class MustSet<T> : ReadWriteProperty<Any?, T> {
 
     @Suppress("ClassName")
     private object UNINITIALIZED_VALUE
 
     private var prop: Any? = UNINITIALIZED_VALUE
 
+    private val lock = SynchronizedObject()
+
     @Suppress("UNCHECKED_CAST")
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         if (prop == UNINITIALIZED_VALUE) {
-            synchronized(this) {
+            synchronized(lock) {
                 if (prop == UNINITIALIZED_VALUE) {
                     throw IllegalStateException("Property ${property.name} must be set before use")
                 }

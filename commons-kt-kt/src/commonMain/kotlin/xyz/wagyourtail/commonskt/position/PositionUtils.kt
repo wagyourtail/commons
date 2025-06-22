@@ -92,3 +92,35 @@ fun Iterable<Pos3D>.max(): Pos3D {
 fun Iterable<Pos3D>.min(): Pos3D {
     return reduce { acc, pos3D -> min(acc, pos3D) }
 }
+
+fun max(vararg a: Pos2): Pos2 {
+    return a.reduce { a, b -> max(a, b) }
+}
+
+fun min(vararg a: Pos2): Pos2 {
+    return a.reduce { a, b -> min(a, b) }
+}
+
+fun max(vararg a: Pos2D): Pos2D {
+    return a.reduce { a, b -> max(a, b) }
+}
+
+fun min(vararg a: Pos2D): Pos2D {
+    return a.reduce { a, b -> min(a, b) }
+}
+
+fun max(vararg a: Pos3): Pos3 {
+    return a.reduce { a, b -> max(a, b) }
+}
+
+fun min(vararg a: Pos3): Pos3 {
+    return a.reduce { a, b -> min(a, b) }
+}
+
+fun max(vararg a: Pos3D): Pos3D {
+    return a.reduce { a, b -> max(a, b) }
+}
+
+fun min(vararg a: Pos3D): Pos3D {
+    return a.reduce { a, b -> min(a, b) }
+}

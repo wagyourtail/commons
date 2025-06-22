@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.parsers.impl.json5;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.val;
 import xyz.wagyourtail.commons.core.CollectionUtils;
@@ -30,6 +31,7 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
 
     public static ObjectContent contentBuilder(CharReader<?> reader) {
         List<Object> entries = new ArrayList<>();
+        Map<String, Json5ObjectEntry> entryMap = new HashMap<>();
         reader.expect('{');
         while (!reader.exhausted()) {
             while (!reader.exhausted()) {
@@ -43,7 +45,11 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
             if (reader.peek() == '}') {
                 break;
             }
-            entries.add(Json5ObjectEntry.parse(reader));
+
+            val entry = Json5ObjectEntry.parse(reader);
+            entries.add(entry);
+            entryMap.put(entry.getKey(), entry);
+
             while (!reader.exhausted()) {
                 val value = reader.parseOrNull(
                         Json5Whitespace::new,
@@ -59,10 +65,11 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
             }
         }
         reader.expect('}');
-        return new ObjectContent(entries);
+        return new ObjectContent(entries, entryMap);
     }
 
     @Getter
+    @AllArgsConstructor
     public static class ObjectContent extends Data.Content {
         private final List<Object> entries;
         private final Map<String, Json5ObjectEntry> entryMap;

@@ -3,7 +3,7 @@ package xyz.wagyourtail.commons.parsers.impl.constant.test;
 import org.junit.jupiter.api.Test;
 import xyz.wagyourtail.commons.core.reader.ParseException;
 import xyz.wagyourtail.commons.parsers.StringData;
-import xyz.wagyourtail.commons.parsers.impl.constant.Constant;
+import xyz.wagyourtail.commons.parsers.impl.Constant;
 
 import static org.junit.jupiter.api.Assertions.*;
 

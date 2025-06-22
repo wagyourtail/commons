@@ -8,8 +8,8 @@ public class ParseException extends RuntimeException implements Comparable<Parse
 
     public ParseException(String message) {
         super(message);
-        this.line = -1;
-        this.column = -1;
+        this.line = 0;
+        this.column = 0;
     }
 
     public ParseException(String message, int line, int column) {
@@ -20,8 +20,8 @@ public class ParseException extends RuntimeException implements Comparable<Parse
 
     public ParseException(String message, Throwable cause) {
         super(message, cause);
-        this.line = -1;
-        this.column = -1;
+        this.line = 0;
+        this.column = 0;
     }
 
     public ParseException(String message, int line, int column, Throwable cause) {
@@ -31,8 +31,8 @@ public class ParseException extends RuntimeException implements Comparable<Parse
     }
 
     public static String getPosition(int line, int column) {
-        if (line == -1) return " (at " + column + ")";
         if (column == -1) return "";
+        if (line == 0) return " (at " + column + ")";
         return " (at " + line + ":" + column + ")";
     }
 

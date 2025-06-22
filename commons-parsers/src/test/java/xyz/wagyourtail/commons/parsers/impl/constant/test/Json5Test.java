@@ -2,7 +2,7 @@ package xyz.wagyourtail.commons.parsers.impl.constant.test;
 
 import org.junit.jupiter.api.Test;
 import xyz.wagyourtail.commons.parsers.StringData;
-import xyz.wagyourtail.commons.parsers.impl.json5.Json5File;
+import xyz.wagyourtail.commons.parsers.impl.Json5File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

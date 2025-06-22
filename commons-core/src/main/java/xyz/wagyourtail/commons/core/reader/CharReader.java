@@ -129,7 +129,11 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     /**
      * set this position as remembered.
      */
-    public abstract void mark();
+    public void mark() {
+        mark(Integer.MAX_VALUE);
+    }
+
+    public abstract void mark(int limit);
 
     /**
      * reset to remembered mark position, or beginning if no mark.
@@ -415,10 +419,8 @@ public abstract class CharReader<T extends CharReader<? super T>> {
                         } else {
                             throw createException("Unexpected EOL in string literal");
                         }
-                    } else if ((flags & TAKE_STRING_MULTILINE) != 0) {
-                        sb.append(next).append('\n');
                     } else {
-                        throw new AssertionError("unreachable");
+                        sb.append(next).append('\n');
                     }
                 }
             } else if (lines.length > 1) {
@@ -709,13 +711,17 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         }
 
         @Override
-        public void mark() {
+        public void mark(int limit) {
             mark = position;
         }
 
         @Override
         public void reset() {
             position = mark;
+        }
+
+        public String getAllRead() {
+            return sb.toString();
         }
     }
 

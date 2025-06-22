@@ -124,12 +124,21 @@ class TestCharReader {
     fun testTakeStringWithEscapes() {
         val reader = StringCharReader("\"te\\\"st\"")
         assertEquals("te\"st", reader.takeString())
-    }
 
-    @Test
-    fun testTakeStringWithEscapes2() {
-        val reader = StringCharReader("\"te\\\\st\"")
-        assertEquals("te\\st", reader.takeString())
+        val reader4 = StringCharReader("\"te\\\\st\"")
+        assertEquals("te\\st", reader4.takeString())
+
+        val reader2 = StringCharReader("\"te\"\"st\"")
+        assertEquals("te\"st", reader2.takeString(escapeDoubleQuote = true, quote = "\""))
+
+        val reader3 = StringCharReader("\"\"\"test\nmultiline\"\"\"")
+        assertEquals("test\nmultiline", reader3.takeString(multiline = true, quote = "\"\"\""))
+
+        val reader5 = StringCharReader("\"\"\"test\nmultiline\\\"\"\"string\"\"\"")
+        assertEquals("test\nmultiline\"\"\"string", reader5.takeString(multiline = true, quote = "\"\"\""))
+
+        val reader6 = StringCharReader("\"\"\"test\nmultiline\\\"\"\"string\"\"\"")
+        assertEquals("\"\"\"test\nmultiline\\\"\"\"string\"\"\"", reader6.takeString(multiline = true, noTranslateEscapes =  true, quote = "\"\"\""))
     }
 
     @Test

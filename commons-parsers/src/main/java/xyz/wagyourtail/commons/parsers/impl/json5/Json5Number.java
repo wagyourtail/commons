@@ -7,8 +7,7 @@ import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
-import xyz.wagyourtail.commons.parsers.impl.constant.NumberConstant;
-import xyz.wagyourtail.commons.parsers.impl.constant.parts.*;
+import xyz.wagyourtail.commons.parsers.impl.constant.number.*;
 
 import java.util.ArrayList;
 import java.util.List;

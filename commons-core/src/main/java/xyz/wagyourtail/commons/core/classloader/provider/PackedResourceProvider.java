@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.classloader.provider;
 
+import xyz.wagyourtail.commons.core.SeekableByteChannelUtils;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
@@ -34,9 +35,9 @@ public class PackedResourceProvider implements ResourceProvider {
         this.positions = new HashMap<>();
         while (channel.position() < channel.size()) {
             // read name
-            int nameLength = getInt(channel);
-            int fileLength = getInt(channel);
-            String name = getString(channel, nameLength);
+            int nameLength = SeekableByteChannelUtils.readInt(channel);
+            int fileLength = SeekableByteChannelUtils.readInt(channel);
+            String name = SeekableByteChannelUtils.readString(channel, nameLength);
             long position = channel.position();
             this.positions.put(name, new PositionAndLength(position, fileLength));
             channel.position(position + fileLength);
@@ -51,25 +52,6 @@ public class PackedResourceProvider implements ResourceProvider {
         Path temp = Files.createTempFile(Paths.get("."), "packed", "classes");
         Files.copy(uri.toURL().openStream(), temp, StandardCopyOption.REPLACE_EXISTING);
         return new PackedResourceProvider(temp);
-    }
-
-    public static int getInt(SeekableByteChannel channel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        channel.read(buffer);
-        buffer.flip();
-        return buffer.getInt();
-    }
-
-    public static byte[] getBytes(SeekableByteChannel channel, int length) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(length);
-        channel.read(buffer);
-        buffer.flip();
-        return buffer.array();
-    }
-
-    public static String getString(SeekableByteChannel channel, int length) throws IOException {
-        byte[] bytes = getBytes(channel, length);
-        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @Override

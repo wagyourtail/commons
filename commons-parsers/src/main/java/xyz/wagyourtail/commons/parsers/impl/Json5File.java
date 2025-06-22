@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.parsers.impl.json5;
+package xyz.wagyourtail.commons.parsers.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,9 @@ import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
+import xyz.wagyourtail.commons.parsers.impl.json5.Json5Comment;
+import xyz.wagyourtail.commons.parsers.impl.json5.Json5Value;
+import xyz.wagyourtail.commons.parsers.impl.json5.Json5Whitespace;
 
 import java.util.ArrayList;
 import java.util.Collections;

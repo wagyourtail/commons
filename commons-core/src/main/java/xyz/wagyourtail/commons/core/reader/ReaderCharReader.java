@@ -2,6 +2,7 @@ package xyz.wagyourtail.commons.core.reader;
 
 import lombok.SneakyThrows;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -10,6 +11,9 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     private int nextChar;
 
     public ReaderCharReader(Reader reader) throws IOException {
+        if (!reader.markSupported()) {
+            reader = new BufferedReader(reader);
+        }
         this.reader = reader;
         nextChar = reader.read();
     }
@@ -45,8 +49,8 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
 
     @Override
     @SneakyThrows
-    public void mark() {
-        reader.mark(-1);
+    public void mark(int limit) {
+        reader.mark(limit);
     }
 
     @Override

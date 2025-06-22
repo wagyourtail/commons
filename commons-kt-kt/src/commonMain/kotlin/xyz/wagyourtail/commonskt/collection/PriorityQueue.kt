@@ -3,17 +3,19 @@ package xyz.wagyourtail.commonskt.collection
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 
-class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Comparator<T>) : SynchronizedObject() {
+class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Comparator<T>) {
     private val heap = mutableListOf<T>()
     private val insertionOrder = mutableListOf<Int>()
     private var orderCounter = 0
+
+    private val lock = SynchronizedObject()
 
     companion object {
         operator fun <T : Comparable<T>> invoke(fifo: Boolean = false) = PriorityQueue(fifo, Comparable<T>::compareTo)
     }
 
     fun add(element: T) {
-        synchronized(this) {
+        synchronized(lock) {
             heap.add(element)
             insertionOrder.add(orderCounter++)
             heapifyUp(heap.size - 1)
@@ -21,14 +23,14 @@ class PriorityQueue<T>(val fifo: Boolean = false, private val comparator: Compar
     }
 
     fun addAll(elements: Collection<T>) {
-        synchronized(this) {
+        synchronized(lock) {
             elements.forEach { add(it) }
         }
     }
 
     fun poll(): T? {
         if (heap.isEmpty()) return null
-        synchronized(this) {
+        synchronized(lock) {
             val removed = heap[0]
             heap[0] = heap.last()
             insertionOrder[0] = insertionOrder.last()

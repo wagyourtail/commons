@@ -1,12 +1,10 @@
-package xyz.wagyourtail.commons.parsers.impl.constant.parts;
+package xyz.wagyourtail.commons.parsers.impl.constant.number;
 
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
-
-import java.util.Collections;
 
 public class OctalPart extends StringData.OnlyRaw<Data.SingleContent<String>> {
 

@@ -6,11 +6,36 @@ public class StringUtils {
     }
 
     public static int count(String str, char c) {
+        return count(str, c, 0, str.length());
+    }
+
+    public static int count(String str, char c, int start, int end) {
         int count = 0;
-        for (char ch : str.toCharArray()) {
-            if (ch == c) {
-                count++;
-            }
+        do {
+            start = str.indexOf(c, start) + 1;
+            if (start == 0) break;
+            count++;
+        } while (start < end);
+        if (start > end) {
+            count--;
+        }
+        return count;
+    }
+
+    public static int count(String str, String sub) {
+        return count(str, sub, 0, str.length());
+    }
+
+    public static int count(String str, String sub, int start, int end) {
+        int count = 0;
+        int subLen = sub.length();
+        do {
+            start = str.indexOf(sub, start) + subLen;
+            if (start == (-1 + subLen)) break;
+            count++;
+        } while (start < end);
+        if (start > end) {
+            count--;
         }
         return count;
     }

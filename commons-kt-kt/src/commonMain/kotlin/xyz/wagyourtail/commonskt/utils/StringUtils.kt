@@ -140,3 +140,27 @@ fun String.indexOf(other: Char, startIndex: Int, endIndex: Int, ignoreCase: Bool
     if (i >= endIndex) return -1
     return i
 }
+
+fun String.count(char: Char, startIndex: Int = 0, endIndex: Int = this.length, ignoreCase: Boolean = false): Int {
+    var count = 0
+    var i = startIndex
+    while (i < endIndex) {
+        val index = indexOf(char, i, ignoreCase)
+        if (index < 0) break
+        count++
+        i = index + 1
+    }
+    return count
+}
+
+fun String.count(subString: String, startIndex: Int = 0, endIndex: Int = this.length, ignoreCase: Boolean = false): Int {
+    var count = 0
+    var i = startIndex
+    while (i < endIndex) {
+        val index = indexOf(subString, i, ignoreCase)
+        if (index < 0) break
+        count++
+        i = index + subString.length
+    }
+    return count
+}

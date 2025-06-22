@@ -89,7 +89,7 @@ public class StringCharReader extends CharReader<StringCharReader> {
     }
 
     @Override
-    public void mark() {
+    public void mark(int limit) {
         mark = pos;
     }
 
@@ -113,14 +113,19 @@ public class StringCharReader extends CharReader<StringCharReader> {
 
     @Override
     public ParseException createException(String message, Throwable cause) {
-        int line;
-        int column = pos - buffer.substring(0, pos).lastIndexOf('\n');
+        int count = 0;
+        int lineStart = 0;
         if (!buffer.contains("\n")) {
-            line = -1;
+            count = -1;
         } else {
-            line = StringUtils.count(buffer.substring(0, pos), '\n') + 1;
+            do {
+                int next = buffer.indexOf('\n', lineStart) + 1;
+                if (next == 0 || next > pos) break;
+                lineStart = next;
+                count++;
+            } while (true);
         }
-        return new ParseException(message, line, column, cause);
+        return new ParseException(message, count + 1, pos - lineStart + 1, cause);
     }
 
     @Override

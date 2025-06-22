@@ -43,6 +43,7 @@ abstract class CharReader<T : CharReader<T>> {
     /**
      * @return a copy of the reader at the current position
      */
+    @Deprecated("parse is better")
     open fun copy(): T {
         return copy(Int.MAX_VALUE)
     }
@@ -51,6 +52,7 @@ abstract class CharReader<T : CharReader<T>> {
      * @return a copy of the reader at the current position, with a limit.
      * @since 1.0.4
      */
+    @Deprecated("parse is better")
     abstract fun copy(limit: Int): T
 
 
@@ -178,35 +180,107 @@ abstract class CharReader<T : CharReader<T>> {
 
     fun takeRemainingLiteralOnLine(sep: Char) = takeRemainingLiteralOnLine { it == sep }
 
-    fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false, quote: Char = '"') = buildString {
-        expect(quote)
-        var escapes = 0
-        var next = take()
-        while (next != null) {
-            if (next == quote && escapes == 0) {
-                if (escapeDoubleQuote && peek() == quote) {
-                    append('\\')
-                    append(take()!!)
+    fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false, quote: Char = '"'): String {
+        return takeString(leinient, escapeDoubleQuote, quote = quote.toString())
+    }
+
+    fun takeString(
+        leinient: Boolean = true,
+        escapeDoubleQuote: Boolean = false,
+        escapeNewline: Boolean = false,
+        multiline: Boolean = false,
+        noStartQuote: Boolean = false,
+        noTranslateEscapes: Boolean = false,
+        quote: String = "\""
+    ): String {
+        if (!noStartQuote) {
+            expect(quote)
+        }
+        val sb = StringBuilder()
+        while (!exhausted()) {
+            val lines = takeUntil(quote)!!.split(Regex("\r?\n"))
+            val last = lines.last()
+            if (multiline || escapeNewline) {
+                for (next in lines.dropLast(1)) {
+                    if (escapeNewline) {
+                        var count = 0
+                        for (j in next.indices.reversed()) {
+                            if (next[j] == '\\') {
+                                count++
+                            } else {
+                                break
+                            }
+                        }
+                        if (count % 2 != 0) {
+                            // escaped
+                            sb.append(if (noTranslateEscapes) {
+                                next.substring(0, next.length - 1)
+                            } else {
+                                next
+                            })
+                            if (noTranslateEscapes) {
+                                sb.append('\n')
+                            }
+                        } else if (multiline) {
+                            sb.append(next).append('\n')
+                        } else {
+                            throw createException("Unexpected EOL in string literal")
+                        }
+                    } else {
+                        sb.append(next).append('\n')
+                    }
+                }
+            } else if (lines.size > 1) {
+                throw createException("Unexpected EOL in string literal")
+            }
+
+            var count = 0
+            for (j in last.indices.reversed()) {
+                if (last[j] == '\\') {
+                    count++
                 } else {
                     break
                 }
             }
-            if (next == '\\') {
-                escapes++
+            if (count % 2 != 0) {
+                // escaped
+                sb.append(if (!noTranslateEscapes) {
+                    last.substring(0, last.length - 1)
+                } else {
+                    last
+                })
+                sb.append(expect(quote))
             } else {
-                escapes = 0
+                sb.append(last)
+                if (escapeDoubleQuote) {
+                    mark()
+                    expect(quote)
+                    try {
+                        sb.append(expect(quote))
+                        if (noTranslateEscapes) {
+                            sb.append(quote)
+                        }
+                    } catch (_: ParseException) {
+                        reset()
+                        break
+                    }
+                } else {
+                    break
+                }
             }
-            append(next)
-            if (escapes == 2) {
-                escapes = 0
-            }
-            next = take()
         }
-    }.translateEscapes(leinient)
+        expect(quote)
+        if (noTranslateEscapes) {
+            return "$quote$sb$quote"
+        }
+        return sb.toString().translateEscapes(leinient)
+    }
 
     fun expect(char: Char, ignoreCase: Boolean = false): Char {
         val it = take()
-        if (it?.equals(char, ignoreCase) != true) createException("Expected $char but got ${it ?: "EOS"}")
+        if (it?.equals(char, ignoreCase) != true) {
+            throw createException("Expected $char but got ${it ?: "EOS"}")
+        }
         return char
     }
 
@@ -219,12 +293,12 @@ abstract class CharReader<T : CharReader<T>> {
 
     fun expectEOF() {
         val it = take()
-        if (it != null) createException("Expected EOF but got $it")
+        if (it != null) throw createException("Expected EOF but got $it")
     }
 
     fun expectEOS() {
         val it = take()
-        if (it != null) createException("Expected EOS but got $it")
+        if (it != null) throw createException("Expected EOS but got $it")
     }
 
     fun takeCol(leinient: Boolean = true, sep: (Char) -> Boolean = { it == ',' }): String? {
@@ -290,9 +364,9 @@ abstract class CharReader<T : CharReader<T>> {
         throw createCompositeException("Failed to parse", *exceptions.toTypedArray())
     }
 
-    open fun createException(msg: String, cause: Throwable? = null) = ParseException(msg, cause)
+    open fun createException(msg: String, cause: Throwable? = null) = ParseException(msg, cause = cause)
 
-    fun createCompositeException(msg: String, vararg exceptions: ParseException) = createException(msg, null).also {
+    open fun createCompositeException(msg: String, vararg exceptions: ParseException) = createException(msg, null).also {
         for (e in exceptions) {
             it.addSuppressed(e)
         }

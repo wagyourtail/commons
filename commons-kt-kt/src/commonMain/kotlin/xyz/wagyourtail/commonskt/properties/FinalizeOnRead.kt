@@ -6,19 +6,19 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class FinalizeOnRead<T>(value: T) :
-    SynchronizedObject(),
-    ReadWriteProperty<Any?, T> {
+class FinalizeOnRead<T>(value: T) : ReadWriteProperty<Any?, T> {
 
     var finalized = false
 
     var value: Any? = value
 
+    private val lock = SynchronizedObject()
+
     constructor(prop: ReadWriteProperty<Any?, T>) : this(prop as T)
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         if (finalized == false) {
-            synchronized(this) {
+            synchronized(lock) {
                 finalized = true
             }
         }
@@ -29,7 +29,7 @@ class FinalizeOnRead<T>(value: T) :
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        synchronized(this) {
+        synchronized(lock) {
             if (finalized) {
                 throw IllegalStateException("Cannot set finalized property")
             }

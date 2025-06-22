@@ -2,6 +2,7 @@ package xyz.wagyourtail.commonskt.properties
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
+import kotlin.jvm.JvmOverloads
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -9,9 +10,8 @@ import kotlin.reflect.KProperty
 class Finalizable<T>(
     value: T,
     val finalized: () -> Boolean,
-    val sync: SynchronizedObject = SynchronizedObject(),
-) :
-    ReadWriteProperty<Any?, T> {
+    private val sync: SynchronizedObject = SynchronizedObject(),
+) : ReadWriteProperty<Any?, T> {
 
     private var finalizedValue: Boolean = false
         get() {

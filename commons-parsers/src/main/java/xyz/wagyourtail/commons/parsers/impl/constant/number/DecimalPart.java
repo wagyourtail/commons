@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.parsers.impl.constant.parts;
+package xyz.wagyourtail.commons.parsers.impl.constant.number;
 
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;

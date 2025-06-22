@@ -1,12 +1,13 @@
-package xyz.wagyourtail.commons.parsers.impl.constant;
+package xyz.wagyourtail.commons.parsers.impl;
 
 import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
-
-import java.util.Collections;
+import xyz.wagyourtail.commons.parsers.impl.constant.BooleanConstant;
+import xyz.wagyourtail.commons.parsers.impl.constant.NumberConstant;
+import xyz.wagyourtail.commons.parsers.impl.constant.StringConstant;
 
 public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
 

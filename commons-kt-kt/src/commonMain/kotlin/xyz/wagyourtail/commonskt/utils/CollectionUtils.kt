@@ -2,6 +2,7 @@ package xyz.wagyourtail.commonskt.utils
 
 import kotlin.jvm.JvmName
 
+@Deprecated("use List.compareTo")
 class ListCompare<T : Comparable<T>>(val list: List<T>) : Comparable<ListCompare<T>> {
 
     override operator fun compareTo(other: ListCompare<T>): Int {
@@ -16,9 +17,31 @@ class ListCompare<T : Comparable<T>>(val list: List<T>) : Comparable<ListCompare
 
 }
 
+@Deprecated("use List.compareTo")
 fun <T : Comparable<T>> compareable(vararg elements: T) = ListCompare(elements.toList())
 
+@Deprecated("use List.compareTo")
 fun <T : Comparable<T>> List<T>.comparable() = ListCompare(this)
+
+operator fun <T: Comparable<T>> List<T>.compareTo(other: List<T>): Int {
+    val size = size
+    if (size != other.size) return size - other.size
+    for (i in 0 until size) {
+        val cmp = this[i].compareTo(other[i])
+        if (cmp != 0) return cmp
+    }
+    return 0
+}
+
+fun <T> List<T>.compareTo(other: List<T>, comparator: (T, T) -> Int): Int {
+    val size = size
+    if (size != other.size) return size - other.size
+    for (i in 0 until size) {
+        val cmp = comparator(this[i], other[i])
+        if (cmp != 0) return cmp
+    }
+    return 0
+}
 
 fun <K, V> Map<K, V>.firstAsMap(): Map<K, V> {
     val entry = entries.first()
@@ -115,6 +138,24 @@ fun <E> MutableList<E>.insertBefore(element: E, vararg toAdd: E) {
     val i = indexOf(element)
     if (i < 0) throw NoSuchElementException()
     addAll(i, toAdd.toList())
+}
+
+fun <E> MutableList<E>.insertAfter(element: E, toAdd: E) {
+    val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    add(i + 1, toAdd)
+}
+
+fun <E> MutableList<E>.insertAfter(element: E, vararg toAdd: E) {
+    val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    addAll(i + 1, toAdd.toList())
+}
+
+fun <E> MutableList<E>.replace(element: E, toAdd: E) {
+    val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    set(i, toAdd)
 }
 
 fun Map<String, String>.resolveArgs(args: List<String>, hasDollar: Boolean = true): List<String> {
