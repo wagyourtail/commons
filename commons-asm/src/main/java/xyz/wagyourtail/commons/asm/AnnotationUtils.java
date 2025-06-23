@@ -17,8 +17,23 @@ public class AnnotationUtils {
     private AnnotationUtils() {
     }
 
+    /**
+     * Creates an annotation from an annotation node using the classloader of AnnotationUtils to find the annotation class (and the context classloader)
+     *
+     * @param annotationNode the node to construct the annotation from
+     * @return the annotation
+     * @param <T> the type of the annotation
+     * @throws ClassNotFoundException if the annotation class cannot be found
+     */
+    @SuppressWarnings("unchecked")
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode) throws ClassNotFoundException {
-        return createAnnotation(annotationNode, AnnotationUtils.class.getClassLoader());
+        Class<?> annotationClass;
+        try {
+            annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), AnnotationUtils.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), Thread.currentThread().getContextClassLoader());
+        }
+        return createAnnotation(annotationNode, (Class<T>) annotationClass);
     }
 
     /**
@@ -43,6 +58,15 @@ public class AnnotationUtils {
         );
     }
 
+    /**
+     * Creates an annotation from an AnnotationNode using the specified classloader to find the annotation class
+     *
+     * @param annotationNode the node to construct the annotation from
+     * @param loader the classloader to find the annotation class
+     * @return the annotation
+     * @param <T> the type of the annotation
+     * @throws ClassNotFoundException if the annotation class cannot be found
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, ClassLoader loader) throws ClassNotFoundException {
         Class<?> annotationClass = ASMUtils.getClass(Type.getType(annotationNode.desc), loader);

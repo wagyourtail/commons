@@ -1,6 +1,8 @@
 package xyz.wagyourtail.commons.asm.graph;
 
 import lombok.Data;
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
@@ -95,8 +97,9 @@ public class ReferenceGraph {
     public Map<Path, Type> preScan(final Path root) throws IOException, ExecutionException, InterruptedException {
         final Map<Path, Type> newScanTargets = new ConcurrentHashMap<>();
         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+            @NotNull
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(@NotNull Path file, @NotNull BasicFileAttributes attrs) throws IOException {
                 Map.Entry<Path, Type> entry = preScanFile(root, file);
                 if (entry != null) {
                     newScanTargets.put(entry.getKey(), entry.getValue());
@@ -417,6 +420,7 @@ public class ReferenceGraph {
 
     }
 
+    @Getter
     public static class ClassesAndResources {
         private final Set<FullyQualifiedMemberNameAndDesc> classes;
         private final Set<String> resources;
@@ -424,14 +428,6 @@ public class ReferenceGraph {
         public ClassesAndResources(Set<FullyQualifiedMemberNameAndDesc> classes, Set<String> resources) {
             this.classes = classes;
             this.resources = resources;
-        }
-
-        public Set<FullyQualifiedMemberNameAndDesc> getClasses() {
-            return classes;
-        }
-
-        public Set<String> getResources() {
-            return resources;
         }
 
     }

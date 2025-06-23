@@ -52,8 +52,9 @@ public class SeekableByteChannelUtils {
 
     public static byte[] readBytes(SeekableByteChannel channel, int length) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(length);
-        channel.read(buffer);
+        int count = channel.read(buffer);
         buffer.flip();
+        if (count < length) throw new BufferUnderflowException();
         return buffer.array();
     }
 

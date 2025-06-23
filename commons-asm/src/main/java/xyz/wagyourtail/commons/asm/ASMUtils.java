@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.asm;
 
+import lombok.val;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Handle;
@@ -9,7 +10,12 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import xyz.wagyourtail.commons.asm.info.ClassInfo;
 import xyz.wagyourtail.commons.asm.writer.ASMClassWriter;
+import xyz.wagyourtail.commons.core.SeekableByteChannelUtils;
 import xyz.wagyourtail.commons.core.function.IOFunction;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.SeekableByteChannel;
 
 public class ASMUtils {
 
@@ -35,6 +41,40 @@ public class ASMUtils {
     public static int classVersion(byte[] bytes) {
         if (bytes.length < 8) throw new IllegalArgumentException("Invalid bytes");
         return ((bytes[6] & 0xFF) << 8) | (bytes[7] & 0xFF);
+    }
+
+    public static boolean isClass(InputStream stream) throws IOException {
+        byte[] bytes = new byte[4];
+        return stream.read(bytes) == 4 &&
+            bytes[0] == (byte) 0xCA &&
+            bytes[1] == (byte) 0xFE &&
+            bytes[2] == (byte) 0xBA &&
+            bytes[3] == (byte) 0xBE;
+    }
+
+    public static int classVersion(InputStream stream) throws IOException {
+        byte[] bytes = new byte[8];
+        if (stream.read(bytes) == 8) {
+            return classVersion(bytes);
+        }
+        throw new IOException("Invalid bytes");
+    }
+
+    public static boolean isClass(SeekableByteChannel channel) throws IOException {
+        channel.position(0);
+        val bytes = SeekableByteChannelUtils.readBytes(channel, 4);
+        return bytes.length == 4 &&
+            bytes[0] == (byte) 0xCA &&
+            bytes[1] == (byte) 0xFE &&
+            bytes[2] == (byte) 0xBA &&
+            bytes[3] == (byte) 0xBE;
+
+    }
+
+    public static int classVersion(SeekableByteChannel channel) throws IOException {
+        channel.position(6);
+        val bytes = SeekableByteChannelUtils.readBytes(channel, 2);
+        return ((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF);
     }
 
     /**
@@ -68,16 +108,27 @@ public class ASMUtils {
      * helper function to get enum value
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <T extends Enum<T>> T enumValueOf(String desc, String value) throws ClassNotFoundException {
-        return (T) Enum.valueOf((Class<Enum>) Class.forName(Type.getType(desc).getClassName(), true, ASMUtils.class.getClassLoader()), value);
+    public static <T extends Enum<T>> T enumValueOf(Type type, String value) throws ClassNotFoundException {
+        return (T) Enum.valueOf((Class<Enum>) Class.forName(type.getClassName(), true, ASMUtils.class.getClassLoader()), value);
     }
 
     /**
      * helper function to get enum value
      */
+    public static <T extends Enum<T>> T enumValueOf(String desc, String value) throws ClassNotFoundException {
+        return enumValueOf(Type.getType(desc), value);
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T extends Enum<T>> T enumValueOf(Type desc, String value, ClassLoader loader) throws ClassNotFoundException {
+        return (T) Enum.valueOf((Class<Enum>) Class.forName(desc.getClassName(), true, loader), value);
+    }
+
+    /**
+     * helper function to get enum value
+     */
     public static <T extends Enum<T>> T enumValueOf(String desc, String value, ClassLoader loader) throws ClassNotFoundException {
-        return (T) Enum.valueOf((Class<Enum>) Class.forName(Type.getType(desc).getClassName(), true, loader), value);
+        return enumValueOf(Type.getType(desc), value, loader);
     }
 
     /**
@@ -119,7 +170,7 @@ public class ASMUtils {
         return type.getClassName().equals(clazz.getName());
     }
 
-    public ClassNode copy(ClassNode node) {
+    public static ClassNode copy(ClassNode node) {
         ClassNode copy = new ClassNode();
         node.accept(new ClassVisitor(Opcodes.ASM9, copy) {
             @Override
