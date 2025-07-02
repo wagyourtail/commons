@@ -5,9 +5,11 @@ import kotlin.jvm.JvmInline
 @JvmInline
 value class MavenCoords(val value: String) {
 
-    constructor(group: String, artifact: String, version: String? = null, classifier: String? = null, extension: String? = null): this(buildString {
-        append(group)
-        append(':')
+    constructor(group: String? = "", artifact: String, version: String? = null, classifier: String? = null, extension: String? = null): this(buildString {
+        if (group != null) {
+            append(group)
+            append(':')
+        }
         append(artifact)
         if (version != null) {
             append(':')
