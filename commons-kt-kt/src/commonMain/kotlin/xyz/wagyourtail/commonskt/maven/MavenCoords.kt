@@ -57,7 +57,7 @@ value class MavenCoords(val value: String) {
 
     val extension: String
         // ["" ... "group:artifact:version:classifier" ...] = "jar"
-        // "@extension" ... "group:artifact:version:classifier@extension" = "extension"
+        // ["@extension" ... "group:artifact:version:classifier@extension"] = "extension"
         get() = value.substringAfterLast('@', "jar")
 
 
