@@ -1,11 +1,13 @@
 package xyz.wagyourtail.commons.core.classloader.provider;
 
-import lombok.experimental.Delegate;
+import lombok.SneakyThrows;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.core.SeekableByteChannelUtils;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
+import xyz.wagyourtail.commons.core.lazy.Lazy;
 
 import java.io.*;
 import java.net.URI;
@@ -21,10 +23,37 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
-public class PackedResourceProvider implements ResourceProvider {
+public class PackedResourceProvider extends ResourceProvider {
     private final SeekableByteChannel channel;
     private final Map<String, PositionAndLength> positions;
+    private final Lazy<PackageInfo> packageInfo = new Lazy<PackageInfo>() {
+
+        @Override
+        @SneakyThrows
+        protected PackageInfo supplier() {
+            val manifestURLs =  getResources("META-INF/MANIFEST.MF");
+            if (!manifestURLs.hasMoreElements()) {
+                return null;
+            }
+            val manifestURL = manifestURLs.nextElement();
+            val data = Utils.readAllBytes(manifestURL.openStream());
+            Manifest manifestFile = new Manifest();
+            manifestFile.read(new ByteArrayInputStream(data));
+            Attributes mainAttributes = manifestFile.getMainAttributes();
+            return PackageInfo.builder()
+                    .specTitle(mainAttributes.getValue("Specification-Title"))
+                    .specVersion(mainAttributes.getValue("Specification-Version"))
+                    .specVendor(mainAttributes.getValue("Specification-Vendor"))
+                    .implTitle(mainAttributes.getValue("Implementation-Title"))
+                    .implVersion(mainAttributes.getValue("Implementation-Version"))
+                    .implVendor(mainAttributes.getValue("Implementation-Vendor"))
+                    .build();
+        }
+
+    };
 
     public PackedResourceProvider(Path path) throws IOException {
         this(Files.newByteChannel(path));
@@ -52,6 +81,11 @@ public class PackedResourceProvider implements ResourceProvider {
         Path temp = Files.createTempFile(Paths.get("."), "packed", "classes");
         Files.copy(uri.toURL().openStream(), temp, StandardCopyOption.REPLACE_EXISTING);
         return new PackedResourceProvider(temp);
+    }
+
+    @Override
+    public PackageInfo getPackageInfo(String name) throws IOException {
+        return packageInfo.get();
     }
 
     @Override

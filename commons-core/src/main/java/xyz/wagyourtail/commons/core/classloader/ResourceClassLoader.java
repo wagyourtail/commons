@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.classloader;
 
+import lombok.val;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.provider.ClassLoaderResourceProvider;
 import xyz.wagyourtail.commons.core.classloader.provider.JarFileResourceProvider;
@@ -43,6 +44,7 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
             }
         }
         // fallback on normal classloader
+        // noinspection deprecation
         addDelegate(new ClassLoaderResourceProvider(new URLClassLoader(failed.toArray(new URL[0]))));
     }
 
@@ -53,13 +55,36 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         String internalName = name.replace('.', '/');
         String path = internalName + ".class";
-        URL resource = findResource(path);
-        if (resource == null) {
-            return super.findClass(name);
-        }
-        try (InputStream is = resource.openStream()) {
-            return transformClass(name, Utils.readAllBytes(is));
-        } catch (IOException e) {
+        try {
+            ResourceProvider provider = findResourceProviderFor(path).nextElement();
+            URL resource = provider.getResources(path).nextElement();
+            if (resource == null) {
+                return super.findClass(name);
+            }
+            int i = internalName.lastIndexOf('/');
+            if (i != -1) {
+                val packageName = internalName.substring(0, i);
+                val info = provider.getPackageInfo(packageName);
+                if (info != null) {
+                    try {
+                        definePackage(
+                                packageName.replace('/', '.'),
+                                info.getSpecTitle(),
+                                info.getSpecVersion(),
+                                info.getSpecVendor(),
+                                info.getImplTitle(),
+                                info.getImplVersion(),
+                                info.getImplVendor(),
+                                null
+                        );
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
+            try (InputStream is = resource.openStream()) {
+                return transformClass(name, Utils.readAllBytes(is));
+            }
+        } catch (IOException | NullPointerException e) {
             throw new ClassNotFoundException(name, e);
         }
     }
@@ -92,6 +117,16 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
     @Override
     protected URL findResource(String name) {
         return findResources(name).nextElement();
+    }
+
+    protected Enumeration<ResourceProvider> findResourceProviderFor(String name) throws IOException {
+        List<ResourceProvider> delegates = new ArrayList<>();
+        for (ResourceProvider delegate : this.delegates) {
+            if (delegate.getResources(name).hasMoreElements()) {
+                delegates.add(delegate);
+            }
+        }
+        return Collections.enumeration(delegates);
     }
 
     @Override

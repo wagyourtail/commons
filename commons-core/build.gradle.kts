@@ -7,4 +7,6 @@ java {
 
 dependencies {
     compileOnly(libs.jetbrains.annotations.j5)
+    testImplementation(libs.asm)
+    testImplementation(libs.asm.tree)
 }

@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
-public class ClassLoaderResourceProvider implements ResourceProvider {
+@Deprecated
+public class ClassLoaderResourceProvider extends ResourceProvider {
     private final ClassLoader classLoader;
 
     public ClassLoaderResourceProvider(ClassLoader classLoader) {
