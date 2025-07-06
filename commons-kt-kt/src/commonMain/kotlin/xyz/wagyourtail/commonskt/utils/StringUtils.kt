@@ -164,3 +164,18 @@ fun String.count(subString: String, startIndex: Int = 0, endIndex: Int = this.le
     }
     return count
 }
+
+
+fun String.indentCount(tabSize: Int = 4): Int {
+    var count = 0
+    for (c in this) {
+        when (c) {
+            ' ' -> count++
+            '\t' -> count += tabSize
+            '\r' -> count = 0
+            '\n' -> count = 0
+            else -> throw IllegalArgumentException("Invalid indent character $c")
+        }
+    }
+    return count
+}

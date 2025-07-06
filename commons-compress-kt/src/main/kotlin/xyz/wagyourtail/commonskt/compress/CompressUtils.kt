@@ -5,6 +5,8 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Calendar
+import java.util.GregorianCalendar
 
 fun Path.listZipContents(): List<String> {
     val contents = mutableListOf<String>()
@@ -18,15 +20,9 @@ fun Path.safeOpenZipFile(): ZipFile {
     return ZipFile.builder().setIgnoreLocalFileHeader(true).setSeekableByteChannel(Files.newByteChannel(this)).get()
 }
 
-fun Path.forEachInZip(action: (String, () -> InputStream) -> Unit) {
-    safeOpenZipFile().use { zip ->
-        for (zipArchiveEntry in zip.entries.iterator()) {
-            if (zipArchiveEntry.isDirectory) {
-                continue
-            }
-
-            action(zipArchiveEntry.name) { zip.getInputStream(zipArchiveEntry) }
-        }
+inline fun Path.forEachInZip(crossinline action: (String, () -> InputStream) -> Unit) {
+    forEntryInZip { entry, inputStream ->
+        action(entry.name, inputStream)
     }
 }
 
@@ -65,3 +61,5 @@ fun Path.zipContains(path: String): Boolean {
     }
     return false
 }
+
+val CONSTANT_TIME_FOR_ZIP_ENTRIES = GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis

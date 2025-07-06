@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.utils
 
+import kotlin.experimental.ExperimentalTypeInference
 import kotlin.jvm.JvmName
 
 @Deprecated("use List.compareTo")
@@ -168,4 +169,29 @@ fun Map<String, String>.resolveArgs(args: List<String>, hasDollar: Boolean = tru
             this.getValue(key)
         }
     }
+}
+
+fun <E> Collection<E>.firstAndLast(): Pair<E, E> {
+    return if (this.size < 2) {
+        throw IndexOutOfBoundsException()
+    } else {
+        this.first() to this.last()
+    }
+}
+
+fun <E> Collection<E>.firstAndMaybeLast(): List<E> {
+    return if (this.size < 2) {
+        listOf(this.first())
+    } else {
+        listOf(this.first(), this.last())
+    }
+}
+
+@OptIn(ExperimentalTypeInference::class)
+fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): Iterable<E> {
+
+    return object: Iterable<E> {
+        override fun iterator() = iterator(block)
+    }
+
 }

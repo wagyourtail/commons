@@ -1,13 +1,13 @@
 package xyz.wagyourtail.commons.core.classloader.provider;
 
+import lombok.experimental.Delegate;
+import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.core.SeekableByteChannelUtils;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -36,8 +36,8 @@ public class PackedResourceProvider implements ResourceProvider {
         while (channel.position() < channel.size()) {
             // read name
             int nameLength = SeekableByteChannelUtils.readInt(channel);
-            int fileLength = SeekableByteChannelUtils.readInt(channel);
             String name = SeekableByteChannelUtils.readString(channel, nameLength);
+            int fileLength = SeekableByteChannelUtils.readInt(channel);
             long position = channel.position();
             this.positions.put(name, new PositionAndLength(position, fileLength));
             channel.position(position + fileLength);
@@ -92,6 +92,76 @@ public class PackedResourceProvider implements ResourceProvider {
             this.length = length;
         }
 
+    }
+
+    public static class PackedResourceOutputStream extends OutputStream {
+        private final OutputStream backing;
+        private final ByteArrayOutputStream temp = new ByteArrayOutputStream();
+
+        private boolean entryOpen = false;
+
+        public PackedResourceOutputStream(OutputStream backing) {
+            this.backing = backing;
+        }
+
+        public void putNextEntry(String name) {
+            if (entryOpen) closeEntry();
+            byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
+            int nameLength = nameBytes.length;
+            byte[] lenBytes = ByteBuffer.allocate(4).putInt(nameLength).array();
+            try {
+                backing.write(lenBytes);
+                backing.write(nameBytes);
+                entryOpen = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void closeEntry() {
+            if (!entryOpen) return;
+            try {
+                backing.write(ByteBuffer.allocate(4).putInt(temp.size()).array());
+                backing.write(temp.toByteArray());
+                entryOpen = false;
+                temp.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            if (entryOpen) {
+                temp.write(b);
+            } else {
+                throw new IllegalStateException("No entry open");
+            }
+        }
+
+        @Override
+        public void write(@NotNull byte[] b) throws IOException {
+            if (entryOpen) {
+                temp.write(b);
+            } else {
+                throw new IllegalStateException("No entry open");
+            }
+        }
+
+        @Override
+        public void write(@NotNull byte[] b, int off, int len) throws IOException {
+            if (entryOpen) {
+                temp.write(b, off, len);
+            } else {
+                throw new IllegalStateException("No entry open");
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            closeEntry();
+            backing.close();
+        }
     }
 
 }

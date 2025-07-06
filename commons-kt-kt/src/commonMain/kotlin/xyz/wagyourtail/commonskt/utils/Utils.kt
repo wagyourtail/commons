@@ -15,3 +15,7 @@ inline fun <R, T: R> T.iif(condition: Boolean, block: (T) -> R, elseBlock: (T) -
         elseBlock(this)
     }
 }
+
+fun <E> Pair<E, E>.joinToString(separator: String = ", ", toString: (E) -> String = { it.toString() }): String {
+    return toString(first) + separator + toString(second)
+}

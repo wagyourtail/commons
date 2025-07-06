@@ -7,6 +7,7 @@ import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.internal.artifacts.configurations.Configurations
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
@@ -161,3 +162,13 @@ inline fun <reified S: T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(n
 
 val isIdeaSync: Boolean
     get() = System.getProperty("idea.sync.active", "false").toBoolean()
+
+infix fun SourceSet.includesFrom(other: SourceSet) {
+    compileClasspath += other.output + other.compileClasspath
+    runtimeClasspath += other.output + other.runtimeClasspath
+}
+
+infix fun SourceSet.extendsDependenciesFrom(other: SourceSet) {
+    compileClasspath += other.compileClasspath
+    runtimeClasspath += other.runtimeClasspath
+}
