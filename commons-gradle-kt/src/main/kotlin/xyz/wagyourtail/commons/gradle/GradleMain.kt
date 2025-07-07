@@ -8,11 +8,13 @@ import org.gradle.api.plugins.PluginAware
 import xyz.wagyourtail.commonskt.properties.FinalizeOnRead
 
 class GradleMain : Plugin<PluginAware> {
-    val version by FinalizeOnRead(GradleMain::class.java.`package`.implementationVersion ?: "unknown")
-    val logger = Logging.getLogger(GradleMain::class.java)
+    companion object {
+        val version by FinalizeOnRead(GradleMain::class.java.`package`.implementationVersion ?: "unknown")
+        val logger = Logging.getLogger(GradleMain::class.java)
 
-    init {
-        logger.lifecycle("Loaded commons-gradle $version")
+        init {
+            logger.lifecycle("[xyz.wagyourtail.commons-gradle] loaded plugin verison: $version")
+        }
     }
 
     override fun apply(target: PluginAware) {

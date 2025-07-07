@@ -1,6 +1,5 @@
 import java.net.URI
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.lombok") version libs.versions.kotlin.asProvider() apply false
@@ -72,18 +71,6 @@ allprojects {
     }
 
     if (!kotlin) {
-        tasks.compileTestJava {
-            javaCompiler = javaToolchains.compilerFor {
-                languageVersion.set(JavaLanguageVersion.of(17))
-            }
-        }
-
-        tasks.test {
-            javaLauncher = javaToolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(17))
-            }
-        }
-
         tasks.test {
             useJUnitPlatform()
         }
