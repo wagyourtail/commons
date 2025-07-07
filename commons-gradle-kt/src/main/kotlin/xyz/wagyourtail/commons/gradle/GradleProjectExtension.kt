@@ -1,11 +1,6 @@
 package xyz.wagyourtail.commons.gradle
 
-import groovy.lang.Closure
-import groovy.lang.DelegatesTo
-import groovy.transform.stc.ClosureParams
-import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Jar
@@ -20,7 +15,7 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import kotlin.jvm.java
 
-abstract class GradleExtension @Inject constructor(@get:Internal val project: Project) {
+abstract class GradleProjectExtension @Inject constructor(@get:Internal val project: Project) {
 
     @get:Inject
     abstract val execOperations: ExecOperations

@@ -28,16 +28,3 @@ dependencies {
     api(libs.asm.tree)
     api(libs.asm.commons)
 }
-
-tasks.jar {
-    manifest {
-        attributes(
-            "Implementation-Title" to "commons-gradle",
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "wagyourtail.xyz",
-            "Implementation-Vendor-Id" to "xyz.wagyourtail",
-            "Implementation-Vendor-Url" to "https://github.com/wagyourtail",
-            "Implementation-Url" to "https://github.com/wagyourtail/commons"
-        )
-    }
-}

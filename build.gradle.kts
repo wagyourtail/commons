@@ -1,23 +1,25 @@
 import java.net.URI
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.lombok") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.serialization") version libs.versions.kotlin.asProvider() apply false
+    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
     `java-library`
     `maven-publish`
 }
 
 allprojects {
     val kotlin = project.projectDir.name.endsWith("-kt")
+
+    apply(plugin = "xyz.wagyourtail.commons-gradle")
     if (!kotlin) {
         apply(plugin = "java-library")
 
-        java {
-            toolchain {
-                languageVersion.set(JavaLanguageVersion.of(8))
-            }
+        commons.autoToolchain(8, 17)
 
+        java {
             withSourcesJar()
             withJavadocJar()
         }
@@ -27,8 +29,7 @@ allprojects {
     apply(plugin = "maven-publish")
 
     group = project.properties["maven_group"] as String
-    version =
-        if (project.hasProperty("version_snapshot")) project.properties["version"] as String + "-SNAPSHOT" else project.properties["version"] as String
+    commons.autoVersion()
 
     base {
         archivesName = project.name
@@ -59,6 +60,15 @@ allprojects {
 
     tasks.withType<Jar> {
         from(rootProject.file("LICENSE.md"))
+
+        manifest {
+            attributes(
+                "Implementation-Vendor" to "wagyourtail.xyz",
+                "Implementation-Vendor-Id" to "xyz.wagyourtail",
+                "Implementation-Vendor-Url" to "https://github.com/wagyourtail",
+                "Implementation-Url" to "https://github.com/wagyourtail/commons"
+            )
+        }
     }
 
     if (!kotlin) {

@@ -24,7 +24,7 @@ val Project.sourceSets
     get() = extensions.getByType(SourceSetContainer::class.java)
 
 val Project.javaToolchains
-    get() = extensions.findByType(JavaToolchainService::class.java)
+    get() = extensions.getByType(JavaToolchainService::class.java)
 
 val Project.base
     get() = extensions.getByType(BasePluginExtension::class.java)

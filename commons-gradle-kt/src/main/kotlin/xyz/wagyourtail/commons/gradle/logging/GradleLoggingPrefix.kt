@@ -20,7 +20,11 @@ class GradleLoggingPrefix(
 
     override fun getPrefix(level: Logger.Level?): String {
         val prefix = super.getPrefix(level)
-        return "$prefix [$projectPath]"
+        return if (projectPath.isEmpty() || projectPath == ":") {
+            prefix
+        } else {
+            "$prefix [$projectPath]"
+        }
     }
 
 }
