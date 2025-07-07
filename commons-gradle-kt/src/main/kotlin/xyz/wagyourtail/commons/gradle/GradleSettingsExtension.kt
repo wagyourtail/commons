@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 abstract class GradleSettingsExtension @Inject constructor(@get:Internal val settings: Settings)  {
 
+    @get:Inject
     abstract val fileOperations: FileOperations
 
     @JvmOverloads

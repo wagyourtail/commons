@@ -10,7 +10,7 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
-    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
+//    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
 }
 
 for (directory in file(".").listFiles() ?: emptyArray()) {
