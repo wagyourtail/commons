@@ -25,7 +25,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Publish
-        run: ./gradlew publish -Pmvn.user=${{ secrets.MAVEN_USER }} -Pmvn.key=${{ secrets.MAVEN_TOKEN }} --info
+        run: ./gradlew publish -Pmvn.user=${{ secrets.MAVEN_USER }} -Pmvn.key=${{ secrets.MAVEN_TOKEN }} --debug
 
       - uses: actions/upload-artifact@v4
         with:
