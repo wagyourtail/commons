@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commons.gradle
 
-import com.sun.javafx.scene.CameraHelper.project
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.initialization.ProjectDescriptor
