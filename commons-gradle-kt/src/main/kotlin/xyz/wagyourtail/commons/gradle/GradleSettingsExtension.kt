@@ -4,15 +4,11 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.initialization.ProjectDescriptor
 import org.gradle.api.initialization.Settings
-import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.tasks.Internal
 import java.io.File
 import javax.inject.Inject
 
 abstract class GradleSettingsExtension @Inject constructor(@get:Internal val settings: Settings)  {
-
-    @get:Inject
-    abstract val fileOperations: FileOperations
 
     @JvmOverloads
     fun autoSubprojects(rootDir: File = settings.rootDir, configProject: ProjectDescriptor.() -> Unit = {}) {
@@ -31,7 +27,7 @@ abstract class GradleSettingsExtension @Inject constructor(@get:Internal val set
                                 settings.dependencyResolutionManagement {
                                     it.versionCatalogs {
                                         it.create(file.name.removeSuffix(".versions.toml") + "Libs") {
-                                            it.from(fileOperations.configurableFiles(file))
+                                            it.from(settings.layout.rootDirectory.files(file.absoluteFile))
                                         }
                                     }
                                 }
