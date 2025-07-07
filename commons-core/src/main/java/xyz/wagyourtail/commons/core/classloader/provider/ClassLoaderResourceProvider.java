@@ -16,6 +16,11 @@ public class ClassLoaderResourceProvider extends ResourceProvider {
     }
 
     @Override
+    public PackageInfo getPackageInfo(String name) throws IOException {
+        return null;
+    }
+
+    @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         return classLoader.getResources(name);
     }

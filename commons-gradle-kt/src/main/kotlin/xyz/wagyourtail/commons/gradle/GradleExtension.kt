@@ -1,6 +1,12 @@
 package xyz.wagyourtail.commons.gradle
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
+import groovy.transform.stc.ClosureParams
+import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
@@ -18,6 +24,9 @@ abstract class GradleExtension @Inject constructor(@get:Internal val project: Pr
 
     @get:Inject
     abstract val execOperations: ExecOperations
+
+    @get:Inject
+    abstract val softwareComponentFactory: SoftwareComponentFactory
 
     fun autoGroup(group: String = project.findProperty("maven_group") as String) {
         project.group = group
@@ -46,6 +55,48 @@ abstract class GradleExtension @Inject constructor(@get:Internal val project: Pr
         )
     }
 
+    /**
+     * create a tag with 2 parts, ie `1.0` and this will automatically produce `1.0.0` where the last part is the number of commits since the last tag.
+     * if snapshot is true, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
+     */
+    @JvmOverloads
+    fun autoVerisonFromGit(snapshot: Boolean = project.hasProperty("version_snapshot")) {
+        val stdout = ByteArrayOutputStream()
+        execOperations.exec {
+            it.commandLine("git", "describe", "--always", "--tags", "--first-parent")
+            it.standardOutput = stdout
+        }.rethrowFailure().assertNormalExitValue()
+
+        val describe = stdout.toString().trim()
+        val version = if (describe.contains("-")) {
+            if (snapshot) {
+                "${describe.substringBefore("-")}-SNAPSHOT"
+            } else {
+                describe.substringBeforeLast("-").replace("-", ".")
+            }
+        } else {
+            if (snapshot) {
+                "$describe-SNAPSHOT"
+            } else {
+                "$describe.0"
+            }
+        }
+
+        project.version = version
+
+        project.afterEvaluate {
+            project.tasks.withType(Jar::class.java).forEach {
+                it.manifest { mf ->
+                    mf.attributes["Implementation-Version"] = if (snapshot) describe else version
+                }
+            }
+        }
+    }
+
+    /**
+     * sets the version of the project, automatically adding the `-SNAPSHOT` if the proper gradle property is set,
+     * and adding the git shorthash to the implementation version
+     */
     @JvmOverloads
     fun autoVersion(version: String = project.findProperty("version") as String, defaultSnapshot: Boolean = false) {
         val isSnapshot = if (defaultSnapshot) project.hasProperty("version_snapshot") else !project.hasProperty("version_release")
@@ -82,7 +133,7 @@ abstract class GradleExtension @Inject constructor(@get:Internal val project: Pr
 
     @JvmOverloads
     fun autoToolchain(mainVersion: Int, testVersion: Int = mainVersion) {
-        project.java.apply {
+        project.java!!.apply {
             toolchain {
                 it.languageVersion.set(JavaLanguageVersion.of(mainVersion))
             }

@@ -29,31 +29,6 @@ import java.util.jar.Manifest;
 public class PackedResourceProvider extends ResourceProvider {
     private final SeekableByteChannel channel;
     private final Map<String, PositionAndLength> positions;
-    private final Lazy<PackageInfo> packageInfo = new Lazy<PackageInfo>() {
-
-        @Override
-        @SneakyThrows
-        protected PackageInfo supplier() {
-            val manifestURLs =  getResources("META-INF/MANIFEST.MF");
-            if (!manifestURLs.hasMoreElements()) {
-                return null;
-            }
-            val manifestURL = manifestURLs.nextElement();
-            val data = Utils.readAllBytes(manifestURL.openStream());
-            Manifest manifestFile = new Manifest();
-            manifestFile.read(new ByteArrayInputStream(data));
-            Attributes mainAttributes = manifestFile.getMainAttributes();
-            return PackageInfo.builder()
-                    .specTitle(mainAttributes.getValue("Specification-Title"))
-                    .specVersion(mainAttributes.getValue("Specification-Version"))
-                    .specVendor(mainAttributes.getValue("Specification-Vendor"))
-                    .implTitle(mainAttributes.getValue("Implementation-Title"))
-                    .implVersion(mainAttributes.getValue("Implementation-Version"))
-                    .implVendor(mainAttributes.getValue("Implementation-Vendor"))
-                    .build();
-        }
-
-    };
 
     public PackedResourceProvider(Path path) throws IOException {
         this(Files.newByteChannel(path));
@@ -81,11 +56,6 @@ public class PackedResourceProvider extends ResourceProvider {
         Path temp = Files.createTempFile(Paths.get("."), "packed", "classes");
         Files.copy(uri.toURL().openStream(), temp, StandardCopyOption.REPLACE_EXISTING);
         return new PackedResourceProvider(temp);
-    }
-
-    @Override
-    public PackageInfo getPackageInfo(String name) throws IOException {
-        return packageInfo.get();
     }
 
     @Override

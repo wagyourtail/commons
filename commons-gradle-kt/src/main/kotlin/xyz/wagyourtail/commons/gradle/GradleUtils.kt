@@ -10,6 +10,7 @@ import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.internal.artifacts.configurations.Configurations
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.configurationcache.extensions.capitalized
@@ -20,16 +21,19 @@ import kotlin.jvm.java
 import kotlin.reflect.KClass
 
 val Project.sourceSets
-    get() = extensions.findByType(SourceSetContainer::class.java)!!
+    get() = extensions.getByType(SourceSetContainer::class.java)
 
 val Project.javaToolchains
-    get() = extensions.findByType(JavaToolchainService::class.java)!!
+    get() = extensions.findByType(JavaToolchainService::class.java)
 
 val Project.base
-    get() = extensions.findByType(BasePluginExtension::class.java)!!
+    get() = extensions.getByType(BasePluginExtension::class.java)
 
 val Project.java
-    get() = extensions.findByType(JavaPluginExtension::class.java)!!
+    get() = extensions.findByType(JavaPluginExtension::class.java)
+
+val Project.publishing
+    get() = extensions.findByType(PublishingExtension::class.java)
 
 fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File> {
     resolve()

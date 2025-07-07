@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 
-public class VirtualFileSystemResourceProvider implements ResourceProvider {
+public class VirtualFileSystemResourceProvider extends ResourceProvider {
     private final VirtualFileSystem vfs;
 
     public VirtualFileSystemResourceProvider(VirtualFileSystem vfs) {
