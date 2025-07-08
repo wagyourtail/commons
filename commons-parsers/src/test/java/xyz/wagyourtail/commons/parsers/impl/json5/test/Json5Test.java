@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons.parsers.impl.constant.test;
+package xyz.wagyourtail.commons.parsers.impl.json5.test;
 
 import org.junit.jupiter.api.Test;
 import xyz.wagyourtail.commons.parsers.StringData;

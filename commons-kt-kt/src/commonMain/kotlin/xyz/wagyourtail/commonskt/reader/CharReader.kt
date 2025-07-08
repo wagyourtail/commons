@@ -214,13 +214,10 @@ abstract class CharReader<T : CharReader<T>> {
                         if (count % 2 != 0) {
                             // escaped
                             sb.append(if (noTranslateEscapes) {
-                                next.substring(0, next.length - 1)
+                                "$next\n"
                             } else {
-                                next
+                                next.substring(0, next.length - 1)
                             })
-                            if (noTranslateEscapes) {
-                                sb.append('\n')
-                            }
                         } else if (multiline) {
                             sb.append(next).append('\n')
                         } else {
@@ -282,6 +279,13 @@ abstract class CharReader<T : CharReader<T>> {
             throw createException("Expected $char but got ${it ?: "EOS"}")
         }
         return char
+    }
+
+    fun expect(valueType: String, acceptor: (Char) -> Boolean): Char {
+        val next = take()
+        if (next == null) throw createException("Expected $valueType but got EOS")
+        if (!acceptor(next)) throw createException("Expected $valueType but got $next")
+        return next
     }
 
     fun expect(value: String, ignoreCase: Boolean = false): String {
@@ -362,6 +366,28 @@ abstract class CharReader<T : CharReader<T>> {
             }
         }
         throw createCompositeException("Failed to parse", *exceptions.toTypedArray())
+    }
+
+    fun <R> parse(type: String, vararg readers: CharReader<*>.() -> R): R {
+        val exceptions = mutableListOf<ParseException>()
+        for (reader in readers) {
+            try {
+                return parse(reader)
+            } catch (e: ParseException) {
+                exceptions.add(e)
+            }
+        }
+        throw createCompositeException("Failed to parse as any of $type", *exceptions.toTypedArray())
+    }
+
+    fun <R> parseOrNull(vararg readers: CharReader<*>.() -> R): R? {
+        for (reader in readers) {
+            try {
+                return parse(reader)
+            } catch (_: ParseException) {
+            }
+        }
+        return null
     }
 
     open fun createException(msg: String, cause: Throwable? = null) = ParseException(msg, cause = cause)

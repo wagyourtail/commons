@@ -45,9 +45,6 @@ public class BooleanConstant extends StringData.OnlyRaw<Data.SingleContent<Boole
                     return false;
                 }
         );
-        if (value == null) {
-            throw reader.createException("Expected true/false but got: " + reader.take(5));
-        }
         return new SingleContent<>(value);
     }
 

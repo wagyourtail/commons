@@ -6,7 +6,6 @@ import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
-import xyz.wagyourtail.commons.parsers.impl.constant.StringConstant;
 
 public class Json5ObjectKey extends StringData.OnlyRaw<Data.SingleContent<?>> {
 
@@ -31,7 +30,7 @@ public class Json5ObjectKey extends StringData.OnlyRaw<Data.SingleContent<?>> {
 
     public String getValue() {
         String raw = getRawContent();
-        if (raw.startsWith("\"")) {
+        if (raw.startsWith("\"") || raw.startsWith("'")) {
             return StringUtils.translateEscapes(raw.substring(1, raw.length() - 1));
         } else {
             return StringUtils.translateEscapes(raw);
@@ -41,7 +40,7 @@ public class Json5ObjectKey extends StringData.OnlyRaw<Data.SingleContent<?>> {
     public static SingleContent<?> getContentChecked(CharReader<?> reader) {
         return new SingleContent<>(reader.parse(
             "json5 object key",
-            StringConstant::new,
+            Json5StringConstant::new,
             Json5Identifier::new
         ));
     }

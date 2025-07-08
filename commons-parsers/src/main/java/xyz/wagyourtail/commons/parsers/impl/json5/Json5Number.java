@@ -47,14 +47,21 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
 
     public Json5Number asNegative() {
         String raw = getRawContent();
-        if (raw.charAt(0) != '-') {
+        if (raw.charAt(0) == '-') {
+            return this;
+        } else if (raw.charAt(0) != '+') {
+            return unchecked("-" + raw.substring(1));
+        } else {
             return unchecked("-" + raw);
         }
-        return this;
     }
 
     public boolean isWhole() {
-        val positive = asPositive().getRawContent();
+        var positive = asPositive().getRawContent();
+
+        if (positive.startsWith("+")) {
+            positive = positive.substring(1);
+        }
 
         if (positive.length() == 1) {
             return true;
@@ -79,18 +86,27 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
             return true;
         }
 
-        val positive = asPositive().getRawContent();
+        var positive = asPositive().getRawContent();
+        if (positive.startsWith("+")) {
+            positive = positive.substring(1);
+        }
 
         return positive.startsWith("I") || positive.startsWith("N");
     }
 
     public boolean isHex() {
-        val positive = asPositive().getRawContent();
+        var positive = asPositive().getRawContent();
+        if (positive.startsWith("+")) {
+            positive = positive.substring(1);
+        }
         return positive.startsWith("0x") || positive.startsWith("0X");
     }
 
     public boolean isBinary() {
-        val positive = asPositive().getRawContent();
+        var positive = asPositive().getRawContent();
+        if (positive.startsWith("+")) {
+            positive = positive.substring(1);
+        }
         return positive.startsWith("0b") || positive.startsWith("0B");
     }
 
@@ -98,7 +114,10 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
         if (isNegative()) {
             return NumberUtils.negate(asPositive().getValue());
         }
-        val raw = getRawContent();
+        var raw = getRawContent();
+        if (raw.startsWith("+")) {
+            raw = raw.substring(1);
+        }
         if (isHex()) {
             return Long.parseLong(raw.substring(2), 16);
         }
@@ -118,12 +137,10 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
         List<Object> content = new ArrayList<>();
 
         val first = reader.peek();
-        if (first == '-') {
+        if (first == '-' || first == '+') {
             content.add((char) reader.take());
         }
-        if (first == '+') {
-            content.add((char) reader.take());
-        }
+
         var next = reader.peek();
         if (next > '0' && next <= '9') {
             content.add(new DecimalPart(reader));
@@ -160,7 +177,6 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
                 case 'X':
                     content.add((char) reader.take());
                     content.add(new HexPart(reader));
-                    next = reader.peek();
                     return new ListContent(content);
                 case 'b':
                 case 'B':

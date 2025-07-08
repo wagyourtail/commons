@@ -9,6 +9,8 @@ import xyz.wagyourtail.commons.parsers.impl.constant.BooleanConstant;
 import xyz.wagyourtail.commons.parsers.impl.constant.NumberConstant;
 import xyz.wagyourtail.commons.parsers.impl.constant.StringConstant;
 
+import java.util.Locale;
+
 public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
 
     private Constant(String rawContent) {
@@ -39,7 +41,7 @@ public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
     }
 
     public boolean isBoolean() {
-        val raw = getRawContent();
+        val raw = getRawContent().toLowerCase(Locale.ROOT);
         return raw.equals("true") || raw.equals("false");
     }
 

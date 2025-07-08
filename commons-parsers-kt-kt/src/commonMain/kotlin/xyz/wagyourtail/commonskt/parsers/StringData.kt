@@ -16,19 +16,19 @@ abstract class StringData<E: Data.Content> protected constructor(rawContent: Str
         return rawContent
     }
 
-    abstract class OnlyRaw<E: Content>(rawContent: String, val contentBuilder: (CharReader<*>) -> E) : StringData<E>(rawContent) {
-
-        constructor(reader: CharReader<*>, contentBuilder: (CharReader<*>) -> E) : this(contentBuilder(reader).toString(), contentBuilder)
+    abstract class OnlyRaw<E: Content>(rawContent: String) : StringData<E>(rawContent) {
 
         override val content: E
             get() = buildContent()
 
         override fun buildContent(): E {
             val reader = CharReader(rawContent)
-            val content = contentBuilder(reader)
+            val content = checkedBuildContent(reader)
             reader.expectEOS()
             return content
         }
+
+        abstract fun checkedBuildContent(reader: CharReader<*>): E
 
         override fun buildRawContent(): String {
             throw IllegalStateException("raw content should always be present")
@@ -42,6 +42,44 @@ abstract class StringData<E: Data.Content> protected constructor(rawContent: Str
             throw IllegalStateException("content should always be present")
         }
 
+    }
+
+    interface StringDataBuilder<T: StringData<E>, E: Data.Content> {
+
+        operator fun invoke(rawContent: CharReader<*>): T
+
+        fun checked(rawContent: String): T {
+            val reader = CharReader(rawContent)
+            val data = invoke(reader)
+            reader.expectEOS()
+            return data
+        }
+
+        fun checkedBuildContent(reader: CharReader<*>): E
+
+    }
+
+    class BuildStringVisitor : DataVisitor {
+        private val sb = StringBuilder()
+
+        override fun visit(o: Any?): Boolean {
+            if (o !is Data<*, *>) {
+                sb.append(o)
+            }
+            return true
+        }
+
+        fun build(): String {
+            return sb.toString()
+        }
+
+        companion object {
+            fun apply(data: Data<*, *>): String {
+                val visitor = BuildStringVisitor()
+                data.accept(visitor)
+                return visitor.build()
+            }
+        }
     }
 
 }

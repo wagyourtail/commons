@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.reader.test;
 
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 
@@ -198,6 +199,13 @@ class TestCharReader {
         assertEquals("ef", copy.takeUntil('h'));
         assertEquals("bcdefghijkl", reader.takeRemaining());
         assertEquals(-1, copy.take());
+    }
+
+    @Test
+    public void testParse() {
+        val reader = new StringCharReader("test");
+        assertEquals("test", reader.parse(r -> r.expect("test")));
+        assertEquals(-1, reader.take());
     }
 
 }

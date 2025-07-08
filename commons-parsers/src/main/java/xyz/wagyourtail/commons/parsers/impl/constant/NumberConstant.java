@@ -73,8 +73,17 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
     }
 
     public boolean isDecimal() {
-        val raw = getRawContent();
-        val last = raw.charAt(raw.length() - 1);
+        val positive = asPositive().getRawContent();
+        val last = positive.charAt(positive.length() - 1);
+
+        if (positive.charAt(0) == '0') {
+            if (positive.length() == 1) {
+                return false;
+            }
+
+            val next = positive.charAt(1);
+            return next == '.' || next == 'e' || next == 'E';
+        }
 
         if (last == 'd' || last == 'D' || last == 'f' || last == 'F') {
             return true;
@@ -84,7 +93,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             return false;
         }
 
-        return raw.contains(".") || raw.contains("e") || raw.contains("E");
+        return positive.contains(".") || positive.contains("e") || positive.contains("E");
     }
 
     public boolean isHex() {
@@ -105,7 +114,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         }
 
         val second = positive.charAt(1);
-        return positive.charAt(0) == '0' && (second >= '0' && second <= '9');
+        return positive.charAt(0) == '0' && (second >= '0' && second <= '7');
     }
 
     public boolean isFloat() {

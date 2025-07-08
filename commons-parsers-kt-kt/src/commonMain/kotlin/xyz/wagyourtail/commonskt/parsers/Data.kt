@@ -33,13 +33,13 @@ abstract class Data<T, E: Data.Content> protected constructor(
         return content.toString()
     }
 
-    fun accept(visitor: (Any?) -> Boolean) {
-        if (visitor(this)) {
+    fun accept(visitor: DataVisitor) {
+        if (visitor.visit(this)) {
             for (entry in content.entries) {
                 if (entry is Data<*, *>) {
                     entry.accept(visitor)
                 } else {
-                    visitor(entry)
+                    visitor.visit(entry)
                 }
             }
         }
@@ -86,4 +86,9 @@ abstract class Data<T, E: Data.Content> protected constructor(
 
     open class ListContent(override val entries: List<*>): Content()
 
+    interface DataVisitor {
+        fun visit(o: Any?): Boolean
+    }
+
+    interface DataBuilder<T, E: Content>
 }

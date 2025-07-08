@@ -3,6 +3,8 @@ package xyz.wagyourtail.commonskt.test.reader
 import xyz.wagyourtail.commonskt.reader.StringCharReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.expect
 
 
 class TestCharReader {
@@ -195,5 +197,20 @@ class TestCharReader {
         assertEquals("ef", copy.takeUntil('h'))
         assertEquals("bcdefghijkl", reader.takeRemaining())
         assertEquals(null, copy.take())
+    }
+
+
+    @Test
+    fun testParse() {
+        val reader = StringCharReader("test")
+        assertEquals("test", reader.parse { expect("test") })
+        assertNull(reader.take())
+
+        reader.reset()
+        assertEquals("test", reader.parse(
+            { expect("false") },
+            { expect("test") }
+        ))
+        reader.expectEOS()
     }
 }
