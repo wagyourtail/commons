@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTypeInference::class)
+
 package xyz.wagyourtail.commonskt.utils
 
 import kotlin.experimental.ExperimentalTypeInference
@@ -187,7 +189,6 @@ fun <E> Collection<E>.firstAndMaybeLast(): List<E> {
     }
 }
 
-@OptIn(ExperimentalTypeInference::class)
 fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): Iterable<E> {
 
     return object: Iterable<E> {
@@ -196,19 +197,19 @@ fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): 
 
 }
 
-fun <E> buildMutableList(block: MutableList<E>.() -> Unit): MutableList<E> {
+fun <E> buildMutableList(@BuilderInference block: MutableList<E>.() -> Unit): MutableList<E> {
     val list = mutableListOf<E>()
     list.block()
     return list
 }
 
-fun <E> buildMutableSet(block: MutableSet<E>.() -> Unit): MutableSet<E> {
+fun <E> buildMutableSet(@BuilderInference block: MutableSet<E>.() -> Unit): MutableSet<E> {
     val set = mutableSetOf<E>()
     set.block()
     return set
 }
 
-fun <K, V> buildMutableMap(block: MutableMap<K, V>.() -> Unit): MutableMap<K, V> {
+fun <K, V> buildMutableMap(@BuilderInference block: MutableMap<K, V>.() -> Unit): MutableMap<K, V> {
     val map = mutableMapOf<K, V>()
     map.block()
     return map
