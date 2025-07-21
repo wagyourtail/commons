@@ -1,17 +1,16 @@
 package xyz.wagyourtail.commons.gradle
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.process.ExecOperations
 import xyz.wagyourtail.commonskt.string.NameType
 import xyz.wagyourtail.commonskt.string.convertNameType
-import xyz.wagyourtail.commonskt.utils.firstAndMaybeLast
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import kotlin.jvm.java
 
@@ -50,25 +49,34 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
         )
     }
 
+    fun autoVersion(builder: AutoVersionConfig.() -> Unit) {
+        val autoVersionConfig = project.objects.newInstance(AutoVersionConfig::class.java, project)
+        autoVersionConfig.builder()
+        autoVersionConfig.build()
+    }
+
+    fun autoVersion(
+        @DelegatesTo(
+            value = AutoVersionConfig::class,
+            strategy = Closure.DELEGATE_FIRST
+        )
+        builder: Closure<*>
+    ) {
+        autoVersion {
+            builder.delegate = this
+            builder.resolveStrategy = Closure.DELEGATE_FIRST
+            builder.call()
+        }
+    }
+
     /**
      * create a tag with 2 parts, ie `1.0` and this will automatically produce `1.0.0` where the last part is the number of commits since the last tag.
      * snapshot will be set if the current branch is not the main branch, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
      */
     @JvmOverloads
     fun autoVersionFromGit(mainBranchName: String? = null) {
-        val stdout = ByteArrayOutputStream()
-        execOperations.exec {
-            it.commandLine("git", "branch", "--show-current")
-            it.standardOutput = stdout
-        }.rethrowFailure().assertNormalExitValue()
-
-        val currentBranch = stdout.toString().trim()
-        if (mainBranchName == null && (currentBranch == "main" || currentBranch == "master")) {
-            autoVersionFromGit(snapshot = false)
-        } else if (currentBranch == mainBranchName) {
-            autoVersionFromGit(snapshot = false)
-        } else {
-            autoVersionFromGit(snapshot = true)
+        autoVersion {
+            fromGit(mainBranchName)
         }
     }
 
@@ -77,35 +85,9 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
      * if snapshot is true, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
      */
     fun autoVersionFromGit(snapshot: Boolean) {
-        val stdout = ByteArrayOutputStream()
-        execOperations.exec {
-            it.commandLine("git", "describe", "--always", "--tags", "--first-parent")
-            it.standardOutput = stdout
-        }.rethrowFailure().assertNormalExitValue()
-
-        val describe = stdout.toString().trim()
-        val version = if (describe.contains("-")) {
-            if (snapshot) {
-                "${describe.substringBefore("-")}-SNAPSHOT"
-            } else {
-                describe.substringBeforeLast("-").replace("-", ".")
-            }
-        } else {
-            if (snapshot) {
-                "$describe-SNAPSHOT"
-            } else {
-                "$describe.0"
-            }
-        }
-
-        project.version = version
-
-        project.afterEvaluate {
-            project.tasks.withType(Jar::class.java).forEach {
-                it.manifest { mf ->
-                    mf.attributes["Implementation-Version"] = if (snapshot) describe else version
-                }
-            }
+        autoVersion {
+            fromGit()
+            snapshotProperty(snapshot)
         }
     }
 
@@ -116,34 +98,10 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     @JvmOverloads
     fun autoVersion(version: String = project.findProperty("version") as String, defaultSnapshot: Boolean = false) {
         val isSnapshot = if (defaultSnapshot) !project.hasProperty("version_release") else project.hasProperty("version_snapshot")
-
-        val versionList = buildList {
-            add(version)
-            if (isSnapshot) {
-                val stdout = ByteArrayOutputStream()
-
-                execOperations.exec {
-                    it.commandLine("git", "rev-parse", "--short", "HEAD")
-                    it.standardOutput = stdout
-                }.rethrowFailure().assertNormalExitValue()
-
-                val gitHash = stdout.toString().trim()
-                if (gitHash.isNotEmpty()) {
-                    add(gitHash)
-                }
-
-                add("SNAPSHOT")
-            }
-        }
-
-        project.version = versionList.firstAndMaybeLast().joinToString("-")
-
-        project.afterEvaluate {
-            project.tasks.withType(Jar::class.java).forEach {
-                it.manifest { mf ->
-                    mf.attributes["Implementation-Version"] = versionList.joinToString("-")
-                }
-            }
+        autoVersion {
+            versionProperty(version)
+            snapshotProperty(isSnapshot)
+            gitHashInImplementationVersion()
         }
     }
 

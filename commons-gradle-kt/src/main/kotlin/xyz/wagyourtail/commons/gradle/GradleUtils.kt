@@ -13,8 +13,11 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.process.ExecOperations
+import org.gradle.process.ExecSpec
 import xyz.wagyourtail.commonskt.maven.MavenCoords
 import xyz.wagyourtail.commonskt.utils.capitalized
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.jvm.java
 import kotlin.reflect.KClass
@@ -174,4 +177,13 @@ infix fun SourceSet.includesFrom(other: SourceSet) {
 infix fun SourceSet.extendsDependenciesFrom(other: SourceSet) {
     compileClasspath += other.compileClasspath
     runtimeClasspath += other.runtimeClasspath
+}
+
+fun ExecOperations.getStdout(action: Action<ExecSpec>): String {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        action.execute(it)
+        it.standardOutput = stdout
+    }.rethrowFailure().assertNormalExitValue()
+    return stdout.toString().trim()
 }

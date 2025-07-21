@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="commons-parsers-kt-js-1.0.5-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/commons-parsers-kt-kt/build/libs</output-path>
+    <root id="archive" name="commons-parsers-kt-js-1.0.5-SNAPSHOT.jar">
+      <element id="module-output" name="commons.commons-parsers-kt.jsMain" />
+    </root>
+  </artifact>
+</component>

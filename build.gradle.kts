@@ -4,7 +4,6 @@ plugins {
     kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.lombok") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.serialization") version libs.versions.kotlin.asProvider() apply false
-    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
     `java-library`
     `maven-publish`
 }
