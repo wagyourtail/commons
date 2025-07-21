@@ -52,10 +52,31 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
 
     /**
      * create a tag with 2 parts, ie `1.0` and this will automatically produce `1.0.0` where the last part is the number of commits since the last tag.
-     * if snapshot is true, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
+     * snapshot will be set if the current branch is not the main branch, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
      */
     @JvmOverloads
-    fun autoVerisonFromGit(snapshot: Boolean = project.hasProperty("version_snapshot")) {
+    fun autoVersionFromGit(mainBranchName: String? = null) {
+        val stdout = ByteArrayOutputStream()
+        execOperations.exec {
+            it.commandLine("git", "branch", "--show-current")
+            it.standardOutput = stdout
+        }.rethrowFailure().assertNormalExitValue()
+
+        val currentBranch = stdout.toString().trim()
+        if (mainBranchName == null && (currentBranch == "main" || currentBranch == "master")) {
+            autoVersionFromGit(snapshot = false)
+        } else if (currentBranch == mainBranchName) {
+            autoVersionFromGit(snapshot = false)
+        } else {
+            autoVersionFromGit(snapshot = true)
+        }
+    }
+
+    /**
+     * create a tag with 2 parts, ie `1.0` and this will automatically produce `1.0.0` where the last part is the number of commits since the last tag.
+     * if snapshot is true, it will produce `1.0-SNAPSHOT` with an implementation version of the full git describe
+     */
+    fun autoVersionFromGit(snapshot: Boolean) {
         val stdout = ByteArrayOutputStream()
         execOperations.exec {
             it.commandLine("git", "describe", "--always", "--tags", "--first-parent")
@@ -94,7 +115,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
      */
     @JvmOverloads
     fun autoVersion(version: String = project.findProperty("version") as String, defaultSnapshot: Boolean = false) {
-        val isSnapshot = if (defaultSnapshot) project.hasProperty("version_snapshot") else !project.hasProperty("version_release")
+        val isSnapshot = if (defaultSnapshot) !project.hasProperty("version_release") else project.hasProperty("version_snapshot")
 
         val versionList = buildList {
             add(version)
