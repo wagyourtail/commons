@@ -31,6 +31,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
 
     @JvmOverloads
     fun autoName(baseName: String = project.rootProject.name.convertNameType(NameType.PASCAL_CASE, NameType.KEBAB_CASE), includeSubprojects: Boolean = true, projectName: (Project) -> String = { it.name }) {
+        project.plugins.apply("base")
         project.base.archivesName.set(project.provider {
             if (project == project.rootProject) {
                 baseName
@@ -55,6 +56,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
             val nameCache = mutableMapOf<String, Property<String>>()
             nameCache[project.path] = project.base.archivesName
             project.subprojects {
+                it.plugins.apply("base")
                 it.base.archivesName.set(project.provider {
                     buildString {
                         append(project.name)
