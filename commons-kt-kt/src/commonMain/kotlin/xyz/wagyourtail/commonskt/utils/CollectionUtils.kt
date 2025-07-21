@@ -195,3 +195,21 @@ fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): 
     }
 
 }
+
+fun <E> buildMutableList(block: MutableList<E>.() -> Unit): MutableList<E> {
+    val list = mutableListOf<E>()
+    list.block()
+    return list
+}
+
+fun <E> buildMutableSet(block: MutableSet<E>.() -> Unit): MutableSet<E> {
+    val set = mutableSetOf<E>()
+    set.block()
+    return set
+}
+
+fun <K, V> buildMutableMap(block: MutableMap<K, V>.() -> Unit): MutableMap<K, V> {
+    val map = mutableMapOf<K, V>()
+    map.block()
+    return map
+}
