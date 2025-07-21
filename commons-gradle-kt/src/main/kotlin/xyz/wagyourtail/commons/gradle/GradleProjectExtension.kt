@@ -5,6 +5,7 @@ import groovy.lang.DelegatesTo
 import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -49,20 +50,27 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
         )
     }
 
-    fun autoVersion(builder: AutoVersionConfig.() -> Unit) {
-        val autoVersionConfig = project.objects.newInstance(AutoVersionConfig::class.java, project)
-        autoVersionConfig.builder()
-        autoVersionConfig.build()
+    @JvmOverloads
+    fun autoVersion(includeSubprojects: Boolean = true, builder: AutoVersionConfig.() -> Unit) {
+        val autoVersion = project.objects.newInstance(AutoVersionConfig::class.java, project)
+
+        autoVersion.builder()
+
+        autoVersion.apply(project)
+        if (includeSubprojects) project.subprojects(autoVersion::apply)
+
     }
 
+    @JvmOverloads
     fun autoVersion(
+        includeSubprojects: Boolean = true,
         @DelegatesTo(
             value = AutoVersionConfig::class,
             strategy = Closure.DELEGATE_FIRST
         )
         builder: Closure<*>
     ) {
-        autoVersion {
+        autoVersion(includeSubprojects) {
             builder.delegate = this
             builder.resolveStrategy = Closure.DELEGATE_FIRST
             builder.call()

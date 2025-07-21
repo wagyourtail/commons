@@ -13,11 +13,11 @@ abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: 
     @get:Inject
     internal abstract val execOperations: ExecOperations
 
-    internal abstract val snapshot: Property<Boolean>
+    abstract val snapshot: Property<Boolean>
 
-    internal abstract val version: Property<String>
+    abstract val version: Property<String>
 
-    internal abstract val implementationVersion: Property<String>
+    abstract val implementationVersion: Property<String>
 
     init {
         snapshot.finalizeValueOnRead()
@@ -102,15 +102,18 @@ abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: 
         })
     }
 
-    internal fun build() {
+    fun apply(project: Project) {
+
         project.version = version.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
 
         project.afterEvaluate {
-            project.tasks.withType(Jar::class.java).configureEach {
-                it.manifest { mf ->
-                    mf.attributes["Implementation-Version"] = implementationVersion.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
+            project.tasks.withType(Jar::class.java).configureEach { task ->
+                task.manifest { mf ->
+                    mf.attributes["Implementation-Version"] =
+                        implementationVersion.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
                 }
             }
         }
     }
+
 }
