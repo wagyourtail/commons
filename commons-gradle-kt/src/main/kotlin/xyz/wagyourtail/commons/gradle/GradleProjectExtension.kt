@@ -4,6 +4,7 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
@@ -13,6 +14,7 @@ import org.gradle.process.ExecOperations
 import xyz.wagyourtail.commonskt.string.NameType
 import xyz.wagyourtail.commonskt.string.convertNameType
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.jvm.java
 
 abstract class GradleProjectExtension @Inject constructor(@get:Internal val project: Project) {
@@ -23,13 +25,14 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     @get:Inject
     abstract val softwareComponentFactory: SoftwareComponentFactory
 
-    fun autoGroup(group: String = project.findProperty("maven_group") as String) {
+    fun autoGroup(group: String = project.findProperty("maven_group") as String, includeSubprojects: Boolean = true) {
         project.group = group
+        if (includeSubprojects) project.subprojects { it.group = group }
     }
 
     @JvmOverloads
-    fun autoName(baseName: String = project.rootProject.name.convertNameType(NameType.PASCAL_CASE, NameType.KEBAB_CASE), projectName: (Project) -> String = { it.name }) {
-        project.base.archivesName.set(
+    fun autoName(baseName: String = project.rootProject.name.convertNameType(NameType.PASCAL_CASE, NameType.KEBAB_CASE), includeSubprojects: Boolean = true, projectName: (Project) -> String = { it.name }) {
+        project.base.archivesName.set(project.provider {
             if (project == project.rootProject) {
                 baseName
             } else {
@@ -47,7 +50,33 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
                     }
                 }
             }
-        )
+        })
+
+        if (includeSubprojects) {
+            val nameCache = mutableMapOf<String, Property<String>>()
+            nameCache[project.path] = project.base.archivesName
+            project.subprojects {
+                project.base.archivesName.set(project.provider {
+                    buildString {
+                        append(project.name)
+                        var current: Project? = project.parent
+                        while (current != null) {
+                            append(0, "-")
+                            if (current.path in nameCache) {
+                                append(0, nameCache.getValue(current.path).get())
+                                break
+                            } else if (current == project.rootProject) {
+                                append(0, baseName)
+                            } else {
+                                append(0, projectName(current))
+                            }
+                            current = current.parent
+                        }
+                    }
+                })
+                nameCache[it.path] = it.base.archivesName
+            }
+        }
     }
 
     @JvmOverloads
