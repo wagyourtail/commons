@@ -25,9 +25,8 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     @get:Inject
     abstract val softwareComponentFactory: SoftwareComponentFactory
 
-    fun autoGroup(group: String = project.findProperty("maven_group") as String, includeSubprojects: Boolean = true) {
+    fun autoGroup(group: String = project.findProperty("maven_group") as String) {
         project.group = group
-        if (includeSubprojects) project.subprojects { it.group = group }
     }
 
     @JvmOverloads
@@ -56,7 +55,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
             val nameCache = mutableMapOf<String, Property<String>>()
             nameCache[project.path] = project.base.archivesName
             project.subprojects {
-                project.base.archivesName.set(project.provider {
+                it.base.archivesName.set(project.provider {
                     buildString {
                         append(project.name)
                         var current: Project? = project.parent
@@ -85,8 +84,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
 
         autoVersion.builder()
 
-        autoVersion.apply(project)
-        if (includeSubprojects) project.subprojects(autoVersion::apply)
+        autoVersion.apply(project, includeSubprojects)
 
     }
 

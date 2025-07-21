@@ -2,13 +2,12 @@ package xyz.wagyourtail.commons.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.process.ExecOperations
 import javax.inject.Inject
 import kotlin.jvm.java
 
-abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: Project) {
+abstract class AutoVersionConfig @Inject constructor(val project: Project) {
 
     @get:Inject
     internal abstract val execOperations: ExecOperations
@@ -49,7 +48,7 @@ abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: 
         version.set(project.provider {
             if (describe.get().contains("-")) {
                 if (snapshot.get()) {
-                    "${describe.get().substringBefore("-")}-SNAPSHOT"
+                    describe.get().substringBefore("-")
                 } else {
                     describe.get().substringBeforeLast("-").replace("-", ".")
                 }
@@ -81,7 +80,6 @@ abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: 
 
     fun versionProperty(version: String = project.findProperty("version") as String) {
         this.version.set(version)
-
         this.implementationVersion.set(version)
     }
 
@@ -102,10 +100,19 @@ abstract class AutoVersionConfig @Inject constructor(@get:Internal val project: 
         })
     }
 
-    fun apply(project: Project) {
+    fun apply(project: Project, subprojects: Boolean = true) {
 
         project.version = version.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
 
+        applyImplementationVersion(project)
+        if (subprojects) {
+            project.subprojects {
+                applyImplementationVersion(it)
+            }
+        }
+    }
+
+    fun applyImplementationVersion(project: Project) {
         project.afterEvaluate {
             project.tasks.withType(Jar::class.java).configureEach { task ->
                 task.manifest { mf ->
