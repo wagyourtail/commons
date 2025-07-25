@@ -107,6 +107,8 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
         applyImplementationVersion(project)
         if (subprojects) {
             project.subprojects {
+                it.version = project.version
+
                 applyImplementationVersion(it)
             }
         }
