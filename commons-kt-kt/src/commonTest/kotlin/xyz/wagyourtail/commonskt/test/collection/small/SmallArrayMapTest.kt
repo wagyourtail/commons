@@ -1,6 +1,6 @@
-package xyz.wagyourtail.commonskt.test.collection
+package xyz.wagyourtail.commonskt.test.collection.small
 
-import xyz.wagyourtail.commonskt.collection.ArrayMap
+import xyz.wagyourtail.commonskt.collection.small.SmallArrayMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -8,11 +8,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ArrayMapTest {
+class SmallArrayMapTest {
 
     @Test
     fun testBasicOperations() {
-        val map = ArrayMap<String, String>()
+        val map = SmallArrayMap<String, String>()
 
         // Test empty map
         assertEquals(0, map.size)
@@ -51,7 +51,7 @@ class ArrayMapTest {
 
     @Test
     fun testCollectionViews() {
-        val map = ArrayMap<String, Int>()
+        val map = SmallArrayMap<String, Int>()
         map["one"] = 1
         map["two"] = 2
         map["three"] = 3
@@ -80,7 +80,7 @@ class ArrayMapTest {
 
     @Test
     fun testBulkOperations() {
-        val map = ArrayMap<String, Int>()
+        val map = SmallArrayMap<String, Int>()
         map["one"] = 1
 
         // Test putAll
@@ -100,7 +100,7 @@ class ArrayMapTest {
 
     @Test
     fun testNullValues() {
-        val map = ArrayMap<String, String?>()
+        val map = SmallArrayMap<String, String?>()
 
         // Test null values
         map["nullKey"] = null
@@ -118,7 +118,7 @@ class ArrayMapTest {
 
     @Test
     fun testIterator() {
-        val map = ArrayMap<String, Int>()
+        val map = SmallArrayMap<String, Int>()
         map["one"] = 1
         map["two"] = 2
         map["three"] = 3
@@ -159,7 +159,7 @@ class ArrayMapTest {
 
     @Test
     fun testOrderPreservation() {
-        val map = ArrayMap<String, Int>()
+        val map = SmallArrayMap<String, Int>()
 
         // Add entries
         map["three"] = 3

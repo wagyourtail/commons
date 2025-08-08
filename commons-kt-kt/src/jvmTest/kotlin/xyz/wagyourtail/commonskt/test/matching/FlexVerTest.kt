@@ -1,4 +1,4 @@
-package xyz.wagyourtail.kommonskt.test.matching
+package xyz.wagyourtail.commonskt.test.matching
 
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest

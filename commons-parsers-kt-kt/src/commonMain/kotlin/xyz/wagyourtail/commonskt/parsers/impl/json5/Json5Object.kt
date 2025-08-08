@@ -1,6 +1,5 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import kotlinx.datetime.format.parse
 import xyz.wagyourtail.commonskt.parsers.StringData
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.iterable

@@ -1,6 +1,6 @@
-package xyz.wagyourtail.commonskt.collection
+package xyz.wagyourtail.commonskt.collection.small
 
-class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableMap<K, V>() {
+class SmallArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableMap<K, V>() {
     private var ks = arrayOfNulls<Any?>(initialSize)
     private var vs = arrayOfNulls<Any?>(initialSize)
 
@@ -17,7 +17,7 @@ class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Abst
         get() = object : AbstractMutableSet<MutableMap.MutableEntry<K, V>>() {
 
             override val size: Int
-                get() = this@ArrayMap.size
+                get() = this@SmallArrayMap.size
 
             override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> {
                 return object : MutableIterator<MutableMap.MutableEntry<K, V>> {
@@ -49,6 +49,8 @@ class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Abst
                             val index = i - 1
                             removeAt(index)
                             i = index
+                        } else {
+                            throw IllegalStateException()
                         }
                     }
                 }
@@ -70,7 +72,7 @@ class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Abst
                 }
                 ks[size] = element.key
                 vs[size] = element.value
-                ++this@ArrayMap.size
+                ++this@SmallArrayMap.size
                 return true
             }
         }
@@ -125,12 +127,30 @@ class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Abst
     }
 
     private fun removeAt(index: Int) {
+        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         if (index == --size) {
-            ks[index] = null
-            vs[index] = null
+            if (size < ks.size - resizeAmount) {
+                val newKs = arrayOfNulls<Any>(ks.size - resizeAmount)
+                val newVs = arrayOfNulls<Any>(vs.size - resizeAmount)
+                ks.copyInto(newKs, 0, 0, index)
+                vs.copyInto(newVs, 0, 0, index)
+                ks = newKs
+                vs = newVs
+            }
         } else {
-            ks.copyInto(ks, index, index + 1)
-            vs.copyInto(vs, index, index + 1)
+            if (size < ks.size - resizeAmount) {
+                val newKs = arrayOfNulls<Any>(ks.size - resizeAmount)
+                val newVs = arrayOfNulls<Any>(vs.size - resizeAmount)
+                ks.copyInto(newKs, 0, 0, index)
+                vs.copyInto(newVs, 0, 0, index)
+                ks.copyInto(newKs, index, index + 1, size)
+                vs.copyInto(newVs, index, index + 1, size)
+                ks = newKs
+                vs = newVs
+            } else {
+                ks.copyInto(ks, index, index + 1)
+                vs.copyInto(vs, index, index + 1)
+            }
         }
     }
 
@@ -142,4 +162,4 @@ class ArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Abst
 
 }
 
-fun <K, V> arrayMapOf(vararg pairs: Pair<K, V>, initialSize: Int = pairs.size, resizeAmount: Int = 1) = ArrayMap<K, V>(initialSize, resizeAmount).apply { putAll(pairs) }
+fun <K, V> smallArrayMapOf(vararg pairs: Pair<K, V>, initialSize: Int = pairs.size, resizeAmount: Int = 1) = SmallArrayMap<K, V>(initialSize, resizeAmount).apply { putAll(pairs) }
