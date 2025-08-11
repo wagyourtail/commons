@@ -3,11 +3,7 @@ package xyz.wagyourtail.commons.core.logger;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 

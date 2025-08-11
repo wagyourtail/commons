@@ -3,7 +3,8 @@ package xyz.wagyourtail.commonskt.reader
 import xyz.wagyourtail.commonskt.utils.indexOf
 import kotlin.math.min
 
-class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = buffer.length) : CharReader<StringCharReader>() {
+class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = buffer.length) :
+    CharReader<StringCharReader>() {
     private var mark: Int = 0
 
     override fun peek(): Char? {
@@ -121,4 +122,3 @@ class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = b
         }
     }
 }
-

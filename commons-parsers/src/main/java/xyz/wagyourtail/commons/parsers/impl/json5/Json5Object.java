@@ -88,9 +88,9 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
         @Override
         public Iterable<Object> getEntries() {
             return CollectionUtils.concat(
-                Collections.singleton('{'),
-                entries,
-                Collections.singleton('}')
+                    Collections.singleton('{'),
+                    entries,
+                    Collections.singleton('}')
             );
         }
     }

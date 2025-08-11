@@ -53,68 +53,68 @@ public class ClassInfo {
         }
 
         return new ClassInfo(
-            clazz.isInterface(),
-            Type.getInternalName(clazz),
-            Type.getInternalName(superClass),
-            interfaces,
-            new Lazy<List<MethodInfo>>() {
-                @Override
-                protected List<MethodInfo> supplier() {
-                    List<MethodInfo> methods = new ArrayList<>();
+                clazz.isInterface(),
+                Type.getInternalName(clazz),
+                Type.getInternalName(superClass),
+                interfaces,
+                new Lazy<List<MethodInfo>>() {
+                    @Override
+                    protected List<MethodInfo> supplier() {
+                        List<MethodInfo> methods = new ArrayList<>();
 
-                    for (Method m : clazz.getDeclaredMethods()) {
-                        methods.add(MethodInfo.of(m));
-                    }
-                    for (Constructor<?> c : clazz.getDeclaredConstructors()) {
-                        methods.add(MethodInfo.of(c));
-                    }
+                        for (Method m : clazz.getDeclaredMethods()) {
+                            methods.add(MethodInfo.of(m));
+                        }
+                        for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+                            methods.add(MethodInfo.of(c));
+                        }
 
-                    if (ReflectionUtils.hasStaticInitializer(clazz)) {
-                        methods.add(MethodInfo.createClinit());
-                    }
+                        if (ReflectionUtils.hasStaticInitializer(clazz)) {
+                            methods.add(MethodInfo.createClinit());
+                        }
 
-                    return methods;
+                        return methods;
+                    }
+                },
+                new Lazy<List<FieldInfo>>() {
+                    @Override
+                    protected List<FieldInfo> supplier() {
+                        List<FieldInfo> fields = new ArrayList<>();
+                        for (Field f : clazz.getDeclaredFields()) {
+                            fields.add(FieldInfo.of(f));
+                        }
+                        return fields;
+                    }
                 }
-            },
-            new Lazy<List<FieldInfo>>() {
-                @Override
-                protected List<FieldInfo> supplier() {
-                    List<FieldInfo> fields = new ArrayList<>();
-                    for (Field f : clazz.getDeclaredFields()) {
-                        fields.add(FieldInfo.of(f));
-                    }
-                    return fields;
-                }
-            }
         );
     }
 
     public static ClassInfo of(final ClassNode cn) {
         return new ClassInfo(
-            (cn.access & Opcodes.ACC_INTERFACE) != 0,
-            cn.name,
-            cn.superName,
-            cn.interfaces,
-            new Lazy<List<MethodInfo>>() {
-                @Override
-                protected List<MethodInfo> supplier() {
-                    List<MethodInfo> methods = new ArrayList<>();
-                    for (MethodNode mn : cn.methods) {
-                        methods.add(MethodInfo.of(mn));
+                (cn.access & Opcodes.ACC_INTERFACE) != 0,
+                cn.name,
+                cn.superName,
+                cn.interfaces,
+                new Lazy<List<MethodInfo>>() {
+                    @Override
+                    protected List<MethodInfo> supplier() {
+                        List<MethodInfo> methods = new ArrayList<>();
+                        for (MethodNode mn : cn.methods) {
+                            methods.add(MethodInfo.of(mn));
+                        }
+                        return methods;
                     }
-                    return methods;
-                }
-            },
-            new Lazy<List<FieldInfo>>() {
-                @Override
-                protected List<FieldInfo> supplier() {
-                    List<FieldInfo> fields = new ArrayList<>();
-                    for (FieldNode fd : cn.fields) {
-                        fields.add(FieldInfo.of(fd));
+                },
+                new Lazy<List<FieldInfo>>() {
+                    @Override
+                    protected List<FieldInfo> supplier() {
+                        List<FieldInfo> fields = new ArrayList<>();
+                        for (FieldNode fd : cn.fields) {
+                            fields.add(FieldInfo.of(fd));
+                        }
+                        return fields;
                     }
-                    return fields;
                 }
-            }
         );
     }
 
@@ -128,30 +128,30 @@ public class ClassInfo {
             }
         };
         return new ClassInfo(
-            (reader.getAccess() & Opcodes.ACC_INTERFACE) != 0,
-            reader.getClassName(),
-            reader.getSuperName(),
-            Arrays.asList(reader.getInterfaces()),
-            new Lazy<List<MethodInfo>>() {
-                @Override
-                protected List<MethodInfo> supplier() {
-                    List<MethodInfo> methods = new ArrayList<>();
-                    for (MethodNode mn : cn.get().methods) {
-                        methods.add(MethodInfo.of(mn));
+                (reader.getAccess() & Opcodes.ACC_INTERFACE) != 0,
+                reader.getClassName(),
+                reader.getSuperName(),
+                Arrays.asList(reader.getInterfaces()),
+                new Lazy<List<MethodInfo>>() {
+                    @Override
+                    protected List<MethodInfo> supplier() {
+                        List<MethodInfo> methods = new ArrayList<>();
+                        for (MethodNode mn : cn.get().methods) {
+                            methods.add(MethodInfo.of(mn));
+                        }
+                        return methods;
                     }
-                    return methods;
-                }
-            },
-            new Lazy<List<FieldInfo>>() {
-                @Override
-                protected List<FieldInfo> supplier() {
-                    List<FieldInfo> fields = new ArrayList<>();
-                    for (FieldNode fd : cn.get().fields) {
-                        fields.add(FieldInfo.of(fd));
+                },
+                new Lazy<List<FieldInfo>>() {
+                    @Override
+                    protected List<FieldInfo> supplier() {
+                        List<FieldInfo> fields = new ArrayList<>();
+                        for (FieldNode fd : cn.get().fields) {
+                            fields.add(FieldInfo.of(fd));
+                        }
+                        return fields;
                     }
-                    return fields;
                 }
-            }
         );
     }
 

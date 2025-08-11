@@ -1,7 +1,5 @@
 package xyz.wagyourtail.commonskt.utils
 
-import kotlin.text.indexOf
-
 /**
  * unlike java, this will translate unicode escapes as well
  */
@@ -153,7 +151,12 @@ fun String.count(char: Char, startIndex: Int = 0, endIndex: Int = this.length, i
     return count
 }
 
-fun String.count(subString: String, startIndex: Int = 0, endIndex: Int = this.length, ignoreCase: Boolean = false): Int {
+fun String.count(
+    subString: String,
+    startIndex: Int = 0,
+    endIndex: Int = this.length,
+    ignoreCase: Boolean = false
+): Int {
     var count = 0
     var i = startIndex
     while (i < endIndex) {

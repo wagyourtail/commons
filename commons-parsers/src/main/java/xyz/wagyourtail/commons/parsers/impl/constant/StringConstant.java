@@ -29,13 +29,13 @@ public class StringConstant extends StringData.OnlyRaw<Data.SingleContent<String
         return new StringConstant(rawContent);
     }
 
+    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
+        return new SingleContent<>(reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\""));
+    }
+
     public String getValue() {
         val content = getRawContent();
         return StringUtils.translateEscapes(content.substring(1, content.length() - 1));
-    }
-
-    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
-        return new SingleContent<>(reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\""));
     }
 
 }

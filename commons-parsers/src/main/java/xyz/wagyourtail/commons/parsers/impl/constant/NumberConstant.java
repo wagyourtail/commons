@@ -33,6 +33,109 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         return new NumberConstant(rawContent);
     }
 
+    private static ListContent getContentChecked(CharReader<?> reader) {
+        List<Object> content = new ArrayList<>();
+
+        val first = reader.peek();
+        if (first == '-') {
+            content.add((char) reader.take());
+        }
+        var next = reader.peek();
+        if (next > '0' && next <= '9') {
+            content.add(new WholePart(reader));
+            next = reader.peek();
+            if (next == 'l' || next == 'L') {
+                content.add((char) reader.take());
+                return new ListContent(content);
+            }
+            if (next == '.') {
+                content.add((char) reader.take());
+                next = reader.peek();
+                if (next >= '0' && next <= '9') {
+                    content.add(new DecimalPart(reader));
+                }
+                next = reader.peek();
+            }
+            if (next == 'e' || next == 'E') {
+                content.add((char) reader.take());
+                content.add(new ExponentPart(reader));
+                next = reader.peek();
+            }
+        } else if (next == '0') {
+            content.add((char) reader.take());
+            next = reader.peek();
+            switch (next) {
+                case '.':
+                    content.add((char) reader.take());
+                    next = reader.peek();
+                    if (next >= '0' && next <= '9') {
+                        content.add(new DecimalPart(reader));
+                    }
+                    next = reader.peek();
+                    if (next == 'e' || next == 'E') {
+                        content.add((char) reader.take());
+                        content.add(new ExponentPart(reader));
+                        next = reader.peek();
+                    }
+                    break;
+                case 'x':
+                case 'X':
+                    content.add((char) reader.take());
+                    content.add(new HexPart(reader));
+                    next = reader.peek();
+                    if (next == 'l' || next == 'L') {
+                        content.add((char) reader.take());
+                    }
+                    return new ListContent(content);
+                case 'b':
+                case 'B':
+                    content.add((char) reader.take());
+                    content.add(new BinaryPart(reader));
+                    next = reader.peek();
+                    if (next == 'l' || next == 'L') {
+                        content.add((char) reader.take());
+                    }
+                    return new ListContent(content);
+                case -1:
+                    break;
+                default:
+                    if (next >= '0' && next < '8') {
+                        content.add(new OctalPart(reader));
+                        next = reader.peek();
+                        if (next == 'l' || next == 'L') {
+                            content.add((char) reader.take());
+                        }
+                        return new ListContent(content);
+                    }
+            }
+        } else if (next == '.') {
+            content.add((char) reader.take());
+            content.add(new DecimalPart(reader));
+            next = reader.peek();
+            if (next == 'e' || next == 'E') {
+                content.add((char) reader.take());
+                content.add(new ExponentPart(reader));
+                next = reader.peek();
+            }
+        } else if (next == 'I') {
+            content.add(reader.expect("Infinity"));
+            next = reader.peek();
+        } else if (next == 'N') {
+            content.add(reader.expect("NaN"));
+            next = reader.peek();
+        } else {
+            throw reader.createException("Not a number character: " + (char) next);
+        }
+
+        if (next == -1) return new ListContent(content);
+        if (next == 'f' || next == 'F'
+                || next == 'd' || next == 'D') {
+            content.add((char) reader.take());
+        }
+
+        return new ListContent(content);
+    }
+
     public boolean isNegative() {
         return getRawContent().charAt(0) == '-';
     }
@@ -191,108 +294,5 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             return Integer.parseInt(raw);
         }
         throw new IllegalStateException();
-    }
-
-    private static ListContent getContentChecked(CharReader<?> reader) {
-        List<Object> content = new ArrayList<>();
-
-        val first = reader.peek();
-        if (first == '-') {
-            content.add((char) reader.take());
-        }
-        var next = reader.peek();
-        if (next > '0' && next <= '9') {
-            content.add(new WholePart(reader));
-            next = reader.peek();
-            if (next == 'l' || next == 'L') {
-                content.add((char) reader.take());
-                return new ListContent(content);
-            }
-            if (next == '.') {
-                content.add((char) reader.take());
-                next = reader.peek();
-                if (next >= '0' && next <= '9') {
-                    content.add(new DecimalPart(reader));
-                }
-                next = reader.peek();
-            }
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-                next = reader.peek();
-            }
-        } else if (next == '0') {
-            content.add((char) reader.take());
-            next = reader.peek();
-            switch (next) {
-                case '.':
-                    content.add((char) reader.take());
-                    next = reader.peek();
-                    if (next >= '0' && next <= '9') {
-                        content.add(new DecimalPart(reader));
-                    }
-                    next = reader.peek();
-                    if (next == 'e' || next == 'E') {
-                        content.add((char) reader.take());
-                        content.add(new ExponentPart(reader));
-                        next = reader.peek();
-                    }
-                    break;
-                case 'x':
-                case 'X':
-                    content.add((char) reader.take());
-                    content.add(new HexPart(reader));
-                    next = reader.peek();
-                    if (next == 'l' || next == 'L') {
-                        content.add((char) reader.take());
-                    }
-                    return new ListContent(content);
-                case 'b':
-                case 'B':
-                    content.add((char) reader.take());
-                    content.add(new BinaryPart(reader));
-                    next = reader.peek();
-                    if (next == 'l' || next == 'L') {
-                        content.add((char) reader.take());
-                    }
-                    return new ListContent(content);
-                case -1:
-                    break;
-                default:
-                    if (next >= '0' && next < '8') {
-                        content.add(new OctalPart(reader));
-                        next = reader.peek();
-                        if (next == 'l' || next == 'L') {
-                            content.add((char) reader.take());
-                        }
-                        return new ListContent(content);
-                    }
-            }
-        } else if (next == '.') {
-            content.add((char) reader.take());
-            content.add(new DecimalPart(reader));
-            next = reader.peek();
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-                next = reader.peek();
-            }
-        } else if (next == 'I') {
-            content.add(reader.expect("Infinity"));
-            next = reader.peek();
-        } else if (next == 'N') {
-            content.add(reader.expect("NaN"));
-            next = reader.peek();
-        } else {
-            throw reader.createException("Not a number character: " + (char) next);
-        }
-
-        if (next == -1) return new ListContent(content);
-        if (next == 'f' || next == 'F'
-        || next == 'd' || next == 'D') {
-            content.add((char) reader.take());
-        }
-
-        return new ListContent(content);
     }
 }

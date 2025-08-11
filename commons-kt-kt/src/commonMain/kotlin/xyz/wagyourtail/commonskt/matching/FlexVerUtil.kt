@@ -49,11 +49,11 @@ object FlexVerComparator {
     }
 
     /**
-	 * Break apart a string into intuitive version components,
-	 * by splitting it where a run of characters changes from numeric to non-numeric.
+     * Break apart a string into intuitive version components,
+     * by splitting it where a run of characters changes from numeric to non-numeric.
      *
      * @param str the version String
-	 */
+     */
     @VisibleForTesting
     fun decompose(str: String): List<VersionComponent> {
         if (str.isEmpty()) return emptyList()
@@ -85,7 +85,7 @@ object FlexVerComparator {
     }
 
     private fun createComponent(number: Boolean, s: CharArray, j: Int): VersionComponent {
-        val arr = s.slice(0..< j).toCharArray()
+        val arr = s.slice(0..<j).toCharArray()
         return if (number) {
             NumericVersionComponent(arr)
         } else if (arr.size > 1 && arr[0] == '-') {
@@ -158,7 +158,7 @@ object FlexVerComparator {
             while (i < stopIdx && a[i] == '0') {
                 i++
             }
-            return a.slice(i ..< a.size).toCharArray()
+            return a.slice(i..<a.size).toCharArray()
         }
     }
 }

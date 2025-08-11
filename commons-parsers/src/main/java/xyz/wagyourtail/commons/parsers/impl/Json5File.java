@@ -35,7 +35,7 @@ public class Json5File extends StringData.OnlyParsed<Json5File.FileContent> {
 
     public static FileContent contentBuilder(CharReader<?> reader) {
         List<Object> preContent = new ArrayList<>();
-        while(!reader.exhausted()) {
+        while (!reader.exhausted()) {
             val preValue = reader.parseOrNull(
                     Json5Whitespace::new,
                     Json5Comment::new
@@ -47,7 +47,7 @@ public class Json5File extends StringData.OnlyParsed<Json5File.FileContent> {
         Json5Value value = Json5Value.parse(reader);
 
         List<Object> postContent = new ArrayList<>();
-        while(!reader.exhausted()) {
+        while (!reader.exhausted()) {
             val postValue = reader.parseOrNull(
                     Json5Whitespace::new,
                     Json5Comment::new
@@ -72,13 +72,12 @@ public class Json5File extends StringData.OnlyParsed<Json5File.FileContent> {
         @Override
         public Iterable<Object> getEntries() {
             return CollectionUtils.concat(
-                preContent,
-                Collections.singleton(value),
-                postContent
+                    preContent,
+                    Collections.singleton(value),
+                    postContent
             );
         }
     }
-
 
 
 }

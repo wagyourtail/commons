@@ -15,7 +15,8 @@ class BooleanConstant(rawContent: String) : StringData.OnlyRaw<Data.SingleConten
         }
 
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<Boolean> {
-            val value = reader.parse("boolean",
+            val value = reader.parse(
+                "boolean",
                 {
                     expect("true")
                     true

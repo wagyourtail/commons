@@ -15,17 +15,17 @@ public class FieldInfo {
 
     public static FieldInfo of(Field field) {
         return new FieldInfo(
-            field.getModifiers(),
-            field.getName(),
-            Type.getType(field.getType())
+                field.getModifiers(),
+                field.getName(),
+                Type.getType(field.getType())
         );
     }
 
     public static FieldInfo of(FieldNode fieldNode) {
         return new FieldInfo(
-            fieldNode.access,
-            fieldNode.name,
-            Type.getType(fieldNode.desc)
+                fieldNode.access,
+                fieldNode.name,
+                Type.getType(fieldNode.desc)
         );
     }
 

@@ -1,6 +1,9 @@
 package xyz.wagyourtail.commons.core.classloader;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.val;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.lazy.Lazy;
 
@@ -19,7 +22,7 @@ public abstract class ResourceProvider implements Closeable {
         @Override
         @SneakyThrows
         protected PackageInfo supplier() {
-            val manifestURLs =  getResources("META-INF/MANIFEST.MF");
+            val manifestURLs = getResources("META-INF/MANIFEST.MF");
             if (!manifestURLs.hasMoreElements()) {
                 return null;
             }

@@ -17,7 +17,7 @@ class WholePart(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<Stri
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<String> {
             val first = reader.peek()
             if (first == '0') {
-                throw reader.createException("Whole number cannot start with 0");
+                throw reader.createException("Whole number cannot start with 0")
             }
             if (first != null && first.isDigit()) {
                 return SingleContent(reader.takeWhile { it.isDigit() })

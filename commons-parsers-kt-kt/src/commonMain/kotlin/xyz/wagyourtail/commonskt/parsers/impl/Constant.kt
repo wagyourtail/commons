@@ -9,7 +9,7 @@ import xyz.wagyourtail.commonskt.reader.CharReader
 
 class Constant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(rawContent) {
 
-    constructor(content: SingleContent<*>): this(content.toString())
+    constructor(content: SingleContent<*>) : this(content.toString())
 
     companion object : StringDataBuilder<Constant, SingleContent<*>> {
 
@@ -18,7 +18,8 @@ class Constant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(r
         }
 
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-            return SingleContent(reader.parse(
+            return SingleContent(
+                reader.parse(
                 "constant",
                 BooleanConstant::invoke,
                 StringConstant::invoke,

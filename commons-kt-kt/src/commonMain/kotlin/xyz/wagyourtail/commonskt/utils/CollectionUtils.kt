@@ -26,7 +26,7 @@ fun <T : Comparable<T>> compareable(vararg elements: T) = ListCompare(elements.t
 @Deprecated("use List.compareTo")
 fun <T : Comparable<T>> List<T>.comparable() = ListCompare(this)
 
-operator fun <T: Comparable<T>> List<T>.compareTo(other: List<T>): Int {
+operator fun <T : Comparable<T>> List<T>.compareTo(other: List<T>): Int {
     val size = size
     if (size != other.size) return size - other.size
     for (i in 0 until size) {
@@ -191,7 +191,7 @@ fun <E> Collection<E>.firstAndMaybeLast(): List<E> {
 
 fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): Iterable<E> {
 
-    return object: Iterable<E> {
+    return object : Iterable<E> {
         override fun iterator() = iterator(block)
     }
 

@@ -34,7 +34,7 @@ public class Json5ObjectEntry extends StringData.OnlyParsed<Json5ObjectEntry.Obj
     public static ObjectEntry contentBuilder(CharReader<?> reader) {
         Json5ObjectKey key = new Json5ObjectKey(reader);
         List<Object> postKey = new ArrayList<>();
-        while(!reader.exhausted()) {
+        while (!reader.exhausted()) {
             val value = reader.parseOrNull(
                     Json5Whitespace::new,
                     Json5Comment::new
@@ -44,7 +44,7 @@ public class Json5ObjectEntry extends StringData.OnlyParsed<Json5ObjectEntry.Obj
         }
         reader.expect(':');
         List<Object> preValue = new ArrayList<>();
-        while(!reader.exhausted()) {
+        while (!reader.exhausted()) {
             val value = reader.parseOrNull(
                     Json5Whitespace::new,
                     Json5Comment::new

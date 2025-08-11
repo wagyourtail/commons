@@ -39,7 +39,7 @@ fun StringBuilder.appendCodePoint(value: Int) {
 
 fun Char.isAlphabetic(): Boolean {
     val category = category
-    return category in CharCategory.UPPERCASE_LETTER .. CharCategory.OTHER_LETTER || category == CharCategory.LETTER_NUMBER
+    return category in CharCategory.UPPERCASE_LETTER..CharCategory.OTHER_LETTER || category == CharCategory.LETTER_NUMBER
 }
 
 //fun String.codePointCount(start: Int = 0, end: Int = this.length): Int {
@@ -48,4 +48,3 @@ fun Char.isAlphabetic(): Boolean {
 //
 //    }
 //}
-

@@ -21,8 +21,8 @@ public class AnnotationUtils {
      * Creates an annotation from an annotation node using the classloader of AnnotationUtils to find the annotation class (and the context classloader)
      *
      * @param annotationNode the node to construct the annotation from
+     * @param <T>            the type of the annotation
      * @return the annotation
-     * @param <T> the type of the annotation
      * @throws ClassNotFoundException if the annotation class cannot be found
      */
     @SuppressWarnings("unchecked")
@@ -40,10 +40,10 @@ public class AnnotationUtils {
      *
      * This is the recommended method in this class to create annotations
      *
-     * @param annotationNode the node to construct the annotation from
+     * @param annotationNode  the node to construct the annotation from
      * @param annotationClass the class of the annotation
+     * @param <T>             the type of the annotation
      * @return the annotation
-     * @param <T> the type of the annotation
      */
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T createAnnotation(AnnotationNode annotationNode, Class<T> annotationClass) {
@@ -62,9 +62,9 @@ public class AnnotationUtils {
      * Creates an annotation from an AnnotationNode using the specified classloader to find the annotation class
      *
      * @param annotationNode the node to construct the annotation from
-     * @param loader the classloader to find the annotation class
+     * @param loader         the classloader to find the annotation class
+     * @param <T>            the type of the annotation
      * @return the annotation
-     * @param <T> the type of the annotation
      * @throws ClassNotFoundException if the annotation class cannot be found
      */
     @SuppressWarnings("unchecked")

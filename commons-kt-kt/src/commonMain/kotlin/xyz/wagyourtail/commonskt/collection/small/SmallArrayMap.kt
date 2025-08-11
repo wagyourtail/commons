@@ -162,4 +162,5 @@ class SmallArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) :
 
 }
 
-fun <K, V> smallArrayMapOf(vararg pairs: Pair<K, V>, initialSize: Int = pairs.size, resizeAmount: Int = 1) = SmallArrayMap<K, V>(initialSize, resizeAmount).apply { putAll(pairs) }
+fun <K, V> smallArrayMapOf(vararg pairs: Pair<K, V>, initialSize: Int = pairs.size, resizeAmount: Int = 1) =
+    SmallArrayMap<K, V>(initialSize, resizeAmount).apply { putAll(pairs) }

@@ -23,10 +23,6 @@ public class Json5Value extends StringData.OnlyParsed<Data.SingleContent<?>> {
         return new Json5Value(contentBuilder(reader));
     }
 
-    public Object getValue() {
-        return getContent().getValue();
-    }
-
     public static SingleContent<?> contentBuilder(CharReader<?> reader) {
         return new SingleContent<>(reader.<Object>parse(
                 "json5 value",
@@ -40,6 +36,10 @@ public class Json5Value extends StringData.OnlyParsed<Data.SingleContent<?>> {
                     return null;
                 }
         ));
+    }
+
+    public Object getValue() {
+        return getContent().getValue();
     }
 
 }

@@ -32,23 +32,23 @@ public class Json5Comment extends StringData.OnlyRaw<Data.ListContent> {
     private static ListContent getContentChecked(CharReader<?> reader) {
         return new ListContent(
                 reader.parse(
-                    "comment",
-                    r -> {
-                        List<Object> content = new ArrayList<>();
-                        content.add(r.expect("//"));
-                        content.add(r.takeUntil("\n"));
-                        if (!r.exhausted()) {
-                            content.add(r.expect('\n'));
+                        "comment",
+                        r -> {
+                            List<Object> content = new ArrayList<>();
+                            content.add(r.expect("//"));
+                            content.add(r.takeUntil("\n"));
+                            if (!r.exhausted()) {
+                                content.add(r.expect('\n'));
+                            }
+                            return content;
+                        },
+                        r -> {
+                            List<Object> content = new ArrayList<>();
+                            content.add(r.expect("/*"));
+                            content.add(r.takeUntil("*/"));
+                            content.add(r.expect("*/"));
+                            return content;
                         }
-                        return content;
-                    },
-                    r -> {
-                        List<Object> content = new ArrayList<>();
-                        content.add(r.expect("/*"));
-                        content.add(r.takeUntil("*/"));
-                        content.add(r.expect("*/"));
-                        return content;
-                    }
                 )
         );
 

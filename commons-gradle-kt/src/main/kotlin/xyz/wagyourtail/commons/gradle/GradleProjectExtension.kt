@@ -4,7 +4,6 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.compile.JavaCompile
@@ -14,7 +13,6 @@ import org.gradle.process.ExecOperations
 import xyz.wagyourtail.commonskt.string.NameType
 import xyz.wagyourtail.commonskt.string.convertNameType
 import javax.inject.Inject
-import kotlin.jvm.java
 
 abstract class GradleProjectExtension @Inject constructor(@get:Internal val project: Project) {
 
@@ -29,7 +27,11 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     }
 
     @JvmOverloads
-    fun autoName(baseName: String = project.rootProject.name.convertNameType(NameType.PASCAL_CASE, NameType.KEBAB_CASE), includeSubprojects: Boolean = true, projectName: (Project) -> String = { it.name }) {
+    fun autoName(
+        baseName: String = project.rootProject.name.convertNameType(NameType.PASCAL_CASE, NameType.KEBAB_CASE),
+        includeSubprojects: Boolean = true,
+        projectName: (Project) -> String = { it.name }
+    ) {
         project.base.archivesName.set(project.provider {
             if (project == project.rootProject) {
                 baseName
@@ -132,7 +134,8 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
      */
     @JvmOverloads
     fun autoVersion(version: String = project.findProperty("version") as String, defaultSnapshot: Boolean = false) {
-        val isSnapshot = if (defaultSnapshot) !project.hasProperty("version_release") else project.hasProperty("version_snapshot")
+        val isSnapshot =
+            if (defaultSnapshot) !project.hasProperty("version_release") else project.hasProperty("version_snapshot")
         autoVersion {
             versionProperty(version)
             snapshotProperty(isSnapshot)

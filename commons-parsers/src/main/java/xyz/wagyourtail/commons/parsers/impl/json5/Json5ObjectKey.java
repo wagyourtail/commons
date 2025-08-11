@@ -28,6 +28,14 @@ public class Json5ObjectKey extends StringData.OnlyRaw<Data.SingleContent<?>> {
         return new Json5ObjectKey(rawContent);
     }
 
+    public static SingleContent<?> getContentChecked(CharReader<?> reader) {
+        return new SingleContent<>(reader.parse(
+                "json5 object key",
+                Json5StringConstant::new,
+                Json5Identifier::new
+        ));
+    }
+
     public String getValue() {
         String raw = getRawContent();
         if (raw.startsWith("\"") || raw.startsWith("'")) {
@@ -35,14 +43,6 @@ public class Json5ObjectKey extends StringData.OnlyRaw<Data.SingleContent<?>> {
         } else {
             return StringUtils.translateEscapes(raw);
         }
-    }
-
-    public static SingleContent<?> getContentChecked(CharReader<?> reader) {
-        return new SingleContent<>(reader.parse(
-            "json5 object key",
-            Json5StringConstant::new,
-            Json5Identifier::new
-        ));
     }
 
 }

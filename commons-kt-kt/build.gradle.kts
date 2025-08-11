@@ -6,9 +6,17 @@ plugins {
 
 kotlin {
     jvmToolchain(8)
+    targets.configureEach {
+        compilations.configureEach {
+            compileTaskProvider.get().compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+    }
+
     jvm {
         compilerOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
+            freeCompilerArgs = listOf("-Xjsr305=strict", "-Xexpect-actual-classes")
         }
     }
     js {
@@ -20,6 +28,7 @@ kotlin {
         }
         binaries.executable()
     }
+
     sourceSets {
         val commonMain by getting {
             dependencies {

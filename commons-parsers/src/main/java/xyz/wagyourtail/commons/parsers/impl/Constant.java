@@ -32,6 +32,19 @@ public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
         return new Constant(rawContent);
     }
 
+    private static SingleContent<?> getContentChecked(CharReader<?> reader) {
+        return new SingleContent<>(reader.parse(
+                "constant",
+                BooleanConstant::new,
+                StringConstant::new,
+                NumberConstant::new,
+                r -> {
+                    r.expect("null");
+                    return null;
+                }
+        ));
+    }
+
     public boolean isNull() {
         return getRawContent().equals("null");
     }
@@ -78,20 +91,6 @@ public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
         }
         throw new IllegalStateException();
     }
-
-    private static SingleContent<?> getContentChecked(CharReader<?> reader) {
-        return new SingleContent<>(reader.parse(
-                "constant",
-                BooleanConstant::new,
-                StringConstant::new,
-                NumberConstant::new,
-                r -> {
-                    r.expect("null");
-                    return null;
-                }
-        ));
-    }
-
 
 
 }

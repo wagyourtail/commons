@@ -3,7 +3,8 @@ package xyz.wagyourtail.commonskt.holders
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 
-class OnceTask<T>(val taskName: String, dependencies: () -> List<OnceTask<*>>, val task: () -> T) : SynchronizedObject() {
+class OnceTask<T>(val taskName: String, dependencies: () -> List<OnceTask<*>>, val task: () -> T) :
+    SynchronizedObject() {
 
     var ran = false
         private set

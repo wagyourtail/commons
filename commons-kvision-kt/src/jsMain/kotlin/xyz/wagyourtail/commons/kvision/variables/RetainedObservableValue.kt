@@ -2,7 +2,8 @@ package xyz.wagyourtail.commons.kvision.variables
 
 import io.github.anifin.components.improved.ClearableObservableValue
 
-class RetainedObservableValue<T> @PublishedApi internal constructor(initial: T, val writer: (T) -> Unit) : ClearableObservableValue<T>(initial) {
+class RetainedObservableValue<T> @PublishedApi internal constructor(initial: T, val writer: (T) -> Unit) :
+    ClearableObservableValue<T>(initial) {
 
     init {
         subscribe(writer)

@@ -3,7 +3,8 @@ package xyz.wagyourtail.commons.core.logger;
 public class NullLogger extends Logger {
     public static final NullLogger INSTANCE = new NullLogger();
 
-    private NullLogger() {}
+    private NullLogger() {
+    }
 
     @Override
     public Logger subLogger(String targetName) {

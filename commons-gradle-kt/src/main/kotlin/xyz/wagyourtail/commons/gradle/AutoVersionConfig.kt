@@ -5,7 +5,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.process.ExecOperations
 import javax.inject.Inject
-import kotlin.jvm.java
 
 abstract class AutoVersionConfig @Inject constructor(val project: Project) {
 

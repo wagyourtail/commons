@@ -16,13 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.Cleaner;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -81,39 +75,39 @@ public class DirectoryFileSystem extends VirtualFileSystem {
 
     private void filteredListener(VirtualFile vf) {
         vf.parentFs.addListener(
-            new FileSystemChangeListener() {
-                @Override
-                public void onAdded(VirtualFile file) {
-                    if (file.path.startsWith(vf.path)) {
-                        String path = file.path.substring(vf.path.length());
-                        VirtualFile file1 = new VirtualFile(DirectoryFileSystem.this, path);
-                        DirectoryFileSystem.this.files.put(path, file1);
-                        DirectoryFileSystem.this.listeners.onAdded(file1);
+                new FileSystemChangeListener() {
+                    @Override
+                    public void onAdded(VirtualFile file) {
+                        if (file.path.startsWith(vf.path)) {
+                            String path = file.path.substring(vf.path.length());
+                            VirtualFile file1 = new VirtualFile(DirectoryFileSystem.this, path);
+                            DirectoryFileSystem.this.files.put(path, file1);
+                            DirectoryFileSystem.this.listeners.onAdded(file1);
+                        }
                     }
-                }
 
-                @Override
-                public void onRemoved(VirtualFile file) {
-                    if (file.path.startsWith(vf.path)) {
-                        String path = file.path.substring(vf.path.length());
-                        VirtualFile file1 = DirectoryFileSystem.this.files.remove(path);
-                        if (file1 != null) {
-                            DirectoryFileSystem.this.listeners.onRemoved(file1);
+                    @Override
+                    public void onRemoved(VirtualFile file) {
+                        if (file.path.startsWith(vf.path)) {
+                            String path = file.path.substring(vf.path.length());
+                            VirtualFile file1 = DirectoryFileSystem.this.files.remove(path);
+                            if (file1 != null) {
+                                DirectoryFileSystem.this.listeners.onRemoved(file1);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onModified(VirtualFile file) {
+                        if (file.path.startsWith(vf.path)) {
+                            String path = file.path.substring(vf.path.length());
+                            VirtualFile file1 = DirectoryFileSystem.this.files.get(path);
+                            if (file1 != null) {
+                                DirectoryFileSystem.this.listeners.onModified(file1);
+                            }
                         }
                     }
                 }
-
-                @Override
-                public void onModified(VirtualFile file) {
-                    if (file.path.startsWith(vf.path)) {
-                        String path = file.path.substring(vf.path.length());
-                        VirtualFile file1 = DirectoryFileSystem.this.files.get(path);
-                        if (file1 != null) {
-                            DirectoryFileSystem.this.listeners.onModified(file1);
-                        }
-                    }
-                }
-            }
         );
     }
 

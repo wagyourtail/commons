@@ -12,10 +12,8 @@ import xyz.wagyourtail.commons.core.io.SeekableInMemoryByteChannel;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ResourceClassLoaderTest {
 

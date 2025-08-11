@@ -3,8 +3,7 @@ package xyz.wagyourtail.commonskt.collection.finalizable
 class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) :
     MutableMap<K, V>,
     Map<K, V> by backing,
-    Finalizable
-{
+    Finalizable {
     override var finalized = false
         private set
 
@@ -16,9 +15,10 @@ class FinalizableMap<K, V>(val backing: MutableMap<K, V> = mutableMapOf()) :
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() = object : FinalizableSet<MutableMap.MutableEntry<K, V>>(backing.entries) {
             override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> {
-                return object : FinalizableIterator<MutableMap.MutableEntry<K, V>, MutableIterator<MutableMap.MutableEntry<K, V>>>(
-                    backing.iterator()
-                ) {
+                return object :
+                    FinalizableIterator<MutableMap.MutableEntry<K, V>, MutableIterator<MutableMap.MutableEntry<K, V>>>(
+                        backing.iterator()
+                    ) {
 
                     override fun next(): MutableMap.MutableEntry<K, V> {
                         return FinalizableEntry(backing.next())

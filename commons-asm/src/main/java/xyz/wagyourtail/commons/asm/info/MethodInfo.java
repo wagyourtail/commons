@@ -17,33 +17,33 @@ public class MethodInfo {
 
     public static MethodInfo of(Method method) {
         return new MethodInfo(
-            method.getModifiers(),
-            method.getName(),
-            Type.getType(method)
+                method.getModifiers(),
+                method.getName(),
+                Type.getType(method)
         );
     }
 
     public static MethodInfo of(Constructor<?> constructor) {
         return new MethodInfo(
-            constructor.getModifiers(),
-            "<init>",
-            Type.getType(constructor)
+                constructor.getModifiers(),
+                "<init>",
+                Type.getType(constructor)
         );
     }
 
     public static MethodInfo of(MethodNode methodNode) {
         return new MethodInfo(
-            methodNode.access,
-            methodNode.name,
-            Type.getMethodType(methodNode.desc)
+                methodNode.access,
+                methodNode.name,
+                Type.getMethodType(methodNode.desc)
         );
     }
 
     public static MethodInfo createClinit() {
         return new MethodInfo(
-            Opcodes.ACC_STATIC,
-            "<clinit>",
-            Type.getMethodType("()V")
+                Opcodes.ACC_STATIC,
+                "<clinit>",
+                Type.getMethodType("()V")
         );
     }
 

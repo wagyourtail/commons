@@ -1,4 +1,3 @@
-
 pluginManagement {
     repositories {
         mavenLocal()
@@ -43,4 +42,3 @@ commons.autoSubprojects {
 //}
 
 rootProject.name = "commons"
-

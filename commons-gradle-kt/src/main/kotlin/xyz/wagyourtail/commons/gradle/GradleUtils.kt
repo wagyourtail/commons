@@ -19,7 +19,6 @@ import xyz.wagyourtail.commonskt.maven.MavenCoords
 import xyz.wagyourtail.commonskt.utils.capitalized
 import java.io.ByteArrayOutputStream
 import java.io.File
-import kotlin.jvm.java
 import kotlin.reflect.KClass
 
 val Project.sourceSets
@@ -61,11 +60,13 @@ fun Configuration.getFiles(dep: Dependency, filter: (File) -> Boolean): Set<File
                 }
             }
         }
+
         is FileCollectionDependency -> {
             for (file in dep.files) {
                 files.add(file)
             }
         }
+
         else -> {
             throw IllegalArgumentException("Unsupported dependency type: ${dep::class.java}")
         }
@@ -77,7 +78,10 @@ fun Configuration.getFiles(dep: Dependency, extension: String = "jar"): Set<File
     return getFiles(dep) { it.extension == extension }
 }
 
-@Deprecated(message = "use sourceSet.getTaskName() instead", replaceWith = ReplaceWith("sourceSet.getTaskName(null, this)"))
+@Deprecated(
+    message = "use sourceSet.getTaskName() instead",
+    replaceWith = ReplaceWith("sourceSet.getTaskName(null, this)")
+)
 fun String.withSourceSet(sourceSet: SourceSet) =
     if (sourceSet.name == "main") this else "${sourceSet.name}${this.capitalized()}"
 
@@ -126,7 +130,10 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
     return location
 }
 
-fun <T> NamedDomainObjectContainer<T>.maybeRegister(name: String, action: T.() -> Unit = {}): NamedDomainObjectProvider<T> {
+fun <T> NamedDomainObjectContainer<T>.maybeRegister(
+    name: String,
+    action: T.() -> Unit = {}
+): NamedDomainObjectProvider<T> {
     return try {
         named(name) as NamedDomainObjectProvider<T>
     } catch (_: UnknownTaskException) {
@@ -136,7 +143,11 @@ fun <T> NamedDomainObjectContainer<T>.maybeRegister(name: String, action: T.() -
     }
 }
 
-fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, classType: KClass<S>, action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
+    name: String,
+    classType: KClass<S>,
+    action: S.() -> Unit = {}
+): NamedDomainObjectProvider<S> {
     return try {
         named(name, classType.java) as NamedDomainObjectProvider<S>
     } catch (_: UnknownTaskException) {
@@ -146,7 +157,11 @@ fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: Strin
     } as NamedDomainObjectProvider<S>
 }
 
-fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, classType: Class<S>, action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
+    name: String,
+    classType: Class<S>,
+    action: S.() -> Unit = {}
+): NamedDomainObjectProvider<S> {
     return try {
         named(name, classType) as NamedDomainObjectProvider<S>
     } catch (_: UnknownTaskException) {
@@ -156,7 +171,10 @@ fun <S: T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(name: Strin
     } as NamedDomainObjectProvider<S>
 }
 
-inline fun <reified S: T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(name: String, noinline action: S.() -> Unit = {}): NamedDomainObjectProvider<S> {
+inline fun <reified S : T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(
+    name: String,
+    noinline action: S.() -> Unit = {}
+): NamedDomainObjectProvider<S> {
     return try {
         named(name, S::class.java) as NamedDomainObjectProvider<S>
     } catch (_: UnknownTaskException) {

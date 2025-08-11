@@ -82,6 +82,7 @@ class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(
                         }
                         return ListContent(content)
                     }
+
                     null -> {}
                     else -> if (next >= '0' && next < '8') {
                         content.add(OctalPart(reader))

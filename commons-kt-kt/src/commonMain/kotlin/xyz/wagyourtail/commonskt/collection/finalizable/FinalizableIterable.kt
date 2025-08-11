@@ -3,8 +3,7 @@ package xyz.wagyourtail.commonskt.collection.finalizable
 open class FinalizableIterable<E, T : MutableIterable<E>>(val backing: T) :
     MutableIterable<E>,
     Iterable<E> by backing,
-    Finalizable
-{
+    Finalizable {
 
     override var finalized = false
         protected set

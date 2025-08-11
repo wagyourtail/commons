@@ -1,11 +1,7 @@
 package xyz.wagyourtail.commonskt.test.collection.small
 
 import xyz.wagyourtail.commonskt.collection.small.SmallArrayList
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SmallArrayListTest {
 
@@ -109,7 +105,11 @@ class SmallArrayListTest {
     }
 }
 
-fun <E> smallArrayListOf(vararg elements: E, initialSize: Int = elements.size, resizeAmount: Int = 1): SmallArrayList<E> {
+fun <E> smallArrayListOf(
+    vararg elements: E,
+    initialSize: Int = elements.size,
+    resizeAmount: Int = 1
+): SmallArrayList<E> {
     val list = SmallArrayList<E>()
     for (element in elements) {
         list.add(element)

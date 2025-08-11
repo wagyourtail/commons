@@ -29,11 +29,11 @@ public class SimpleLogger extends Logger {
 
     public static Logger forClass(Class<?> clazz) {
         return builder()
-            .prefix(DefaultLoggingPrefix.builder()
-                .loggerName(clazz.getSimpleName())
-                .build()
-            )
-            .build();
+                .prefix(DefaultLoggingPrefix.builder()
+                        .loggerName(clazz.getSimpleName())
+                        .build()
+                )
+                .build();
     }
 
     @Override

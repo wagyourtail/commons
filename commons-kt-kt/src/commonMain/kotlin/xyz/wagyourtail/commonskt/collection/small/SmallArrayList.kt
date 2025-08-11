@@ -60,7 +60,11 @@ class SmallArrayList<E>(initialSize: Int = 0, val resizeAmount: Int = 1) : Abstr
 
 }
 
-fun <E> smallArrayListOf(vararg elements: E, resizeAmount: Int = 1, initialSize: Int = elements.size): SmallArrayList<E> {
+fun <E> smallArrayListOf(
+    vararg elements: E,
+    resizeAmount: Int = 1,
+    initialSize: Int = elements.size
+): SmallArrayList<E> {
     val list = SmallArrayList<E>(initialSize, resizeAmount)
     list.addAll(elements)
     return list

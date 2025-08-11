@@ -17,7 +17,7 @@ class Json5File(content: FileContent) : StringData.OnlyParsed<Json5File.FileCont
 
         override fun checkedBuildContent(reader: CharReader<*>): FileContent {
             val preContent = buildList {
-                while(!reader.exhausted()) {
+                while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
                         Json5Whitespace::invoke,
                         Json5Comment::invoke
@@ -28,7 +28,7 @@ class Json5File(content: FileContent) : StringData.OnlyParsed<Json5File.FileCont
             }
             val value = Json5Value(reader)
             val postContent = buildList {
-                while(!reader.exhausted()) {
+                while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
                         Json5Whitespace::invoke,
                         Json5Comment::invoke

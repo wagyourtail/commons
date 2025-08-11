@@ -15,8 +15,9 @@ class Json5Comment(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(ra
         }
 
         override fun checkedBuildContent(reader: CharReader<*>): ListContent {
-            return ListContent(reader.parse(
-                    "comment",
+            return ListContent(
+                reader.parse(
+                "comment",
                 {
                     buildList {
                         add(expect("//"))

@@ -132,8 +132,8 @@ interface SemVerMatcher {
     }
 }
 
-data class PrefixedRange(val prefix: String, val major: String?, val minor: String?, val patch: String?):
-        SemVerMatcher {
+data class PrefixedRange(val prefix: String, val major: String?, val minor: String?, val patch: String?) :
+    SemVerMatcher {
 
     override fun matches(version: SemVer): Boolean {
         if (prefix == "*" && major == null && minor == null && patch == null) {
@@ -261,7 +261,7 @@ object HyphenRange {
     }
 }
 
-data class AndRange(val first: SemVerMatcher, val second: SemVerMatcher): SemVerMatcher {
+data class AndRange(val first: SemVerMatcher, val second: SemVerMatcher) : SemVerMatcher {
     override fun matches(version: SemVer): Boolean {
         return first.matches(version) && second.matches(version)
     }
@@ -282,7 +282,7 @@ data class AndRange(val first: SemVerMatcher, val second: SemVerMatcher): SemVer
     }
 }
 
-data class OrRange(val first: SemVerMatcher, val second: SemVerMatcher): SemVerMatcher {
+data class OrRange(val first: SemVerMatcher, val second: SemVerMatcher) : SemVerMatcher {
     override fun matches(version: SemVer): Boolean {
         return first.matches(version) || second.matches(version)
     }

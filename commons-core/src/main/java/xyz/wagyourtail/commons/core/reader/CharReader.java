@@ -29,6 +29,12 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         }
     };
     public static final CharAccepter NOT_NEWLINE_WHITESPACE = and(WHITESPACE, not(NEWLINE));
+    public static final int TAKE_STRING_LEINIENT = 0b1;
+    public static final int TAKE_STRING_ESCAPE_DOUBLE_QUOTE = 0b10;
+    public static final int TAKE_STRING_ESCAPE_NEWLINE = 0b100;
+    public static final int TAKE_STRING_MULTILINE = 0b1000;
+    public static final int TAKE_STRING_NO_START_QUOTE = 0b10000;
+    public static final int TAKE_STRING_NO_TRANSLATE_ESCAPES = 0b100000;
 
     public CharReader() {
     }
@@ -360,13 +366,6 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return args;
     }
 
-    public static final int TAKE_STRING_LEINIENT             = 0b1;
-    public static final int TAKE_STRING_ESCAPE_DOUBLE_QUOTE  = 0b10;
-    public static final int TAKE_STRING_ESCAPE_NEWLINE       = 0b100;
-    public static final int TAKE_STRING_MULTILINE            = 0b1000;
-    public static final int TAKE_STRING_NO_START_QUOTE       = 0b10000;
-    public static final int TAKE_STRING_NO_TRANSLATE_ESCAPES = 0b100000;
-
     public String takeString() {
         return takeString(TAKE_STRING_LEINIENT, "\"");
     }
@@ -378,7 +377,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
     @Deprecated
     public String takeString(boolean leinient, boolean escapeDoubleQuote) {
-        return takeString( (leinient ? TAKE_STRING_LEINIENT : 0) | (escapeDoubleQuote ? TAKE_STRING_ESCAPE_DOUBLE_QUOTE : 0), "\"");
+        return takeString((leinient ? TAKE_STRING_LEINIENT : 0) | (escapeDoubleQuote ? TAKE_STRING_ESCAPE_DOUBLE_QUOTE : 0), "\"");
     }
 
     @Deprecated
@@ -623,7 +622,8 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         for (StringCharReader.ElementReader<R> reader : readers) {
             try {
                 return parse(reader);
-            } catch (ParseException ignored) {}
+            } catch (ParseException ignored) {
+            }
         }
         return null;
     }

@@ -20,15 +20,15 @@ public class SimpleLoggerTest {
     public void test() {
         TestPrintStream printStream = new TestPrintStream();
         val builder = DefaultLoggingPrefix.builder()
-            .includeTime(false)
-            .includeThreadName(false);
+                .includeTime(false)
+                .includeThreadName(false);
 
         Logger logger = SimpleLogger.builder()
-            .prefix(builder.build())
-            .level(Logger.Level.DEBUG)
-            .useAnsiColors(false)
-            .out(printStream)
-            .build();
+                .prefix(builder.build())
+                .level(Logger.Level.DEBUG)
+                .useAnsiColors(false)
+                .out(printStream)
+                .build();
 
         logger.log(Logger.Level.DEBUG, "test");
         assertEquals("[SimpleLoggerTest] [DEBUG] test", printStream.getLine());
@@ -45,10 +45,10 @@ public class SimpleLoggerTest {
         assertEquals("[SimpleLoggerTest/sublogger] [INFO] test4", printStream.getLine());
 
         Logger logger3 = SimpleLogger.builder()
-            .prefix(builder.build())
-            .level(Logger.Level.DEBUG)
-            .out(printStream)
-            .build();
+                .prefix(builder.build())
+                .level(Logger.Level.DEBUG)
+                .out(printStream)
+                .build();
 
         logger3.log(Logger.Level.DEBUG, "test5");
         assertEquals(AnsiColor.LIGHT_GRAY.wrap("[SimpleLoggerTest] [DEBUG] test5"), printStream.getLine());

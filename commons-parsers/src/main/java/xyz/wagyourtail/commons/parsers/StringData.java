@@ -70,6 +70,12 @@ public abstract class StringData<E extends Data.Content> extends Data<String, E>
     public static class BuildStringVisitor implements DataVisitor {
         private final StringBuilder sb = new StringBuilder();
 
+        public static String apply(Data<?, ?> data) {
+            BuildStringVisitor visitor = new BuildStringVisitor();
+            data.accept(visitor);
+            return visitor.build();
+        }
+
         @Override
         public boolean visit(Object o) {
             if (!(o instanceof Data<?, ?>)) {
@@ -80,12 +86,6 @@ public abstract class StringData<E extends Data.Content> extends Data<String, E>
 
         public String build() {
             return sb.toString();
-        }
-
-        public static String apply(Data<?, ?> data) {
-            BuildStringVisitor visitor = new BuildStringVisitor();
-            data.accept(visitor);
-            return visitor.build();
         }
     }
 

@@ -16,7 +16,8 @@ fun String.convertNameType(from: NameType, to: NameType): String {
         // check if starts with initialism
         return if (
             (this.length >= 3 && this[0].isUpperCase() && this[1].isUpperCase() && this[2].isUpperCase()) ||
-            (this.length == 2 && this[0].isUpperCase() && this[1].isUpperCase())) {
+            (this.length == 2 && this[0].isUpperCase() && this[1].isUpperCase())
+        ) {
             this
         } else {
             this.uncapitalized()

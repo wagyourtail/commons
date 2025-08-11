@@ -4,6 +4,7 @@ import xyz.wagyourtail.commonskt.parsers.Data
 import xyz.wagyourtail.commonskt.parsers.StringData
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.isAlphabetic
+import xyz.wagyourtail.commonskt.utils.times
 import xyz.wagyourtail.commonskt.utils.toUnicode
 
 class Json5Identifier(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<String>>(rawContent) {
@@ -72,7 +73,7 @@ class Json5Identifier(rawContent: String) : StringData.OnlyRaw<Data.SingleConten
             reader.expect('u')
 
             val hex = buildString(4) {
-                for (i in 0..3) {
+                3.times {
                     append(reader.expect("hex") { it.isDigit() || it in 'a'..'f' || it in 'A'..'F' })
                 }
             }

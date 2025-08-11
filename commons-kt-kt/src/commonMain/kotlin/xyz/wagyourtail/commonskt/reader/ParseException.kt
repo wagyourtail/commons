@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commonskt.reader
 
-class ParseException(message: String, val line: Int = 0, val column: Int = 0, cause: Throwable? = null) : RuntimeException(message + getPosition(line, column), cause), Comparable<ParseException> {
+class ParseException(message: String, val line: Int = 0, val column: Int = 0, cause: Throwable? = null) :
+    RuntimeException(message + getPosition(line, column), cause), Comparable<ParseException> {
 
     companion object {
 

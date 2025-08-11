@@ -4,7 +4,6 @@ import xyz.wagyourtail.commonskt.reader.StringCharReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.expect
 
 
 class TestCharReader {
@@ -140,7 +139,10 @@ class TestCharReader {
         assertEquals("test\nmultiline\"\"\"string", reader5.takeString(multiline = true, quote = "\"\"\""))
 
         val reader6 = StringCharReader("\"\"\"test\nmultiline\\\"\"\"string\"\"\"")
-        assertEquals("\"\"\"test\nmultiline\\\"\"\"string\"\"\"", reader6.takeString(multiline = true, noTranslateEscapes =  true, quote = "\"\"\""))
+        assertEquals(
+            "\"\"\"test\nmultiline\\\"\"\"string\"\"\"",
+            reader6.takeString(multiline = true, noTranslateEscapes = true, quote = "\"\"\"")
+        )
     }
 
     @Test
@@ -207,7 +209,8 @@ class TestCharReader {
         assertNull(reader.take())
 
         reader.reset()
-        assertEquals("test", reader.parse(
+        assertEquals(
+            "test", reader.parse(
             { expect("false") },
             { expect("test") }
         ))

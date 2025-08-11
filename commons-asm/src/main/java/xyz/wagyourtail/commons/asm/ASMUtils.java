@@ -1,12 +1,7 @@
 package xyz.wagyourtail.commons.asm;
 
 import lombok.val;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 import xyz.wagyourtail.commons.asm.info.ClassInfo;
 import xyz.wagyourtail.commons.asm.writer.ASMClassWriter;
@@ -29,10 +24,10 @@ public class ASMUtils {
      */
     public static boolean isClass(byte[] bytes) {
         return bytes.length > 4 &&
-            bytes[0] == (byte) 0xCA &&
-            bytes[1] == (byte) 0xFE &&
-            bytes[2] == (byte) 0xBA &&
-            bytes[3] == (byte) 0xBE;
+                bytes[0] == (byte) 0xCA &&
+                bytes[1] == (byte) 0xFE &&
+                bytes[2] == (byte) 0xBA &&
+                bytes[3] == (byte) 0xBE;
     }
 
     /**
@@ -46,10 +41,10 @@ public class ASMUtils {
     public static boolean isClass(InputStream stream) throws IOException {
         byte[] bytes = new byte[4];
         return stream.read(bytes) == 4 &&
-            bytes[0] == (byte) 0xCA &&
-            bytes[1] == (byte) 0xFE &&
-            bytes[2] == (byte) 0xBA &&
-            bytes[3] == (byte) 0xBE;
+                bytes[0] == (byte) 0xCA &&
+                bytes[1] == (byte) 0xFE &&
+                bytes[2] == (byte) 0xBA &&
+                bytes[3] == (byte) 0xBE;
     }
 
     public static int classVersion(InputStream stream) throws IOException {
@@ -64,10 +59,10 @@ public class ASMUtils {
         channel.position(0);
         val bytes = SeekableByteChannelUtils.readBytes(channel, 4);
         return bytes.length == 4 &&
-            bytes[0] == (byte) 0xCA &&
-            bytes[1] == (byte) 0xFE &&
-            bytes[2] == (byte) 0xBA &&
-            bytes[3] == (byte) 0xBE;
+                bytes[0] == (byte) 0xCA &&
+                bytes[1] == (byte) 0xFE &&
+                bytes[2] == (byte) 0xBA &&
+                bytes[3] == (byte) 0xBE;
 
     }
 

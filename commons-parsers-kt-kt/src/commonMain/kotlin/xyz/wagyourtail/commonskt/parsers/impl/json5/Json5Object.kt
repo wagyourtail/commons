@@ -19,8 +19,8 @@ class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.Ob
             while (!reader.exhausted()) {
                 while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
-                            Json5Whitespace::invoke,
-                            Json5Comment::invoke
+                        Json5Whitespace::invoke,
+                        Json5Comment::invoke
                     )
                     if (value == null) break
                     entries.add(value)
@@ -35,8 +35,8 @@ class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.Ob
 
                 while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
-                            Json5Whitespace::invoke,
-                            Json5Comment::invoke
+                        Json5Whitespace::invoke,
+                        Json5Comment::invoke
                     )
                     if (value == null) break
                     entries.add(value)
@@ -58,7 +58,7 @@ class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.Ob
         val entryMap: MutableMap<String, Json5ObjectEntry>
     ) : Content() {
 
-        constructor(data: MutableList<Any>): this(data, mutableMapOf()) {
+        constructor(data: MutableList<Any>) : this(data, mutableMapOf()) {
             for (entry in data) {
                 if (entry is Json5ObjectEntry) {
                     entryMap[entry.key] = entry

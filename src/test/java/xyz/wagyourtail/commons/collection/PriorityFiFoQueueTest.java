@@ -92,9 +92,9 @@ class PriorityFiFoQueueTest {
             @Override
             public String toString() {
                 return "Task{" +
-                    "priority=" + priority +
-                    ", name='" + name + '\'' +
-                    '}';
+                        "priority=" + priority +
+                        ", name='" + name + '\'' +
+                        '}';
             }
 
         }

@@ -8,7 +8,7 @@ import org.gradle.api.tasks.Internal
 import java.io.File
 import javax.inject.Inject
 
-abstract class GradleSettingsExtension @Inject constructor(@get:Internal val settings: Settings)  {
+abstract class GradleSettingsExtension @Inject constructor(@get:Internal val settings: Settings) {
 
     val buildSrc: File = settings.rootDir.resolve("buildSrc")
 

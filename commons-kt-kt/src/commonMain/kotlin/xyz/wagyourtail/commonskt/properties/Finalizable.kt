@@ -2,7 +2,6 @@ package xyz.wagyourtail.commonskt.properties
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
-import kotlin.jvm.JvmOverloads
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -27,7 +26,11 @@ class Finalizable<T>(
 
     var value: Any? = value
 
-    constructor(prop: ReadWriteProperty<Any?, T>, finalized: () -> Boolean, sync: SynchronizedObject) : this(prop as T, finalized, sync)
+    constructor(prop: ReadWriteProperty<Any?, T>, finalized: () -> Boolean, sync: SynchronizedObject) : this(
+        prop as T,
+        finalized,
+        sync
+    )
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         if (value is ReadWriteProperty<*, *>) {

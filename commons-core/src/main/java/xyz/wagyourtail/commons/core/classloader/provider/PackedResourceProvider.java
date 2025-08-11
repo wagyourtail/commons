@@ -1,13 +1,10 @@
 package xyz.wagyourtail.commons.core.classloader.provider;
 
-import lombok.SneakyThrows;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.commons.core.SeekableByteChannelUtils;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
-import xyz.wagyourtail.commons.core.lazy.Lazy;
 
 import java.io.*;
 import java.net.URI;
@@ -23,8 +20,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 public class PackedResourceProvider extends ResourceProvider {
     private final SeekableByteChannel channel;

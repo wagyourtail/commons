@@ -2,7 +2,7 @@ package xyz.wagyourtail.commonskt.parsers
 
 import xyz.wagyourtail.commonskt.properties.InternallyNullable
 
-abstract class Data<T, E: Data.Content> protected constructor(
+abstract class Data<T, E : Data.Content> protected constructor(
     rawContent: T?,
     content: E?
 ) {
@@ -45,7 +45,7 @@ abstract class Data<T, E: Data.Content> protected constructor(
         }
     }
 
-    abstract class OnlyRaw<T, E: Content>(rawContent: T) : Data<T, E>(rawContent) {
+    abstract class OnlyRaw<T, E : Content>(rawContent: T) : Data<T, E>(rawContent) {
 
         override val content: E
             get() = buildContent()
@@ -56,7 +56,7 @@ abstract class Data<T, E: Data.Content> protected constructor(
 
     }
 
-    abstract class OnlyParsed<T, E: Content>(content: E) : Data<T, E>(content) {
+    abstract class OnlyParsed<T, E : Content>(content: E) : Data<T, E>(content) {
 
         override val rawContent: T
             get() = buildRawContent()
@@ -77,18 +77,18 @@ abstract class Data<T, E: Data.Content> protected constructor(
 
     }
 
-    open class SingleContent<T>(val value: T): Content() {
+    open class SingleContent<T>(val value: T) : Content() {
 
         override val entries: Iterable<*>
             get() = listOf(value)
 
     }
 
-    open class ListContent(override val entries: List<*>): Content()
+    open class ListContent(override val entries: List<*>) : Content()
 
     interface DataVisitor {
         fun visit(o: Any?): Boolean
     }
 
-    interface DataBuilder<T, E: Content>
+    interface DataBuilder<T, E : Content>
 }

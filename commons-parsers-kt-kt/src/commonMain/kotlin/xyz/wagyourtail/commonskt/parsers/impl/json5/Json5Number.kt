@@ -60,11 +60,13 @@ class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(raw
                             content.add(ExponentPart(reader))
                         }
                     }
+
                     'x', 'X' -> {
                         content.add(reader.take()!!)
                         content.add(HexPart(reader))
                         return ListContent(content)
                     }
+
                     'b', 'B' -> {
                         content.add(reader.take()!!)
                         content.add(BinaryPart(reader))

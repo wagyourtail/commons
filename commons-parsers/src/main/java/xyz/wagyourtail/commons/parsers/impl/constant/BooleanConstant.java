@@ -29,10 +29,6 @@ public class BooleanConstant extends StringData.OnlyRaw<Data.SingleContent<Boole
         return new BooleanConstant(rawContent);
     }
 
-    public boolean getValue() {
-        return Boolean.parseBoolean(getRawContent().toLowerCase(Locale.ROOT));
-    }
-
     private static SingleContent<Boolean> getContentChecked(CharReader<?> reader) {
         val value = reader.parse(
                 "boolean",
@@ -46,6 +42,10 @@ public class BooleanConstant extends StringData.OnlyRaw<Data.SingleContent<Boole
                 }
         );
         return new SingleContent<>(value);
+    }
+
+    public boolean getValue() {
+        return Boolean.parseBoolean(getRawContent().toLowerCase(Locale.ROOT));
     }
 
 }

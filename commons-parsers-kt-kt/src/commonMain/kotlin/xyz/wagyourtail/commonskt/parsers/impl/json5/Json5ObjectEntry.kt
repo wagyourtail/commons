@@ -15,7 +15,7 @@ class Json5ObjectEntry(content: ObjectEntry) : StringData.OnlyParsed<Json5Object
         override fun checkedBuildContent(reader: CharReader<*>): ObjectEntry {
             val key = Json5ObjectKey(reader)
             val postKey = buildList {
-                while(!reader.exhausted()) {
+                while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
                         Json5Whitespace::invoke,
                         Json5Comment::invoke
@@ -26,7 +26,7 @@ class Json5ObjectEntry(content: ObjectEntry) : StringData.OnlyParsed<Json5Object
             }
             reader.expect(':')
             val preValue = buildList {
-                while(!reader.exhausted()) {
+                while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
                         Json5Whitespace::invoke,
                         Json5Comment::invoke

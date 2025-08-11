@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class JavaLogWrapper extends Logger {
-    private static final java.util.logging.Level LIFECYCLE = new java.util.logging.Level("LIFECYCLE", 850) {};
+    private static final java.util.logging.Level LIFECYCLE = new java.util.logging.Level("LIFECYCLE", 850) {
+    };
     private final java.util.logging.Logger logger;
 
     @Override

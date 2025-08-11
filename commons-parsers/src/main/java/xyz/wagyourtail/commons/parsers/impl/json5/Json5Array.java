@@ -90,9 +90,9 @@ public class Json5Array extends StringData.OnlyParsed<Json5Array.ArrayContent> {
         @Override
         public Iterable<Object> getEntries() {
             return CollectionUtils.concat(
-                Collections.singleton('['),
-                entries,
-                Collections.singleton(']')
+                    Collections.singleton('['),
+                    entries,
+                    Collections.singleton(']')
             );
         }
     }

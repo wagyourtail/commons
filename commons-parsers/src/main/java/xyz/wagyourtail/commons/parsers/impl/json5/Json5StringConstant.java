@@ -7,8 +7,6 @@ import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.Arrays;
-
 public class Json5StringConstant extends StringData.OnlyRaw<Data.SingleContent<String>> {
 
 
@@ -31,19 +29,19 @@ public class Json5StringConstant extends StringData.OnlyRaw<Data.SingleContent<S
         return new Json5StringConstant(rawContent);
     }
 
-    public String getValue() {
-        val content = getRawContent();
-        return StringUtils.translateEscapes(content.substring(1, content.length() - 1).replace("\\\n", ""));
-    }
-
     private static SingleContent<String> getContentChecked(CharReader<?> reader) {
         int quote = reader.peek();
         if (quote == '"' || quote == '\'') {
             return new SingleContent<>(
-                reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES | CharReader.TAKE_STRING_LEINIENT | CharReader.TAKE_STRING_ESCAPE_NEWLINE, String.valueOf((char) quote))
+                    reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES | CharReader.TAKE_STRING_LEINIENT | CharReader.TAKE_STRING_ESCAPE_NEWLINE, String.valueOf((char) quote))
             );
         }
         throw reader.createException("Expected string start char but got: " + (char) quote);
+    }
+
+    public String getValue() {
+        val content = getRawContent();
+        return StringUtils.translateEscapes(content.substring(1, content.length() - 1).replace("\\\n", ""));
     }
 
 }

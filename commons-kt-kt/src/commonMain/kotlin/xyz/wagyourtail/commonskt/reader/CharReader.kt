@@ -213,11 +213,13 @@ abstract class CharReader<T : CharReader<T>> {
                         }
                         if (count % 2 != 0) {
                             // escaped
-                            sb.append(if (noTranslateEscapes) {
-                                "$next\n"
-                            } else {
-                                next.substring(0, next.length - 1)
-                            })
+                            sb.append(
+                                if (noTranslateEscapes) {
+                                    "$next\n"
+                                } else {
+                                    next.substring(0, next.length - 1)
+                                }
+                            )
                         } else if (multiline) {
                             sb.append(next).append('\n')
                         } else {
@@ -241,11 +243,13 @@ abstract class CharReader<T : CharReader<T>> {
             }
             if (count % 2 != 0) {
                 // escaped
-                sb.append(if (!noTranslateEscapes) {
-                    last.substring(0, last.length - 1)
-                } else {
-                    last
-                })
+                sb.append(
+                    if (!noTranslateEscapes) {
+                        last.substring(0, last.length - 1)
+                    } else {
+                        last
+                    }
+                )
                 sb.append(expect(quote))
             } else {
                 sb.append(last)
@@ -392,11 +396,12 @@ abstract class CharReader<T : CharReader<T>> {
 
     open fun createException(msg: String, cause: Throwable? = null) = ParseException(msg, cause = cause)
 
-    open fun createCompositeException(msg: String, vararg exceptions: ParseException) = createException(msg, null).also {
-        for (e in exceptions) {
-            it.addSuppressed(e)
+    open fun createCompositeException(msg: String, vararg exceptions: ParseException) =
+        createException(msg, null).also {
+            for (e in exceptions) {
+                it.addSuppressed(e)
+            }
         }
-    }
 
     class WrappingReader(private val reader: CharReader<*>, private val limit: Int) : CharReader<WrappingReader>() {
         private val sb = StringBuilder()

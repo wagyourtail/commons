@@ -28,10 +28,6 @@ public class Json5Identifier extends StringData.OnlyRaw<Data.SingleContent<Strin
         return new Json5Identifier(reader);
     }
 
-    public String getValue() {
-        return StringUtils.translateEscapes(getRawContent());
-    }
-
     public static Data.SingleContent<String> getContentChecked(CharReader<?> r) {
         StringBuilder sb = new StringBuilder();
         char first = (char) r.take();
@@ -97,6 +93,10 @@ public class Json5Identifier extends StringData.OnlyRaw<Data.SingleContent<Strin
         }
 
         return new String(Character.toChars(Integer.parseInt(hex.toString(), 16)));
+    }
+
+    public String getValue() {
+        return StringUtils.translateEscapes(getRawContent());
     }
 
 }

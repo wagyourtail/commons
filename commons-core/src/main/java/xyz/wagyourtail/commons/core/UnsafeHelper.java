@@ -10,10 +10,11 @@ import java.lang.reflect.Field;
 
 public class UnsafeHelper {
 
+    private static Unsafe cachedUnsafe;
+    private static MethodHandles.Lookup cachedImplLookup;
+
     private UnsafeHelper() {
     }
-
-    private static Unsafe cachedUnsafe;
 
     public static Unsafe getUnsafe() {
         if (cachedUnsafe != null) {
@@ -27,8 +28,6 @@ public class UnsafeHelper {
             throw new UnsupportedOperationException("Unable to get Unsafe instance", e);
         }
     }
-
-    private static MethodHandles.Lookup cachedImplLookup;
 
     public static MethodHandles.Lookup getImplLookup() {
         if (cachedImplLookup != null) {
@@ -63,7 +62,8 @@ public class UnsafeHelper {
             MethodHandles.Lookup IMPL_LOOKUP;
             IMPL_LOOKUP = (MethodHandles.Lookup) unsafe.getObject(MethodHandles.Lookup.class, unsafe.staticFieldOffset(implLookupField));
             return IMPL_LOOKUP;
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return null;
     }
 
@@ -72,7 +72,8 @@ public class UnsafeHelper {
             Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
             constructor.setAccessible(true);
             return constructor.newInstance(Object.class, -1);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return null;
     }
 
@@ -86,7 +87,8 @@ public class UnsafeHelper {
             // use private lookup to access IMPL_LOOKUP field
             MethodHandle getter = lookup.findStaticGetter(MethodHandles.Lookup.class, "IMPL_LOOKUP", MethodHandles.Lookup.class);
             return (MethodHandles.Lookup) getter.invokeExact();
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return null;
     }
 
@@ -96,7 +98,8 @@ public class UnsafeHelper {
             // create constructor for lookup
             Constructor<MethodHandles.Lookup> constructor = (Constructor) factory.newConstructorForSerialization(MethodHandles.Lookup.class, MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class));
             return constructor.newInstance(Object.class, -1);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return null;
     }
 

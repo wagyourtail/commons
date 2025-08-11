@@ -16,11 +16,13 @@ class Json5ObjectKey(rawContent: String) : StringData.OnlyRaw<Data.SingleContent
         }
 
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-            return SingleContent(reader.parse(
-                "json5 object key",
-                Json5StringConstant::invoke,
-                Json5Identifier::invoke
-            ))
+            return SingleContent(
+                reader.parse(
+                    "json5 object key",
+                    Json5StringConstant::invoke,
+                    Json5Identifier::invoke
+                )
+            )
         }
 
     }

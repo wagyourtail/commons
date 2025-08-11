@@ -19,7 +19,7 @@ public class VirtualFileSystemResourceProvider extends ResourceProvider {
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         return Collections.enumeration(Collections.singleton(Utils.bufferURL(name, () ->
-            new SeekableByteChannelInputStream(vfs.getFile(name).getData())
+                new SeekableByteChannelInputStream(vfs.getFile(name).getData())
         )));
     }
 

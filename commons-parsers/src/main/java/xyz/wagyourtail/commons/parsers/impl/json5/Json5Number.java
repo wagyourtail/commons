@@ -7,7 +7,10 @@ import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
 import xyz.wagyourtail.commons.parsers.StringData;
-import xyz.wagyourtail.commons.parsers.impl.constant.number.*;
+import xyz.wagyourtail.commons.parsers.impl.constant.number.BinaryPart;
+import xyz.wagyourtail.commons.parsers.impl.constant.number.DecimalPart;
+import xyz.wagyourtail.commons.parsers.impl.constant.number.ExponentPart;
+import xyz.wagyourtail.commons.parsers.impl.constant.number.HexPart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,79 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
 
     public static Json5Number unchecked(String rawContent) {
         return new Json5Number(rawContent);
+    }
+
+    private static ListContent getContentChecked(CharReader<?> reader) {
+        List<Object> content = new ArrayList<>();
+
+        val first = reader.peek();
+        if (first == '-' || first == '+') {
+            content.add((char) reader.take());
+        }
+
+        var next = reader.peek();
+        if (next > '0' && next <= '9') {
+            content.add(new DecimalPart(reader));
+            next = reader.peek();
+            if (next == '.') {
+                content.add((char) reader.take());
+                next = reader.peek();
+                if (next >= '0' && next <= '9') {
+                    content.add(new DecimalPart(reader));
+                }
+                next = reader.peek();
+            }
+            if (next == 'e' || next == 'E') {
+                content.add((char) reader.take());
+                content.add(new ExponentPart(reader));
+            }
+        } else if (next == '0') {
+            content.add((char) reader.take());
+            next = reader.peek();
+            switch (next) {
+                case '.':
+                    content.add((char) reader.take());
+                    next = reader.peek();
+                    if (next >= '0' && next <= '9') {
+                        content.add(new DecimalPart(reader));
+                    }
+                    next = reader.peek();
+                    if (next == 'e' || next == 'E') {
+                        content.add((char) reader.take());
+                        content.add(new ExponentPart(reader));
+                    }
+                    break;
+                case 'x':
+                case 'X':
+                    content.add((char) reader.take());
+                    content.add(new HexPart(reader));
+                    return new ListContent(content);
+                case 'b':
+                case 'B':
+                    content.add((char) reader.take());
+                    content.add(new BinaryPart(reader));
+                    return new ListContent(content);
+                case -1:
+                default:
+                    break;
+            }
+        } else if (next == '.') {
+            content.add((char) reader.take());
+            content.add(new DecimalPart(reader));
+            next = reader.peek();
+            if (next == 'e' || next == 'E') {
+                content.add((char) reader.take());
+                content.add(new ExponentPart(reader));
+            }
+        } else if (next == 'I') {
+            content.add(reader.expect("Infinity"));
+        } else if (next == 'N') {
+            content.add(reader.expect("NaN"));
+        } else {
+            throw reader.createException("Not a number character: " + (char) next);
+        }
+
+        return new ListContent(content);
     }
 
     public boolean isNegative() {
@@ -131,78 +207,5 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
             return Long.parseLong(raw);
         }
         throw new IllegalStateException();
-    }
-
-    private static ListContent getContentChecked(CharReader<?> reader) {
-        List<Object> content = new ArrayList<>();
-
-        val first = reader.peek();
-        if (first == '-' || first == '+') {
-            content.add((char) reader.take());
-        }
-
-        var next = reader.peek();
-        if (next > '0' && next <= '9') {
-            content.add(new DecimalPart(reader));
-            next = reader.peek();
-            if (next == '.') {
-                content.add((char) reader.take());
-                next = reader.peek();
-                if (next >= '0' && next <= '9') {
-                    content.add(new DecimalPart(reader));
-                }
-                next = reader.peek();
-            }
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-            }
-        } else if (next == '0') {
-            content.add((char) reader.take());
-            next = reader.peek();
-            switch (next) {
-                case '.':
-                    content.add((char) reader.take());
-                    next = reader.peek();
-                    if (next >= '0' && next <= '9') {
-                        content.add(new DecimalPart(reader));
-                    }
-                    next = reader.peek();
-                    if (next == 'e' || next == 'E') {
-                        content.add((char) reader.take());
-                        content.add(new ExponentPart(reader));
-                    }
-                    break;
-                case 'x':
-                case 'X':
-                    content.add((char) reader.take());
-                    content.add(new HexPart(reader));
-                    return new ListContent(content);
-                case 'b':
-                case 'B':
-                    content.add((char) reader.take());
-                    content.add(new BinaryPart(reader));
-                    return new ListContent(content);
-                case -1:
-                default:
-                    break;
-            }
-        } else if (next == '.') {
-            content.add((char) reader.take());
-            content.add(new DecimalPart(reader));
-            next = reader.peek();
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-            }
-        } else if (next == 'I') {
-            content.add(reader.expect("Infinity"));
-        } else if (next == 'N') {
-            content.add(reader.expect("NaN"));
-        } else {
-            throw reader.createException("Not a number character: " + (char) next);
-        }
-
-        return new ListContent(content);
     }
 }

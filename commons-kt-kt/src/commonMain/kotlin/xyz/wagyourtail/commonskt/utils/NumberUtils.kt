@@ -103,4 +103,3 @@ operator fun Number.unaryMinus(): Number {
         else -> throw IllegalArgumentException()
     }
 }
-

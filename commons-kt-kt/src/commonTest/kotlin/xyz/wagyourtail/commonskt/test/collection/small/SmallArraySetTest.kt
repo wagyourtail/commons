@@ -1,11 +1,7 @@
 package xyz.wagyourtail.commonskt.test.collection.small
 
 import xyz.wagyourtail.commonskt.collection.small.SmallArraySet
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 
 class SmallArraySetTest {
