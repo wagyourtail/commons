@@ -31,8 +31,10 @@ class StringCharReader(val buffer: String, var pos: Int = 0, val endPos: Int = b
         return ""
     }
 
+    @Deprecated("parse is better")
     override fun copy() = copy(endPos - pos)
 
+    @Deprecated("parse is better")
     override fun copy(limit: Int): StringCharReader {
         return StringCharReader(buffer, pos, pos + limit).also { it.mark() }
     }

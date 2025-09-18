@@ -12,7 +12,7 @@ import xyz.wagyourtail.commons.parsers.impl.constant.number.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
+public class NumberConstant extends StringData.OnlyRaw<Data.ListContent<Object>> {
 
     private NumberConstant(String rawContent) {
         super(rawContent, NumberConstant::getContentChecked);
@@ -33,7 +33,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
         return new NumberConstant(rawContent);
     }
 
-    private static ListContent getContentChecked(CharReader<?> reader) {
+    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
         List<Object> content = new ArrayList<>();
 
         val first = reader.peek();
@@ -46,7 +46,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             next = reader.peek();
             if (next == 'l' || next == 'L') {
                 content.add((char) reader.take());
-                return new ListContent(content);
+                return new ListContent<>(content);
             }
             if (next == '.') {
                 content.add((char) reader.take());
@@ -86,7 +86,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
                     if (next == 'l' || next == 'L') {
                         content.add((char) reader.take());
                     }
-                    return new ListContent(content);
+                    return new ListContent<>(content);
                 case 'b':
                 case 'B':
                     content.add((char) reader.take());
@@ -95,7 +95,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
                     if (next == 'l' || next == 'L') {
                         content.add((char) reader.take());
                     }
-                    return new ListContent(content);
+                    return new ListContent<>(content);
                 case -1:
                     break;
                 default:
@@ -105,7 +105,7 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
                         if (next == 'l' || next == 'L') {
                             content.add((char) reader.take());
                         }
-                        return new ListContent(content);
+                        return new ListContent<>(content);
                     }
             }
         } else if (next == '.') {
@@ -127,13 +127,13 @@ public class NumberConstant extends StringData.OnlyRaw<Data.ListContent> {
             throw reader.createException("Not a number character: " + (char) next);
         }
 
-        if (next == -1) return new ListContent(content);
+        if (next == -1) return new ListContent<>(content);
         if (next == 'f' || next == 'F'
                 || next == 'd' || next == 'D') {
             content.add((char) reader.take());
         }
 
-        return new ListContent(content);
+        return new ListContent<>(content);
     }
 
     public boolean isNegative() {

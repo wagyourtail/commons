@@ -3,7 +3,7 @@ package xyz.wagyourtail.commons.parsers.impl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.val;
-import xyz.wagyourtail.commons.core.CollectionUtils;
+import xyz.wagyourtail.commons.core.IteratorUtils;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
@@ -64,14 +64,14 @@ public class Json5File extends StringData.OnlyParsed<Json5File.FileContent> {
 
     @Getter
     @AllArgsConstructor
-    public static class FileContent extends Data.Content {
+    public static class FileContent extends Data.Content<Object> {
         private final List<Object> preContent;
         private final Json5Value value;
         private final List<Object> postContent;
 
         @Override
         public Iterable<Object> getEntries() {
-            return CollectionUtils.concat(
+            return IteratorUtils.concat(
                     preContent,
                     Collections.singleton(value),
                     postContent

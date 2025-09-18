@@ -1,25 +1,21 @@
 package xyz.wagyourtail.commonskt.parsers
 
-import xyz.wagyourtail.commonskt.properties.InternallyNullable
+import xyz.wagyourtail.commonskt.properties.internallyNullable
+import xyz.wagyourtail.commonskt.utils.iterable
+import xyz.wagyourtail.commonskt.utils.withDelimiter
 
-abstract class Data<T, E : Data.Content> protected constructor(
+abstract class Data<T: Any, E : Data.Content<*>> protected constructor(
     rawContent: T?,
     content: E?
 ) {
 
-    open val rawContent: T by InternallyNullable(
-        rawContent,
-        get = { field ->
-            field ?: buildRawContent()
-        }
-    )
+    open val rawContent: T by internallyNullable(rawContent) { field ->
+        field ?: buildRawContent()
+    }
 
-    open val content: E by InternallyNullable(
-        content,
-        get = { field ->
-            field ?: buildContent()
-        }
-    )
+    open val content: E by internallyNullable(content) { field ->
+        field ?: buildContent()
+    }
 
     constructor(rawContent: T) : this(rawContent, null)
 
@@ -43,9 +39,10 @@ abstract class Data<T, E : Data.Content> protected constructor(
                 }
             }
         }
+        visitor.visitEnd(this)
     }
 
-    abstract class OnlyRaw<T, E : Content>(rawContent: T) : Data<T, E>(rawContent) {
+    abstract class OnlyRaw<T: Any, E : Content<*>>(rawContent: T) : Data<T, E>(rawContent) {
 
         override val content: E
             get() = buildContent()
@@ -56,7 +53,7 @@ abstract class Data<T, E : Data.Content> protected constructor(
 
     }
 
-    abstract class OnlyParsed<T, E : Content>(content: E) : Data<T, E>(content) {
+    abstract class OnlyParsed<T: Any, E : Content<*>>(content: E) : Data<T, E>(content) {
 
         override val rawContent: T
             get() = buildRawContent()
@@ -67,9 +64,9 @@ abstract class Data<T, E : Data.Content> protected constructor(
 
     }
 
-    abstract class Content {
+    abstract class Content<T> {
 
-        abstract val entries: Iterable<*>
+        abstract val entries: Iterable<T>
 
         override fun toString(): String {
             return entries.joinToString("")
@@ -77,18 +74,31 @@ abstract class Data<T, E : Data.Content> protected constructor(
 
     }
 
-    open class SingleContent<T>(val value: T) : Content() {
+    open class SingleContent<T>(val value: T) : Content<T>() {
 
-        override val entries: Iterable<*>
-            get() = listOf(value)
+        override val entries: Iterable<T>
+            get() = iterable { yield(value) }
 
     }
 
-    open class ListContent(override val entries: List<*>) : Content()
+    open class ListContent<T>(override val entries: List<T>) : Content<T>()
+
+    open class ListContentWithDelimiter<T>(
+        val content: List<T>,
+        val delimiter: Any
+    ) : Content<Any>() {
+
+
+        override val entries: Iterable<Any>
+            get() = (content as List<Any>).withDelimiter(delimiter)
+
+    }
 
     interface DataVisitor {
+
         fun visit(o: Any?): Boolean
+        fun visitEnd(o: Any?) {}
+
     }
 
-    interface DataBuilder<T, E : Content>
 }

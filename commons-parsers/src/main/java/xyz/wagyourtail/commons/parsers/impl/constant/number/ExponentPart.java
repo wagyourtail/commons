@@ -9,7 +9,7 @@ import xyz.wagyourtail.commons.parsers.StringData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExponentPart extends StringData.OnlyRaw<Data.ListContent> {
+public class ExponentPart extends StringData.OnlyRaw<Data.ListContent<Object>> {
 
     public ExponentPart(String rawContent) {
         super(rawContent, ExponentPart::getContentChecked);
@@ -30,7 +30,7 @@ public class ExponentPart extends StringData.OnlyRaw<Data.ListContent> {
         return new ExponentPart(rawContent);
     }
 
-    private static ListContent getContentChecked(CharReader<?> reader) {
+    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
         List<Object> content = new ArrayList<>(2);
 
         val first = reader.peek();

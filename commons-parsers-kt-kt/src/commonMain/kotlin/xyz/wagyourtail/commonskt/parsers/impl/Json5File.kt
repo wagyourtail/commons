@@ -46,7 +46,7 @@ class Json5File(content: FileContent) : StringData.OnlyParsed<Json5File.FileCont
         val preContent: List<Any>,
         val value: Json5Value,
         val postContent: List<Any>
-    ) : Content() {
+    ) : Content<Any>() {
 
         override val entries: Iterable<Any>
             get() = iterable {

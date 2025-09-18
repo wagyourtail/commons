@@ -52,9 +52,9 @@ class Json5ObjectEntry(content: ObjectEntry) : StringData.OnlyParsed<Json5Object
         val postKey: List<Any>,
         val preValue: List<Any>,
         val value: Json5Value
-    ) : Content() {
+    ) : Content<Any>() {
 
-        override val entries: Iterable<*>
+        override val entries: Iterable<Any>
             get() = iterable {
                 yield(key)
                 yieldAll(postKey)

@@ -3,7 +3,7 @@ package xyz.wagyourtail.commons.parsers.impl.json5;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.val;
-import xyz.wagyourtail.commons.core.CollectionUtils;
+import xyz.wagyourtail.commons.core.IteratorUtils;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
@@ -70,7 +70,7 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
 
     @Getter
     @AllArgsConstructor
-    public static class ObjectContent extends Data.Content {
+    public static class ObjectContent extends Data.Content<Object> {
         private final List<Object> entries;
         private final Map<String, Json5ObjectEntry> entryMap;
 
@@ -87,7 +87,7 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
 
         @Override
         public Iterable<Object> getEntries() {
-            return CollectionUtils.concat(
+            return IteratorUtils.concat(
                     Collections.singleton('{'),
                     entries,
                     Collections.singleton('}')

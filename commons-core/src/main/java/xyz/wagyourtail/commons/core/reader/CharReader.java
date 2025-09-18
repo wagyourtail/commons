@@ -9,26 +9,6 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class CharReader<T extends CharReader<? super T>> {
-
-    public static final CharAccepter WHITESPACE = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return Character.isWhitespace(c);
-        }
-    };
-    public static final CharAccepter NEWLINE = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return c == '\n';
-        }
-    };
-    public static final CharAccepter COMMA = new CharAccepter() {
-        @Override
-        public boolean accept(char c) {
-            return c == ',';
-        }
-    };
-    public static final CharAccepter NOT_NEWLINE_WHITESPACE = and(WHITESPACE, not(NEWLINE));
     public static final int TAKE_STRING_LEINIENT = 0b1;
     public static final int TAKE_STRING_ESCAPE_DOUBLE_QUOTE = 0b10;
     public static final int TAKE_STRING_ESCAPE_NEWLINE = 0b100;
@@ -37,47 +17,6 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public static final int TAKE_STRING_NO_TRANSLATE_ESCAPES = 0b100000;
 
     public CharReader() {
-    }
-
-    public static CharAccepter and(final CharAccepter a, final CharAccepter b) {
-        Objects.requireNonNull(a);
-        Objects.requireNonNull(b);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return a.accept(c) && b.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter or(final CharAccepter a, final CharAccepter b) {
-        Objects.requireNonNull(a);
-        Objects.requireNonNull(b);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return a.accept(c) || b.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter not(final CharAccepter a) {
-        Objects.requireNonNull(a);
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return !a.accept(c);
-            }
-        };
-    }
-
-    public static CharAccepter of(final char character) {
-        return new CharAccepter() {
-            @Override
-            public boolean accept(char c) {
-                return character == c;
-            }
-        };
     }
 
     /**
@@ -235,15 +174,15 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public String takeWhitespace() {
-        return takeWhile(WHITESPACE);
+        return takeWhile(CharAccepters.WHITESPACE);
     }
 
     public String takeNonNewlineWhitespace() {
-        return takeWhile(NOT_NEWLINE_WHITESPACE);
+        return takeWhile(CharAccepters.NOT_NEWLINE_WHITESPACE);
     }
 
     public @Nullable String takeNext() {
-        return takeNext(WHITESPACE);
+        return takeNext(CharAccepters.WHITESPACE);
     }
 
     public @Nullable String takeNext(char sep) {
@@ -273,7 +212,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         if (next == -1 || next == '\n') return null;
         String value;
         if (next == '"') value = takeString();
-        else value = takeUntil(or(sep, NEWLINE));
+        else value = takeUntil(CharAccepters.or(sep, CharAccepters.NEWLINE));
         // take trailing sep
         next = peek();
         if (next != -1 && next != '\n' && sep.accept((char) next)) {
@@ -283,7 +222,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public @Nullable String takeNextLiteral() {
-        return takeNextLiteral(WHITESPACE);
+        return takeNextLiteral(CharAccepters.WHITESPACE);
     }
 
     public @Nullable String takeNextLiteral(char sep) {
@@ -319,7 +258,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public List<String> takeRemainingOnLine() {
-        return takeRemainingOnLine(WHITESPACE);
+        return takeRemainingOnLine(CharAccepters.WHITESPACE);
     }
 
     public List<String> takeRemainingOnLine(char sep) {
@@ -343,7 +282,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public List<String> takeRemainingLiteralOnLine() {
-        return takeRemainingOnLine(WHITESPACE);
+        return takeRemainingOnLine(CharAccepters.WHITESPACE);
     }
 
     public List<String> takeRemainingLiteralOnLine(char sep) {
@@ -364,6 +303,27 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             next = takeNextLiteral(sep);
         }
         return args;
+    }
+
+    public long takeWholeNumber() {
+        return takeWholeNumber(false);
+    }
+
+    public long takeWholeNumber(boolean leadingZero) {
+        String text;
+        if (leadingZero) {
+            text = takeWhile(CharAccepters.DIGIT);
+        } else {
+            // don't allow leading zero, but allow 0 by itself
+            text = takeWhile(CharAccepters.DIGIT);
+            if (text.startsWith("0") && text.length() > 1) {
+                throw createException("Leading zero not allowed: " + text);
+            }
+        }
+        if (text.isEmpty()) {
+            throw createException("Expected number");
+        }
+        return Long.parseLong(text);
     }
 
     public String takeString() {
@@ -523,11 +483,11 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
     /* CSV Specific */
     public List<String> takeRemainingCol() {
-        return takeRemainingCol(true, COMMA);
+        return takeRemainingCol(true, CharAccepters.COMMA);
     }
 
     public List<String> takeRemainingCol(boolean leinient) {
-        return takeRemainingCol(leinient, COMMA);
+        return takeRemainingCol(leinient, CharAccepters.COMMA);
     }
 
     public List<String> takeRemainingCol(boolean leinient, CharAccepter sep) {
@@ -541,11 +501,11 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     public String takeCol() {
-        return takeCol(true, COMMA);
+        return takeCol(true, CharAccepters.COMMA);
     }
 
     public String takeCol(boolean leinient) {
-        return takeCol(leinient, COMMA);
+        return takeCol(leinient, CharAccepters.COMMA);
     }
 
     public @Nullable String takeCol(boolean leinient, CharAccepter sep) {
@@ -571,7 +531,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             }
             return value;
         }
-        String value = takeUntil(or(sep, NEWLINE));
+        String value = takeUntil(CharAccepters.or(sep, CharAccepters.NEWLINE));
         next = peek();
         // check if next is sep char and take it
         if (sep.accept((char) next)) {
@@ -648,10 +608,6 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
         R read(CharReader<?> reader) throws ParseException;
 
-    }
-
-    public interface CharAccepter {
-        boolean accept(char c);
     }
 
     /**

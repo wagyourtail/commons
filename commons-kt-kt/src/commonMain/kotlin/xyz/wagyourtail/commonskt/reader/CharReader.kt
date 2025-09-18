@@ -76,7 +76,7 @@ abstract class CharReader<T : CharReader<T>> {
 
     open fun takeUntil(char: Char) = takeUntil { it == char }
 
-    fun takeUntil(characters: String): String? {
+    fun takeUntil(characters: String): String {
         val sb = StringBuilder()
         var next = peek()
         var taken = ""
@@ -180,6 +180,12 @@ abstract class CharReader<T : CharReader<T>> {
 
     fun takeRemainingLiteralOnLine(sep: Char) = takeRemainingLiteralOnLine { it == sep }
 
+//    fun takeWholeNumber(leadingZero: Boolean = false): Int {
+//        if (leadingZero) {
+//            return takeWhile { it.isDigit() }.toInt()
+//        }
+//    }
+
     fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false, quote: Char = '"'): String {
         return takeString(leinient, escapeDoubleQuote, quote = quote.toString())
     }
@@ -198,7 +204,7 @@ abstract class CharReader<T : CharReader<T>> {
         }
         val sb = StringBuilder()
         while (!exhausted()) {
-            val lines = takeUntil(quote)!!.split(Regex("\r?\n"))
+            val lines = takeUntil(quote).split(Regex("\r?\n"))
             val last = lines.last()
             if (multiline || escapeNewline) {
                 for (next in lines.dropLast(1)) {
@@ -286,8 +292,7 @@ abstract class CharReader<T : CharReader<T>> {
     }
 
     fun expect(valueType: String, acceptor: (Char) -> Boolean): Char {
-        val next = take()
-        if (next == null) throw createException("Expected $valueType but got EOS")
+        val next = take() ?: throw createException("Expected $valueType but got EOS")
         if (!acceptor(next)) throw createException("Expected $valueType but got $next")
         return next
     }
@@ -413,8 +418,7 @@ abstract class CharReader<T : CharReader<T>> {
                 return null
             }
             if (position >= sb.length) {
-                val next = reader.take()
-                if (next == null) return null
+                val next = reader.take() ?: return null
                 sb.append(next)
                 return next
             }
@@ -435,10 +439,12 @@ abstract class CharReader<T : CharReader<T>> {
             return sb[position++]
         }
 
+        @Deprecated("parse is better")
         override fun copy(): WrappingReader {
             return WrappingReader(reader, limit - position)
         }
 
+        @Deprecated("parse is better")
         override fun copy(limit: Int): WrappingReader {
             return WrappingReader(reader, limit)
         }

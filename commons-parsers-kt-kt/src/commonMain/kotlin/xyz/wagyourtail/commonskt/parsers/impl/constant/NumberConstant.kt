@@ -7,17 +7,17 @@ import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.unaryMinus
 
 
-class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(rawContent) {
+class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>(rawContent) {
 
-    constructor(content: ListContent) : this(content.toString())
+    constructor(content: ListContent<*>) : this(content.toString())
 
-    companion object : StringDataBuilder<NumberConstant, ListContent> {
+    companion object : StringDataBuilder<NumberConstant, ListContent<*>> {
 
         override fun invoke(rawContent: CharReader<*>): NumberConstant {
             return NumberConstant(checkedBuildContent(rawContent))
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): ListContent {
+        override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
             val content = mutableListOf<Any>()
 
             val first: Char? = reader.peek()
@@ -294,7 +294,7 @@ class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(
             throw IllegalStateException()
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): ListContent {
+    override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
         return Companion.checkedBuildContent(reader)
     }
 

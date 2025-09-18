@@ -56,7 +56,7 @@ class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.Ob
     class ObjectContent(
         val data: MutableList<Any>,
         val entryMap: MutableMap<String, Json5ObjectEntry>
-    ) : Content() {
+    ) : Content<Any>() {
 
         constructor(data: MutableList<Any>) : this(data, mutableMapOf()) {
             for (entry in data) {
@@ -66,7 +66,7 @@ class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.Ob
             }
         }
 
-        override val entries: Iterable<*>
+        override val entries: Iterable<Any>
             get() = iterable {
                 yield('{')
                 yieldAll(data)

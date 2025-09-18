@@ -10,17 +10,17 @@ import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.unaryMinus
 
 
-class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(rawContent) {
+class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>(rawContent) {
 
-    constructor(content: Data.ListContent) : this(content.toString())
+    constructor(content: Data.ListContent<*>) : this(content.toString())
 
-    companion object : StringDataBuilder<Json5Number, ListContent> {
+    companion object : StringDataBuilder<Json5Number, ListContent<*>> {
 
         override fun invoke(rawContent: CharReader<*>): Json5Number {
             return Json5Number(checkedBuildContent(rawContent))
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): ListContent {
+        override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
             val content = mutableListOf<Any>()
 
             val first = reader.peek()
@@ -179,7 +179,7 @@ class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent>(raw
             }
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): ListContent {
+    override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
         return Companion.checkedBuildContent(reader)
     }
 

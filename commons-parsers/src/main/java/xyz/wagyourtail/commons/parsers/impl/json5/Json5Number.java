@@ -15,7 +15,7 @@ import xyz.wagyourtail.commons.parsers.impl.constant.number.HexPart;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
+public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
 
     private Json5Number(String rawContent) {
         super(rawContent, Json5Number::getContentChecked);
@@ -36,7 +36,7 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent> {
         return new Json5Number(rawContent);
     }
 
-    private static ListContent getContentChecked(CharReader<?> reader) {
+    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
         List<Object> content = new ArrayList<>();
 
         val first = reader.peek();

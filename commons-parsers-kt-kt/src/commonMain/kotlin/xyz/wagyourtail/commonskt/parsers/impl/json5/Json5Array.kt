@@ -56,9 +56,9 @@ class Json5Array(content: ArrayContent) : StringData.OnlyParsed<Json5Array.Array
     class ArrayContent(
         val data: List<Any>,
         val values: List<Json5Value>
-    ) : Content() {
+    ) : Content<Any>() {
 
-        override val entries: Iterable<*>
+        override val entries: Iterable<Any>
             get() = iterable {
                 yield('[')
                 yieldAll(data)

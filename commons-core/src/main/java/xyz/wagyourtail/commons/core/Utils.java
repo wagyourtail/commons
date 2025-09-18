@@ -3,9 +3,7 @@ package xyz.wagyourtail.commons.core;
 import lombok.SneakyThrows;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -104,6 +102,12 @@ public class Utils {
 
     public static long nextPowerOf2(long num) {
         return Long.highestOneBit(num - 1) << 1;
+    }
+
+    public static String getStackTraceString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
 }

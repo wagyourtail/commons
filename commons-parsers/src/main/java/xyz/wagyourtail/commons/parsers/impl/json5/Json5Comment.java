@@ -9,7 +9,7 @@ import xyz.wagyourtail.commons.parsers.StringData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Json5Comment extends StringData.OnlyRaw<Data.ListContent> {
+public class Json5Comment extends StringData.OnlyRaw<Data.ListContent<Object>> {
     public Json5Comment(String rawContent) {
         super(rawContent, Json5Comment::getContentChecked);
     }
@@ -29,8 +29,8 @@ public class Json5Comment extends StringData.OnlyRaw<Data.ListContent> {
         return new Json5Comment(rawContent);
     }
 
-    private static ListContent getContentChecked(CharReader<?> reader) {
-        return new ListContent(
+    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
+        return new ListContent<>(
                 reader.parse(
                         "comment",
                         r -> {

@@ -5,6 +5,16 @@ import kotlinx.atomicfu.locks.synchronized
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+fun <T> internallyNullable(
+    initialValue: T? = null,
+    get: (internal: T?) -> T,
+) = InternallyNullable(initialValue, get)
+
+fun <T> internallyNullable(
+    initialValue: T? = null,
+    get: (internal: T?) -> T,
+    set: (internal: T?, newValue: T) -> T?
+) = InternallyNullable(initialValue, get, set)
 
 class InternallyNullable<T>(
     initialValue: T? = null,

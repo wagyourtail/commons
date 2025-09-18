@@ -1,13 +1,15 @@
 package xyz.wagyourtail.commons.parsers;
 
 import lombok.Getter;
+import xyz.wagyourtail.commons.core.IteratorUtils;
 import xyz.wagyourtail.commons.core.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-public abstract class Data<T, E extends Data.Content> {
+public abstract class Data<T, E extends Data.Content<?>> {
     private volatile T rawContent;
     private volatile E content;
 
@@ -68,7 +70,7 @@ public abstract class Data<T, E extends Data.Content> {
 
     }
 
-    public abstract static class OnlyRaw<T, E extends Content> extends Data<T, E> {
+    public abstract static class OnlyRaw<T, E extends Content<?>> extends Data<T, E> {
 
         public OnlyRaw(T rawContent) {
             super(rawContent);
@@ -84,7 +86,7 @@ public abstract class Data<T, E extends Data.Content> {
         }
     }
 
-    public abstract static class OnlyParsed<T, E extends Content> extends Data<T, E> {
+    public abstract static class OnlyParsed<T, E extends Content<?>> extends Data<T, E> {
 
         public OnlyParsed(E content) {
             super(content);
@@ -101,9 +103,9 @@ public abstract class Data<T, E extends Data.Content> {
         }
     }
 
-    public static abstract class Content {
+    public static abstract class Content<T> {
 
-        public abstract Iterable<Object> getEntries();
+        public abstract Iterable<T> getEntries();
 
         @Override
         public String toString() {
@@ -112,7 +114,7 @@ public abstract class Data<T, E extends Data.Content> {
     }
 
     @Getter
-    public static class SingleContent<T> extends Data.Content {
+    public static class SingleContent<T> extends Data.Content<T> {
         private final T value;
 
         public SingleContent(T content) {
@@ -128,22 +130,42 @@ public abstract class Data<T, E extends Data.Content> {
         }
 
         @Override
-        public Iterable<Object> getEntries() {
+        public Iterable<T> getEntries() {
             return Collections.singletonList(value);
         }
     }
 
-    public static class ListContent extends Data.Content {
-        private final List<Object> entries;
+    public static class ListContent<T> extends Data.Content<T> {
+        private final List<T> entries;
 
-        public ListContent(List<Object> entries) {
+        public ListContent(List<T> entries) {
             this.entries = entries;
         }
 
         @Override
-        public Iterable<Object> getEntries() {
+        public Iterable<T> getEntries() {
             return entries;
         }
+    }
+
+    public static class ListContentWithDelimiter<T> extends Data.Content<Object> {
+        private final List<T> entries;
+        private final Object delimiter;
+
+        public ListContentWithDelimiter(List<T> entries, T delimiter) {
+            this.entries = entries;
+            this.delimiter = delimiter;
+        }
+
+        @Override
+        public Iterable<Object> getEntries() {
+            return () -> IteratorUtils.withDelimiter((Iterator<Object>) entries.iterator(), delimiter);
+        }
+
+        public List<T> getEntriesWithoutDelimiters() {
+            return entries;
+        }
+
     }
 
 }

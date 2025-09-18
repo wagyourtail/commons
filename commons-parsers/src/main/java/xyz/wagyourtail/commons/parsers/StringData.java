@@ -6,7 +6,7 @@ import xyz.wagyourtail.commons.core.reader.StringCharReader;
 
 import java.util.function.Function;
 
-public abstract class StringData<E extends Data.Content> extends Data<String, E> {
+public abstract class StringData<E extends Data.Content<?>> extends Data<String, E> {
 
     public StringData(String rawContent) {
         super(rawContent);
@@ -26,7 +26,7 @@ public abstract class StringData<E extends Data.Content> extends Data<String, E>
         return getRawContent();
     }
 
-    public abstract static class OnlyRaw<E extends Data.Content> extends StringData<E> {
+    public abstract static class OnlyRaw<E extends Data.Content<?>> extends StringData<E> {
         private final Function<CharReader<?>, E> contentBuilder;
 
         public OnlyRaw(String rawContent, Function<CharReader<?>, E> contentBuilder) {
@@ -56,7 +56,7 @@ public abstract class StringData<E extends Data.Content> extends Data<String, E>
         }
     }
 
-    public abstract static class OnlyParsed<E extends Data.Content> extends StringData<E> {
+    public abstract static class OnlyParsed<E extends Data.Content<?>> extends StringData<E> {
 
         public OnlyParsed(E content) {
             super(content);

@@ -2,7 +2,7 @@ package xyz.wagyourtail.commonskt.parsers
 
 import xyz.wagyourtail.commonskt.reader.CharReader
 
-abstract class StringData<E : Data.Content> protected constructor(rawContent: String?, content: E?) :
+abstract class StringData<E : Data.Content<*>> protected constructor(rawContent: String?, content: E?) :
     Data<String, E>(rawContent, content) {
 
     constructor(rawContent: String) : this(rawContent, null)
@@ -17,7 +17,7 @@ abstract class StringData<E : Data.Content> protected constructor(rawContent: St
         return rawContent
     }
 
-    abstract class OnlyRaw<E : Content>(rawContent: String) : StringData<E>(rawContent) {
+    abstract class OnlyRaw<E : Content<*>>(rawContent: String) : StringData<E>(rawContent) {
 
         override val content: E
             get() = buildContent()
@@ -37,7 +37,7 @@ abstract class StringData<E : Data.Content> protected constructor(rawContent: St
 
     }
 
-    abstract class OnlyParsed<E : Content>(content: E) : StringData<E>(content) {
+    abstract class OnlyParsed<E : Content<*>>(content: E) : StringData<E>(content) {
 
         override fun buildContent(): E {
             throw IllegalStateException("content should always be present")
@@ -45,7 +45,7 @@ abstract class StringData<E : Data.Content> protected constructor(rawContent: St
 
     }
 
-    interface StringDataBuilder<T : StringData<E>, E : Data.Content> {
+    interface StringDataBuilder<T : StringData<E>, E : Content<*>> {
 
         operator fun invoke(rawContent: CharReader<*>): T
 
