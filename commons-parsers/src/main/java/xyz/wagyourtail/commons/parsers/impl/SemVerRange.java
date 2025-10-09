@@ -4,6 +4,7 @@ import lombok.val;
 import xyz.wagyourtail.commons.core.reader.CharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 import xyz.wagyourtail.commons.parsers.Data;
+import xyz.wagyourtail.commons.parsers.impl.semver.range.OrCombinedRange;
 import xyz.wagyourtail.commons.parsers.impl.semver.range.RangeData;
 
 public class SemVerRange extends RangeData<Data.SingleContent<RangeData<?>>> {
@@ -24,7 +25,7 @@ public class SemVerRange extends RangeData<Data.SingleContent<RangeData<?>>> {
     }
 
     private static Data.SingleContent<RangeData<?>> contentBuilder(CharReader<?> reader) {
-        return null;
+        return new Data.SingleContent<>(OrCombinedRange.parse(reader));
     }
 
     @Override

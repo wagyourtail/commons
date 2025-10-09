@@ -152,7 +152,7 @@ public abstract class Data<T, E extends Data.Content<?>> {
         private final List<T> entries;
         private final Object delimiter;
 
-        public ListContentWithDelimiter(List<T> entries, T delimiter) {
+        public ListContentWithDelimiter(List<T> entries, Object delimiter) {
             this.entries = entries;
             this.delimiter = delimiter;
         }
