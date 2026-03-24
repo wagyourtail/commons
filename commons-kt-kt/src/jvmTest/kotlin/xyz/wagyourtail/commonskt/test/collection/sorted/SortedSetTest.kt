@@ -229,4 +229,52 @@ class SortedSetTest {
         assertEquals(jvmSubSet.first(), ourSubSet.first())
         assertEquals(jvmSubSet.last(), ourSubSet.last())
     }
+
+    @Test
+    fun testSubSetWithValueNotInSet() {
+        val ourSet = sortedSetOf(1, 3, 5, 7, 9)
+        val jvmSet = TreeSet<Int>().apply { addAll(listOf(1, 3, 5, 7, 9)) }
+
+        // Test subset with start value not in set (should find next greater element)
+        val ourSubSet1 = ourSet.subSet(2, 8)
+        val jvmSubSet1 = jvmSet.subSet(2, 8)
+        assertEquals(jvmSubSet1.toList(), ourSubSet1.toList())
+        assertEquals(listOf(3, 5, 7), ourSubSet1.toList())
+
+        // Test subset with end value not in set (should find next smaller element)
+        val ourSubSet2 = ourSet.subSet(3, 8)
+        val jvmSubSet2 = jvmSet.subSet(3, 8)
+        assertEquals(jvmSubSet2.toList(), ourSubSet2.toList())
+        assertEquals(listOf(3, 5, 7), ourSubSet2.toList())
+
+        // Test subset with both values not in set
+        val ourSubSet3 = ourSet.subSet(2, 8)
+        val jvmSubSet3 = jvmSet.subSet(2, 8)
+        assertEquals(jvmSubSet3.toList(), ourSubSet3.toList())
+        assertEquals(listOf(3, 5, 7), ourSubSet3.toList())
+
+        // Test subset with values outside range
+        val ourSubSet4 = ourSet.subSet(0, 12)
+        val jvmSubSet4 = jvmSet.subSet(0, 12)
+        assertEquals(jvmSubSet4.toList(), ourSubSet4.toList())
+        assertEquals(listOf(1, 3, 5, 7, 9), ourSubSet4.toList())
+
+        // Test subset with no matching elements
+        val ourSubSet5 = ourSet.subSet(10, 15)
+        val jvmSubSet5 = jvmSet.subSet(10, 15)
+        assertEquals(jvmSubSet5.toList(), ourSubSet5.toList())
+        assertEquals(emptyList<Int>(), ourSubSet5.toList())
+
+        // Test headSet with value not in set
+        val ourHeadSet = ourSet.headSet(6)
+        val jvmHeadSet = jvmSet.headSet(6)
+        assertEquals(jvmHeadSet.toList(), ourHeadSet.toList())
+        assertEquals(listOf(1, 3, 5), ourHeadSet.toList())
+
+        // Test tailSet with value not in set
+        val ourTailSet = ourSet.tailSet(6)
+        val jvmTailSet = jvmSet.tailSet(6)
+        assertEquals(jvmTailSet.toList(), ourTailSet.toList())
+        assertEquals(listOf(7, 9), ourTailSet.toList())
+    }
 }
