@@ -2,6 +2,9 @@ package xyz.wagyourtail.commons.asm;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableAnnotationNode;
+import org.objectweb.asm.tree.TypeAnnotationNode;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -15,6 +18,39 @@ import java.util.Map;
 public class AnnotationUtils {
 
     private AnnotationUtils() {
+    }
+
+    /**
+     * Copies an annotation node to a new annotation node
+     *
+     * @param from original node
+     * @return new node
+     * @param <E> type of the annotation node
+     */
+    @SuppressWarnings("unchecked")
+    public static  <E extends AnnotationNode> E copyAnnotationNode(E from) {
+        if (from.getClass() == LocalVariableAnnotationNode.class) {
+            LocalVariableAnnotationNode fromLv = (LocalVariableAnnotationNode) from;
+            int[] indexes = new int[fromLv.index.size()];
+            for (int i = 0; i < indexes.length; i++) {
+                indexes[i] = fromLv.index.get(i);
+            }
+            LocalVariableAnnotationNode toLv = new LocalVariableAnnotationNode(fromLv.typeRef, fromLv.typePath, fromLv.start.toArray(new LabelNode[0]), fromLv.end.toArray(new LabelNode[0]), indexes, fromLv.desc);
+            from.accept(toLv);
+            return (E) toLv;
+        }
+        if (from.getClass() == TypeAnnotationNode.class) {
+            TypeAnnotationNode fromT = (TypeAnnotationNode) from;
+            TypeAnnotationNode toT = new TypeAnnotationNode(fromT.typeRef, fromT.typePath, fromT.desc);
+            from.accept(toT);
+            return (E) toT;
+        }
+        if (from.getClass() == AnnotationNode.class) {
+            AnnotationNode toA = new AnnotationNode(from.desc);
+            from.accept(toA);
+            return (E) toA;
+        }
+        throw new RuntimeException("Unknown annotation type: " + from.getClass());
     }
 
     /**

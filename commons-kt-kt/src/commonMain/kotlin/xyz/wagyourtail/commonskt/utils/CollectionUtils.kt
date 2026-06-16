@@ -5,6 +5,10 @@ package xyz.wagyourtail.commonskt.utils
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.jvm.JvmName
 
+fun <K, V> Map<K, V>.first(): Map.Entry<K, V> {
+    return entries.first()
+}
+
 fun <K, V> Map<K, V>.firstAsMap(): Map<K, V> {
     val entry = entries.first()
     return mapOf(entry.key to entry.value)
