@@ -58,19 +58,16 @@ data class NameType(val split: (String) -> Iterable<String>, val join: (Iterable
                                 yield(sb.toString().lowercase())
                                 sb.clear()
                             }
-                            sb.append(it[i])
-                        } else {
-                            if (sb.isNotEmpty()) {
-                                val lastChar = sb[sb.length - 1]
-                                if (sb.length > 1 && lastChar.isUpperCase()) {
-                                    // append multiple capitals and remove them from the sb
-                                    val s = sb.substring(0, sb.length - 1)
-                                    yield(if (s.length > 1) s else s.lowercase())
-                                    sb.deleteRange(0, sb.length - 1)
-                                }
+                        } else if (sb.isNotEmpty()) {
+                            val lastChar = sb[sb.length - 1]
+                            if (sb.length > 1 && lastChar.isUpperCase()) {
+                                // append multiple capitals and remove them from the sb
+                                val s = sb.substring(0, sb.length - 1)
+                                yield(if (s.length > 1) s else s.lowercase())
+                                sb.deleteRange(0, sb.length - 1)
                             }
-                            sb.append(it[i])
                         }
+                        sb.append(it[i])
                     }
                     if (sb.isNotEmpty()) {
                         if (sb.length > 1 && sb[0].isUpperCase() && sb[1].isUpperCase()) {

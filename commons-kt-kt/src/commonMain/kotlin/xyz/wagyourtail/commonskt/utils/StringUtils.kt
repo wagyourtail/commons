@@ -182,3 +182,12 @@ fun String.indentCount(tabSize: Int = 4): Int {
     }
     return count
 }
+
+fun CharSequence.indexOf(c: Char, startIndex: Int): Int = indexOf(c, startIndex, this.length)
+
+fun CharSequence.indexOf(c: Char, startIndex: Int, endIndex: Int): Int {
+    for (i in startIndex until endIndex) {
+        if (this[i] == c) return i
+    }
+    return -1
+}
