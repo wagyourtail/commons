@@ -16,17 +16,17 @@ class Json5Value(content: SingleContent<*>) : StringData.OnlyParsed<Data.SingleC
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
             return SingleContent<Any?>(
                 reader.parse(
-                "json5 value",
-                Json5Object::invoke,
-                Json5Array::invoke,
-                Json5StringConstant::invoke,
-                BooleanConstant::invoke,
-                Json5Number::invoke,
-                {
-                    expect("null")
-                    null
-                }
-            ))
+                    "json5 value",
+                    Json5Object::invoke,
+                    Json5Array::invoke,
+                    Json5StringConstant::invoke,
+                    BooleanConstant::invoke,
+                    Json5Number::invoke,
+                    {
+                        expect("null")
+                        null
+                    }
+                ))
         }
 
     }

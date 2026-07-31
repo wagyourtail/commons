@@ -7,20 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StringCharReader extends CharReader<StringCharReader> {
-    private final String buffer;
+    private final CharSequence buffer;
     private final int endPos;
     private int pos;
     private int mark;
 
-    public StringCharReader(String buffer) {
+    public StringCharReader(CharSequence buffer) {
         this(buffer, 0);
     }
 
-    public StringCharReader(String buffer, int pos) {
+    public StringCharReader(CharSequence buffer, int pos) {
         this(buffer, pos, buffer.length());
     }
 
-    public StringCharReader(String buffer, int pos, int endPos) {
+    public StringCharReader(CharSequence buffer, int pos, int endPos) {
         this.buffer = buffer;
         this.pos = pos;
         this.endPos = endPos;
@@ -60,9 +60,9 @@ public class StringCharReader extends CharReader<StringCharReader> {
             return "";
         }
         int end = Math.min(pos + count, endPos);
-        String str = buffer.substring(pos, end);
+        val str = buffer.subSequence(pos, end);
         pos = end;
-        return str;
+        return str.toString();
     }
 
     @Override
@@ -70,22 +70,22 @@ public class StringCharReader extends CharReader<StringCharReader> {
         if (pos >= endPos) {
             return "";
         }
-        String value = buffer.substring(pos, endPos);
+        val value = buffer.subSequence(pos, endPos);
         pos = endPos;
-        return value;
+        return value.toString();
     }
 
     @Override
     public String takeUntil(char character) {
         int next = StringUtils.indexOf(buffer, character, pos, endPos);
         if (next == -1) {
-            String str = buffer.substring(pos, endPos);
+            val str = buffer.subSequence(pos, endPos);
             pos = endPos;
-            return str;
+            return str.toString();
         }
-        String value = buffer.substring(pos, next);
+        val value = buffer.subSequence(pos, next);
         pos = next;
-        return value;
+        return value.toString();
     }
 
     @Override
@@ -115,11 +115,11 @@ public class StringCharReader extends CharReader<StringCharReader> {
     public ParseException createException(String message, Throwable cause) {
         int count = 0;
         int lineStart = 0;
-        if (!buffer.contains("\n")) {
+        if (StringUtils.indexOf(buffer, '\n', 0, buffer.length()) == -1) {
             count = -1;
         } else {
             do {
-                int next = buffer.indexOf('\n', lineStart) + 1;
+                int next = StringUtils.indexOf(buffer, '\n', lineStart, buffer.length()) + 1;
                 if (next == 0 || next > pos) break;
                 lineStart = next;
                 count++;

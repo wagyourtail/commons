@@ -1,7 +1,5 @@
 package xyz.wagyourtail.commonskt.collection.sorted
 
-import kotlin.collections.mutableListOf
-
 open class MutableSortedSetImpl<E>(
     val elements: MutableList<E>,
     override val comparator: Comparator<E>,
@@ -91,7 +89,7 @@ open class MutableSortedSetImpl<E>(
         // collect all in range that aren't in elements
         val toRemove = elements.filter { e ->
             (from?.let { comparator.compare(e, from) } ?: 0) >= 0 &&
-            (to?.let { comparator.compare(e, to) } ?: 0) <= 0
+                    (to?.let { comparator.compare(e, to) } ?: 0) <= 0
         } - elements.toSet()
         return removeAll(toRemove)
     }
@@ -100,7 +98,7 @@ open class MutableSortedSetImpl<E>(
         if (to != null || from != null) {
             elements.removeAll { e ->
                 (from?.let { comparator.compare(e, from) } ?: 0) >= 0 &&
-                (to?.let { comparator.compare(e, to) } ?: 0) <= 0
+                        (to?.let { comparator.compare(e, to) } ?: 0) <= 0
             }
         } else {
             elements.clear()

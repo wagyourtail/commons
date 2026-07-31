@@ -3,7 +3,10 @@ package xyz.wagyourtail.commons.core;
 import lombok.SneakyThrows;
 import xyz.wagyourtail.commons.core.function.IOSupplier;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -15,14 +18,9 @@ public class Utils {
     private Utils() {
     }
 
+    @Deprecated
     public static byte[] readAllBytes(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
-        return out.toByteArray();
+        return IOUtils.readAllBytes(in);
     }
 
     @SneakyThrows
@@ -96,12 +94,14 @@ public class Utils {
         else return version + /* Opcodes.V1_2 = */ 46 - 2;
     }
 
+    @Deprecated
     public static int nextPowerOf2(int num) {
-        return Integer.highestOneBit(num - 1) << 1;
+        return NumberUtils.nextPowerOf2(num);
     }
 
+    @Deprecated
     public static long nextPowerOf2(long num) {
-        return Long.highestOneBit(num - 1) << 1;
+        return NumberUtils.nextPowerOf2(num);
     }
 
     public static String getStackTraceString(Throwable t) {

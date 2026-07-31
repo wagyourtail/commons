@@ -1,10 +1,13 @@
 package xyz.wagyourtail.commons.core.classloader;
 
+import lombok.SneakyThrows;
 import lombok.val;
+import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.provider.ClassLoaderResourceProvider;
 import xyz.wagyourtail.commons.core.classloader.provider.JarFileResourceProvider;
 import xyz.wagyourtail.commons.core.collection.FlatMapEnumeration;
+import xyz.wagyourtail.commons.core.collection.MapEnumeration;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -51,8 +54,9 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
         String internalName = name.replace('.', '/');
         String path = internalName + ".class";
         try {
-            ResourceProvider provider = findResourceProviderFor(path).nextElement();
-            URL resource = provider.getResources(path).nextElement();
+            Map.Entry<ResourceProvider, URL> providerAndUrl = findResourceProviderFor(path).nextElement();
+            ResourceProvider provider = providerAndUrl.getKey();
+            URL resource = providerAndUrl.getValue();
             if (resource == null) {
                 return super.findClass(name);
             }
@@ -77,7 +81,7 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
                 }
             }
             try (InputStream is = resource.openStream()) {
-                return transformClass(name, Utils.readAllBytes(is));
+                return transformClass(name, IOUtils.readAllBytes(is));
             }
         } catch (IOException | NullPointerException e) {
             throw new ClassNotFoundException(name, e);
@@ -110,40 +114,42 @@ public class ResourceClassLoader extends ClassLoader implements Closeable {
     }
 
     @Override
+    @SneakyThrows
     protected URL findResource(String name) {
-        return findResources(name).nextElement();
+        Enumeration<URL> urls = findResources(name);
+        return urls.hasMoreElements() ? urls.nextElement() : null;
     }
 
-    protected Enumeration<ResourceProvider> findResourceProviderFor(String name) throws IOException {
-        List<ResourceProvider> delegates = new ArrayList<>();
-        for (ResourceProvider delegate : this.delegates) {
-            if (delegate.getResources(name).hasMoreElements()) {
-                delegates.add(delegate);
+    protected Enumeration<Map.Entry<ResourceProvider, URL>> findResourceProviderFor(final String name) throws IOException {
+        return new FlatMapEnumeration<ResourceProvider, Map.Entry<ResourceProvider, URL>>(Collections.enumeration(delegates)) {
+
+            @Override
+            protected Enumeration<Map.Entry<ResourceProvider, URL>> mapper(final ResourceProvider provider) {
+                return new FlatMapEnumeration<String, Map.Entry<ResourceProvider, URL>>(Collections.enumeration(name.startsWith("META-INF/versions/") ? Collections.singleton("") : multiVersionPrefixes())) {
+
+                    @Override
+                    @SneakyThrows
+                    protected Enumeration<Map.Entry<ResourceProvider, URL>> mapper(String prefix) {
+                        return new MapEnumeration<URL, Map.Entry<ResourceProvider, URL>>(provider.getResources(prefix + name)) {
+
+                            @Override
+                            protected Map.Entry<ResourceProvider, URL> mapper(URL element) {
+                                return new AbstractMap.SimpleImmutableEntry<>(provider, element);
+                            }
+                        };
+                    }
+                };
             }
-        }
-        return Collections.enumeration(delegates);
+        };
     }
 
     @Override
-    protected Enumeration<URL> findResources(final String name) {
-        return new FlatMapEnumeration<String, URL>(Collections.enumeration(name.startsWith("META-INF/versions/") ? Collections.singleton("") : multiVersionPrefixes())) {
-
+    protected Enumeration<URL> findResources(final String name) throws IOException {
+        return new MapEnumeration<Map.Entry<ResourceProvider, URL>, URL>(findResourceProviderFor(name)) {
             @Override
-            protected Enumeration<URL> mapper(final String prefix) {
-                return new FlatMapEnumeration<ResourceProvider, URL>(Collections.enumeration(delegates)) {
-
-                    @Override
-                    protected Enumeration<URL> mapper(ResourceProvider element) {
-                        try {
-                            return element.getResources(prefix + name);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
-                };
+            protected URL mapper(Map.Entry<ResourceProvider, URL> element) {
+                return element.getValue();
             }
-
         };
     }
 

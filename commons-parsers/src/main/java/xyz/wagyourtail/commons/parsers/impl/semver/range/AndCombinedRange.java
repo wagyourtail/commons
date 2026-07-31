@@ -31,9 +31,9 @@ public class AndCombinedRange extends RangeData<Data.ListContentWithDelimiter<Ra
         while (!reader.exhausted()) {
             reader.takeNonNewlineWhitespace();
             val entry = reader.parseOrNull(
-                PrefixedRange::parse,
-                HyphenRange::parse,
-                BracketRange::parse
+                    PrefixedRange::parse,
+                    HyphenRange::parse,
+                    BracketRange::parse
             );
             if (entry == null) break;
             entries.add(entry);

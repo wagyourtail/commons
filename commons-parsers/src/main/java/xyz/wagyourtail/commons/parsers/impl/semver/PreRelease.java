@@ -33,22 +33,23 @@ public class PreRelease extends StringData.OnlyParsed<Data.ListContentWithDelimi
         List<Object> parts = new ArrayList<>();
         while (true) {
             parts.add(reader.parse(
-                e -> {
-                    String s = e.takeWhile(IDENTIFIER_CHARS);
-                    // ensure one is non-digit
-                    if (s.chars().allMatch(Character::isDigit)) {
-                        throw e.createException("Numeric identifier can't have leading 0: ");
-                    }
-                    if (s.isEmpty()) {
-                        throw e.createException("Empty identifier");
-                    }
-                    return s;
-                },
-                CharReader::takeWholeNumber
+                    e -> {
+                        String s = e.takeWhile(IDENTIFIER_CHARS);
+                        // ensure one is non-digit
+                        if (s.chars().allMatch(Character::isDigit)) {
+                            throw e.createException("Numeric identifier can't have leading 0: ");
+                        }
+                        if (s.isEmpty()) {
+                            throw e.createException("Empty identifier");
+                        }
+                        return s;
+                    },
+                    CharReader::takeWholeNumber
             ));
             if (reader.peek() == '.') reader.expect('.');
             else break;
-        };
+        }
+        ;
         return new Data.ListContentWithDelimiter<>(parts, '.');
     }
 

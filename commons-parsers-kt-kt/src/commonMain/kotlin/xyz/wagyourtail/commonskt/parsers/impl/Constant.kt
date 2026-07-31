@@ -20,15 +20,15 @@ class Constant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(r
         override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
             return SingleContent(
                 reader.parse(
-                "constant",
-                BooleanConstant::invoke,
-                StringConstant::invoke,
-                NumberConstant::invoke,
-                {
-                    expect("null")
-                    null
-                }
-            ))
+                    "constant",
+                    BooleanConstant::invoke,
+                    StringConstant::invoke,
+                    NumberConstant::invoke,
+                    {
+                        expect("null")
+                        null
+                    }
+                ))
         }
 
     }

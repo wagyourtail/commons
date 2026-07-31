@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ClassInfo {
     @Getter
@@ -155,7 +156,7 @@ public class ClassInfo {
         );
     }
 
-    public static IOFunction<String, ClassInfo> infoWithFallback(final IOFunction<String, ClassInfo> infoRetriever, final IOFunction<String, ClassInfo> fallback) {
+    public static IOFunction<String, ClassInfo> withFallback(final IOFunction<String, ClassInfo> infoRetriever, final IOFunction<String, ClassInfo> fallback) {
         return new IOFunction<String, ClassInfo>() {
             @Override
             public ClassInfo apply(String name) throws IOException {
@@ -180,7 +181,7 @@ public class ClassInfo {
     }
 
     @SafeVarargs
-    public static IOFunction<String, ClassInfo> infoWithFallbacks(final IOFunction<String, ClassInfo>... infoRetrievers) {
+    public static IOFunction<String, ClassInfo> withFallbacks(final IOFunction<String, ClassInfo>... infoRetrievers) {
         return new IOFunction<String, ClassInfo>() {
             @Override
             public ClassInfo apply(String name) throws IOException {
@@ -202,7 +203,7 @@ public class ClassInfo {
         };
     }
 
-    public static IOFunction<String, ClassInfo> infoFromByteSupplier(final IOFunction<String, byte[]> infoRetriever) {
+    public static IOFunction<String, ClassInfo> fromByteSupplier(final IOFunction<String, byte[]> infoRetriever) {
         return new IOFunction<String, ClassInfo>() {
             @Override
             public ClassInfo apply(String s) throws IOException {
@@ -216,7 +217,7 @@ public class ClassInfo {
         };
     }
 
-    public static IOFunction<String, ClassInfo> infoFromClassloader(final ClassLoader loader) {
+    public static IOFunction<String, ClassInfo> fromClassloader(final ClassLoader loader) {
         return new IOFunction<String, ClassInfo>() {
             @Override
             public ClassInfo apply(String name) {
@@ -231,7 +232,7 @@ public class ClassInfo {
         };
     }
 
-    public static IOFunction<String, ClassInfo> infoFromClassloaderWithoutLoading(final ClassLoader loader) {
+    public static IOFunction<String, ClassInfo> fromClassloaderWithoutLoading(final ClassLoader loader) {
         return new IOFunction<String, ClassInfo>() {
             @Override
             public ClassInfo apply(String name) throws IOException {
@@ -244,8 +245,20 @@ public class ClassInfo {
         };
     }
 
-    public static IOFunction<String, ClassInfo> infoFromCurrent() {
-        return infoFromClassloader(ClassInfo.class.getClassLoader());
+    public static IOFunction<String, ClassInfo> fromCurrent() {
+        return fromClassloader(ClassInfo.class.getClassLoader());
+    }
+
+    public static IOFunction<String, ClassInfo> caching(final IOFunction<String, ClassInfo> impl, final Map<String, ClassInfo> cache) {
+        return new IOFunction<String, ClassInfo>() {
+            @Override
+            public ClassInfo apply(String s) throws IOException {
+                if (!cache.containsKey(s)) {
+                    cache.put(s, impl.apply(s));
+                }
+                return cache.get(s);
+            }
+        };
     }
 
     public List<MethodInfo> getMethods() {

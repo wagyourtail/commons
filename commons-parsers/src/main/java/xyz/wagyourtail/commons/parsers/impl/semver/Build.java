@@ -44,7 +44,7 @@ public class Build extends StringData.OnlyParsed<Data.ListContentWithDelimiter<O
                         }
                         return s;
                     },
-                e -> e.takeWholeNumber(true)
+                    e -> e.takeWholeNumber(true)
             ));
             if (reader.peek() == '.') reader.expect('.');
             else break;

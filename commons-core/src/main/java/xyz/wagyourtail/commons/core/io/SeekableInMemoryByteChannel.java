@@ -1,7 +1,7 @@
 package xyz.wagyourtail.commons.core.io;
 
 import org.jetbrains.annotations.VisibleForTesting;
-import xyz.wagyourtail.commons.core.Utils;
+import xyz.wagyourtail.commons.core.NumberUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -127,7 +127,7 @@ public class SeekableInMemoryByteChannel implements SeekableByteChannel {
         if (wantedSize < buffer.length) {
             size = wantedSize;
         }
-        int size = Utils.nextPowerOf2(wantedSize);
+        int size = NumberUtils.nextPowerOf2(wantedSize);
         if (size < 0) {
             throw new IOException("attempted to expand greater than signed 32 bit limit");
         }

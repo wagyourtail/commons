@@ -37,9 +37,9 @@ public class PrefixedRange extends RangeData<PrefixedRange.PrefixContent> {
             String prefix;
             if (second == '=') {
                 reader.take();
-                prefix = String.valueOf(new char[] { (char)first, (char)second });
+                prefix = String.valueOf(new char[]{(char) first, (char) second});
             } else {
-                prefix = Character.toString((char)first);
+                prefix = Character.toString((char) first);
             }
             val p = Prefix.bySymbol.get(prefix);
             if (p == null) {
@@ -60,18 +60,6 @@ public class PrefixedRange extends RangeData<PrefixedRange.PrefixContent> {
 
     @Getter
     @AllArgsConstructor
-    public static class PrefixContent extends Data.Content<Object> {
-        private final Prefix prefix;
-        private final ExactVersionRange range;
-
-        @Override
-        public Iterable<Object> getEntries() {
-            return Arrays.asList(prefix, range);
-        }
-    }
-
-    @Getter
-    @AllArgsConstructor
     public enum Prefix {
         EQ("=", (r, v) -> r.compare(v) == 0),
         NEQ("!=", (r, v) -> r.compare(v) != 0),
@@ -80,10 +68,10 @@ public class PrefixedRange extends RangeData<PrefixedRange.PrefixContent> {
         LT("<", (r, v) -> r.compare(v) < 0),
         LTE("<=", (r, v) -> r.compare(v) <= 0),
         SIMILAR("~", ExactVersionRange::similar),
-        COMPATIBLE("^", ExactVersionRange::compatible)
-        ;
+        COMPATIBLE("^", ExactVersionRange::compatible);
 
         private static final Map<String, Prefix> bySymbol = new HashMap<>();
+
         static {
             for (Prefix prefix : values()) {
                 bySymbol.put(prefix.symbol, prefix);
@@ -96,6 +84,18 @@ public class PrefixedRange extends RangeData<PrefixedRange.PrefixContent> {
         @Override
         public String toString() {
             return symbol;
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class PrefixContent extends Data.Content<Object> {
+        private final Prefix prefix;
+        private final ExactVersionRange range;
+
+        @Override
+        public Iterable<Object> getEntries() {
+            return Arrays.asList(prefix, range);
         }
     }
 

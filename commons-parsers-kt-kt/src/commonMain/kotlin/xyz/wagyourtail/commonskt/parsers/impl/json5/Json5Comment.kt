@@ -17,24 +17,24 @@ class Json5Comment(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>
         override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
             return ListContent(
                 reader.parse(
-                "comment",
-                {
-                    buildList {
-                        add(expect("//"))
-                        add(takeUntil("\n"))
-                        if (!exhausted()) {
-                            add(expect('\n'))
+                    "comment",
+                    {
+                        buildList {
+                            add(expect("//"))
+                            add(takeUntil("\n"))
+                            if (!exhausted()) {
+                                add(expect('\n'))
+                            }
+                        }
+                    },
+                    {
+                        buildList {
+                            add(expect("/*"))
+                            add(takeUntil("*/"))
+                            add(expect("*/"))
                         }
                     }
-                },
-                {
-                    buildList {
-                        add(expect("/*"))
-                        add(takeUntil("*/"))
-                        add(expect("*/"))
-                    }
-                }
-            ))
+                ))
         }
     }
 

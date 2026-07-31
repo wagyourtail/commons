@@ -3,7 +3,7 @@ package xyz.wagyourtail.commonskt.utils
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.jvm.JvmName
 
-operator fun <T: Comparable<T>> Iterable<T>.compareTo(other: Iterable<T>): Int {
+operator fun <T : Comparable<T>> Iterable<T>.compareTo(other: Iterable<T>): Int {
     val i1 = iterator()
     val i2 = other.iterator()
     while (i1.hasNext() && i2.hasNext()) {

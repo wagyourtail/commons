@@ -1,12 +1,10 @@
 package xyz.wagyourtail.commonskt.test.collection.sorted
 
-import xyz.wagyourtail.commonskt.collection.sorted.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
-import java.util.TreeSet
+import xyz.wagyourtail.commonskt.collection.sorted.MutableSortedSet
+import xyz.wagyourtail.commonskt.collection.sorted.MutableSortedSetImpl
+import xyz.wagyourtail.commonskt.collection.sorted.sortedSetOf
+import java.util.*
+import kotlin.test.*
 
 class SortedSetTest {
 
@@ -17,7 +15,7 @@ class SortedSetTest {
 
         assertEquals(jvmSet.size, ourSet.size)
         assertEquals(jvmSet.toList(), ourSet.toList())
-        
+
         assertEquals(jvmSet.first(), ourSet.first())
         assertEquals(jvmSet.last(), ourSet.last())
     }
@@ -25,8 +23,8 @@ class SortedSetTest {
     @Test
     fun testWithCustomComparator() {
         val ourSet = sortedSetOf("banana", "apple", "cherry", comparator = compareBy { it.length })
-        val jvmSet = TreeSet<String>(compareBy { it.length }).apply { 
-            addAll(listOf("banana", "apple", "cherry")) 
+        val jvmSet = TreeSet<String>(compareBy { it.length }).apply {
+            addAll(listOf("banana", "apple", "cherry"))
         }
 
         assertEquals(jvmSet.size, ourSet.size)
@@ -78,17 +76,17 @@ class SortedSetTest {
         assertEquals(jvmSet.add(5), ourSet.add(5))
         assertEquals(jvmSet.add(3), ourSet.add(3))
         assertEquals(jvmSet.add(7), ourSet.add(7))
-        
+
         // Test duplicate add
         assertEquals(jvmSet.add(5), ourSet.add(5))
-        
+
         assertEquals(jvmSet.toList(), ourSet.toList())
         assertEquals(jvmSet.size, ourSet.size)
 
         // Test remove
         assertEquals(jvmSet.remove(3), ourSet.remove(3))
         assertEquals(jvmSet.remove(10), ourSet.remove(10))
-        
+
         assertEquals(jvmSet.toList(), ourSet.toList())
         assertEquals(jvmSet.size, ourSet.size)
 
@@ -109,20 +107,20 @@ class SortedSetTest {
         // Test addAll
         assertEquals(jvmSet.addAll(listOf(5, 3, 7, 1)), ourSet.addAll(listOf(5, 3, 7, 1)))
         assertEquals(jvmSet.addAll(listOf(5, 9)), ourSet.addAll(listOf(5, 9)))
-        
+
         assertEquals(jvmSet.toList(), ourSet.toList())
         assertEquals(jvmSet.size, ourSet.size)
 
         // Test removeAll
         assertEquals(jvmSet.removeAll(listOf(3, 9)), ourSet.removeAll(listOf(3, 9)))
         assertEquals(jvmSet.removeAll(listOf(10, 11)), ourSet.removeAll(listOf(10, 11)))
-        
+
         assertEquals(jvmSet.toList(), ourSet.toList())
         assertEquals(jvmSet.size, ourSet.size)
 
         // Test retainAll
         assertEquals(jvmSet.retainAll(listOf(1, 5, 7)), ourSet.retainAll(listOf(1, 5, 7)))
-        
+
         assertEquals(jvmSet.toList(), ourSet.toList())
         assertEquals(jvmSet.size, ourSet.size)
     }
@@ -161,7 +159,7 @@ class SortedSetTest {
             val ourNext = ourIterator.next()
             val jvmNext = jvmIterator.next()
             assertEquals(jvmNext, ourNext)
-            
+
             if (ourNext == 3) {
                 ourIterator.remove()
                 jvmIterator.remove()
@@ -197,7 +195,7 @@ class SortedSetTest {
 
         assertEquals(jvmSet.size, ourSet.size)
         assertEquals(jvmSet.isEmpty(), ourSet.isEmpty())
-        
+
         assertFailsWith<IndexOutOfBoundsException> { ourSet.first() }
         assertFailsWith<IndexOutOfBoundsException> { ourSet.last() }
     }
@@ -224,7 +222,7 @@ class SortedSetTest {
         // Test that subSet operations work correctly
         assertEquals(jvmSubSet.size, ourSubSet.size)
         assertEquals(jvmSubSet.toList(), ourSubSet.toList())
-        
+
         // Test first/last on subset
         assertEquals(jvmSubSet.first(), ourSubSet.first())
         assertEquals(jvmSubSet.last(), ourSubSet.last())

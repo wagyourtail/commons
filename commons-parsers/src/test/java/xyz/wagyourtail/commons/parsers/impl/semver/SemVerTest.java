@@ -9,20 +9,10 @@ import xyz.wagyourtail.commons.parsers.impl.SemVer;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // https://github.com/Masterminds/semver/blob/master/version_test.go
 public class SemVerTest {
-
-    @ParameterizedTest
-    @MethodSource("provideTestData")
-    public void testSemVerParsing(String input, boolean expectedFail) {
-        if (expectedFail) {
-            assertThrows(ParseException.class, () -> SemVer.parse(input));
-        } else {
-            SemVer.parse(input);
-        }
-    }
 
     static Stream<Arguments> provideTestData() {
         Object[][] test = {
@@ -84,6 +74,16 @@ public class SemVerTest {
         };
 
         return Arrays.stream(test).map(data -> Arguments.of(data[0], data[1]));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTestData")
+    public void testSemVerParsing(String input, boolean expectedFail) {
+        if (expectedFail) {
+            assertThrows(ParseException.class, () -> SemVer.parse(input));
+        } else {
+            SemVer.parse(input);
+        }
     }
 
 }

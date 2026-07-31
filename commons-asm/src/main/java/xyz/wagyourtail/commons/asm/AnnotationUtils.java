@@ -24,11 +24,11 @@ public class AnnotationUtils {
      * Copies an annotation node to a new annotation node
      *
      * @param from original node
+     * @param <E>  type of the annotation node
      * @return new node
-     * @param <E> type of the annotation node
      */
     @SuppressWarnings("unchecked")
-    public static  <E extends AnnotationNode> E copyAnnotationNode(E from) {
+    public static <E extends AnnotationNode> E copyAnnotationNode(E from) {
         if (from.getClass() == LocalVariableAnnotationNode.class) {
             LocalVariableAnnotationNode fromLv = (LocalVariableAnnotationNode) from;
             int[] indexes = new int[fromLv.index.size()];
@@ -87,11 +87,7 @@ public class AnnotationUtils {
         if (!ASMUtils.equals(Type.getType(annotationNode.desc), annotationClass)) {
             throw new IllegalArgumentException("AnnotationNode type (" + annotationNode.desc + ") does not match annotation class (" + annotationClass.getName() + ")");
         }
-        return (T) Proxy.newProxyInstance(
-                loader,
-                new Class[]{annotationClass},
-                new Handler(annotationClass, annotationNode, loader)
-        );
+        return (T) Proxy.newProxyInstance(loader, new Class[]{annotationClass}, new Handler(annotationClass, annotationNode, loader));
     }
 
     /**

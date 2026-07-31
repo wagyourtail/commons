@@ -5,9 +5,7 @@ package xyz.wagyourtail.commonskt.utils
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.jvm.JvmName
 
-fun <K, V> Map<K, V>.first(): Map.Entry<K, V> {
-    return entries.first()
-}
+fun <K, V> Map<K, V>.first() = entries.first()
 
 fun <K, V> Map<K, V>.firstAsMap(): Map<K, V> {
     val entry = entries.first()
@@ -60,6 +58,14 @@ fun <E> MutableList<E>.insertAfter(element: E, vararg toAdd: E) {
 
 fun <E> MutableList<E>.replace(element: E, toAdd: E) {
     val i = indexOf(element)
+    if (i < 0) throw NoSuchElementException()
+    set(i, toAdd)
+}
+
+fun <E> MutableList<E>.replaceFirst(element: E, toAdd: E) = replace(element, toAdd)
+
+fun <E> MutableList<E>.replaceLast(element: E, toAdd: E) {
+    val i = lastIndexOf(element)
     if (i < 0) throw NoSuchElementException()
     set(i, toAdd)
 }

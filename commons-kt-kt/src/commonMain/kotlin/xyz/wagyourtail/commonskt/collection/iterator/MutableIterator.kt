@@ -1,12 +1,7 @@
 package xyz.wagyourtail.commonskt.collection.iterator
 
 import xyz.wagyourtail.commonskt.utils.iterable
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.createCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.*
 import kotlin.experimental.ExperimentalTypeInference
 
 @OptIn(ExperimentalTypeInference::class)
@@ -72,6 +67,7 @@ private class SequenceBuilderMutableIterator<T> : MutableSequenceScope<T>(), Mut
                 nextValue = null
                 return result!!
             }
+
             else -> throw exceptionalState()
         }
     }

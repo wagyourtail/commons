@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.*;
 import xyz.wagyourtail.commons.asm.ASMUtils;
 import xyz.wagyourtail.commons.asm.type.FullyQualifiedMemberNameAndDesc;
 import xyz.wagyourtail.commons.asm.type.MemberNameAndDesc;
-import xyz.wagyourtail.commons.core.Utils;
+import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.logger.Logger;
 
 import java.io.IOException;
@@ -149,7 +149,7 @@ public class ReferenceGraph {
             version = 0;
         }
         try (InputStream stream = Files.newInputStream(path)) {
-            ClassNode node = ASMUtils.bytesToClassNode(Utils.readAllBytes(stream));
+            ClassNode node = ASMUtils.bytesToClassNode(IOUtils.readAllBytes(stream));
             Type type = Type.getObjectType(node.name);
             if (!type.equals(targetType)) {
                 throw new IllegalStateException("Expected path to match class name: " + path + " != " + type.getInternalName());

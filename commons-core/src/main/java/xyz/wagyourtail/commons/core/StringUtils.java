@@ -191,12 +191,9 @@ public class StringUtils {
         return sb.toString();
     }
 
+    @Deprecated
     public static String toHex(byte[] hexBytes) {
-        StringBuilder hex = new StringBuilder();
-        for (byte b : hexBytes) {
-            hex.append(String.format("%02X", b));
-        }
-        return hex.toString();
+        return NumberUtils.toHex(hexBytes);
     }
 
     public static String capitalize(String str) {
@@ -217,6 +214,17 @@ public class StringUtils {
         int index = str.indexOf(c, startIndex);
         if (index >= endIndex) return -1;
         return index;
+    }
+
+    public static int indexOf(CharSequence str, char c, int startIndex) {
+        return indexOf(str, c, startIndex, str.length());
+    }
+
+    public static int indexOf(CharSequence str, char c, int startIndex, int endIndex) {
+        for (int i = startIndex; i < endIndex; i++) {
+            if (str.charAt(i) == c) return i;
+        }
+        return -1;
     }
 
     public static String joinToString(String separator, Iterable<?> iterable) {

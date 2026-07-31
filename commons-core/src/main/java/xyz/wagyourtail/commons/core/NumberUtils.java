@@ -28,4 +28,20 @@ public class NumberUtils {
         }
     }
 
+    public static String toHex(byte[] hexBytes) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : hexBytes) {
+            hex.append(String.format("%02X", b));
+        }
+        return hex.toString();
+    }
+
+    public static int nextPowerOf2(int num) {
+        return Integer.highestOneBit(num - 1) << 1;
+    }
+
+    public static long nextPowerOf2(long num) {
+        return Long.highestOneBit(num - 1) << 1;
+    }
+
 }

@@ -91,6 +91,15 @@ public class ASMUtils {
     }
 
     /**
+     * helper function to write ClassNode, will use classloader for frame context
+     */
+    public static byte[] classNodeToBytes(ClassNode node, int flags) {
+        ClassWriter writer = new ClassWriter(flags);
+        node.accept(writer);
+        return writer.toByteArray();
+    }
+
+    /**
      * helper function to write ClassNode, with argument for frame context
      */
     public static byte[] classNodeToBytes(ClassNode node, int flags, IOFunction<String, ClassInfo> infoRetriever) {

@@ -1,17 +1,18 @@
 package xyz.wagyourtail.commonskt
 
 import kotlin.jvm.JvmInline
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-interface BitField {
+open class BitField {
 
-    var field: Int
+    var field: Long = 0
 
-    fun hasFlag(flag: Int): Boolean {
+    fun hasFlag(flag: Long): Boolean {
         return (field and flag) == flag
     }
 
-    fun setFlag(flag: Int, value: Boolean) {
+    fun setFlag(flag: Long, value: Boolean) {
         field = if (value) {
             field or flag
         } else {
@@ -19,13 +20,17 @@ interface BitField {
         }
     }
 
+    fun entry(flag: Long, enable: Boolean = false): Entry {
+        return Entry(flag).also { if (enable) setFlag(flag, true) }
+    }
+
     @JvmInline
-    value class Entry(val flag: Int) {
-        operator fun getValue(thisRef: BitField, property: KProperty<*>): Boolean {
+    value class Entry(val flag: Long) : ReadWriteProperty<BitField, Boolean> {
+        override operator fun getValue(thisRef: BitField, property: KProperty<*>): Boolean {
             return thisRef.hasFlag(flag)
         }
 
-        operator fun setValue(thisRef: BitField, property: KProperty<*>, value: Boolean) {
+        override operator fun setValue(thisRef: BitField, property: KProperty<*>, value: Boolean) {
             thisRef.setFlag(flag, value)
         }
     }

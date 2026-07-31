@@ -1,20 +1,16 @@
 package xyz.wagyourtail.commonskt.test.collection.sorted
 
-import xyz.wagyourtail.commonskt.collection.sorted.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
-import java.util.TreeMap
+import xyz.wagyourtail.commonskt.collection.sorted.MutableSortedMapImpl
+import xyz.wagyourtail.commonskt.collection.sorted.mutableSortedMapOf
+import java.util.*
+import kotlin.test.*
 
 class SortedMapTest {
 
     @Test
     fun testBasicOperations() {
         val ourMap = mutableSortedMapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine"))
         }
 
@@ -22,7 +18,7 @@ class SortedMapTest {
         assertEquals(jvmMap.keys.toList(), ourMap.keys.toList())
         assertEquals(jvmMap.values.toList(), ourMap.values.toList())
         assertEquals(jvmMap.entries.map { it.key to it.value }, ourMap.entries.map { it.key to it.value })
-        
+
         assertEquals(jvmMap.firstKey(), ourMap.firstKey())
         assertEquals(jvmMap.lastKey(), ourMap.lastKey())
     }
@@ -31,11 +27,11 @@ class SortedMapTest {
     fun testWithCustomComparator() {
         val ourMap = mutableSortedMapOf(
             "banana" to 1,
-            "apple" to 2, 
+            "apple" to 2,
             "cherry" to 3,
             comparator = compareBy { it.length }
         )
-        val jvmMap = TreeMap<String, Int>(compareBy { it.length }).apply { 
+        val jvmMap = TreeMap<String, Int>(compareBy { it.length }).apply {
             putAll(listOf("banana" to 1, "apple" to 2, "cherry" to 3))
         }
 
@@ -48,7 +44,7 @@ class SortedMapTest {
     @Test
     fun testHeadMap() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -63,7 +59,7 @@ class SortedMapTest {
     @Test
     fun testTailMap() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -78,7 +74,7 @@ class SortedMapTest {
     @Test
     fun testSubMap() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -99,10 +95,10 @@ class SortedMapTest {
         assertEquals(jvmMap.put(5, "five"), ourMap.put(5, "five"))
         assertEquals(jvmMap.put(3, "three"), ourMap.put(3, "three"))
         assertEquals(jvmMap.put(7, "seven"), ourMap.put(7, "seven"))
-        
+
         // Test put with existing key
         assertEquals(jvmMap.put(5, "FIVE"), ourMap.put(5, "FIVE"))
-        
+
         assertEquals(jvmMap.size, ourMap.size)
         assertEquals(jvmMap.keys.toList(), ourMap.keys.toList())
         assertEquals(jvmMap.values.toList(), ourMap.values.toList())
@@ -125,10 +121,10 @@ class SortedMapTest {
 
         // Test remove existing key
         assertEquals(jvmMap.remove(3), ourMap.remove(3))
-        
+
         // Test remove non-existing key
         assertEquals(jvmMap.remove(10), ourMap.remove(10))
-        
+
         assertEquals(jvmMap.size, ourMap.size)
         assertEquals(jvmMap.keys.toList(), ourMap.keys.toList())
         assertEquals(jvmMap.values.toList(), ourMap.values.toList())
@@ -137,7 +133,7 @@ class SortedMapTest {
     @Test
     fun testContains() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -188,7 +184,7 @@ class SortedMapTest {
 
         assertEquals(jvmMap.size, ourMap.size)
         assertEquals(jvmMap.isEmpty(), ourMap.isEmpty())
-        
+
         assertFailsWith<IndexOutOfBoundsException> { ourMap.firstKey() }
         assertFailsWith<IndexOutOfBoundsException> { ourMap.lastKey() }
     }
@@ -207,7 +203,7 @@ class SortedMapTest {
     @Test
     fun testKeysSet() {
         val ourMap = mutableSortedMapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine"))
         }
 
@@ -227,7 +223,7 @@ class SortedMapTest {
     @Test
     fun testValuesCollection() {
         val ourMap = mutableSortedMapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine"))
         }
 
@@ -249,7 +245,7 @@ class SortedMapTest {
     @Test
     fun testEntriesSet() {
         val ourMap = mutableSortedMapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(5 to "five", 2 to "two", 8 to "eight", 1 to "one", 9 to "nine"))
         }
 
@@ -272,7 +268,7 @@ class SortedMapTest {
     @Test
     fun testIterator() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -309,7 +305,7 @@ class SortedMapTest {
             val jvmNext = jvmIterator.next()
             assertEquals(jvmNext.key, ourNext.key)
             assertEquals(jvmNext.value, ourNext.value)
-            
+
             if (ourNext.key == 3) {
                 ourIterator.remove()
                 jvmIterator.remove()
@@ -324,7 +320,7 @@ class SortedMapTest {
     @Test
     fun testSubMapOperations() {
         val ourMap = mutableSortedMapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine")
-        val jvmMap = TreeMap<Int, String>().apply { 
+        val jvmMap = TreeMap<Int, String>().apply {
             putAll(mapOf(1 to "one", 3 to "three", 5 to "five", 7 to "seven", 9 to "nine"))
         }
 
@@ -335,7 +331,7 @@ class SortedMapTest {
         assertEquals(jvmSubMap.size, ourSubMap.size)
         assertEquals(jvmSubMap.keys.toList(), ourSubMap.keys.toList())
         assertEquals(jvmSubMap.values.toList(), ourSubMap.values.toList())
-        
+
         // Test firstKey/lastKey on submap
         assertEquals(jvmSubMap.firstKey(), ourSubMap.firstKey())
         assertEquals(jvmSubMap.lastKey(), ourSubMap.lastKey())

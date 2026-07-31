@@ -67,11 +67,11 @@ public class BracketRange extends RangeData<BracketRange.BracketContent> {
         @Override
         public Iterable<Object> getEntries() {
             return Arrays.asList(
-                includeLeft ? '[' : '(',
-                from,
-                ',',
-                to,
-                includeRight ? ']' : ')'
+                    includeLeft ? '[' : '(',
+                    from,
+                    ',',
+                    to,
+                    includeRight ? ']' : ')'
             );
         }
     }

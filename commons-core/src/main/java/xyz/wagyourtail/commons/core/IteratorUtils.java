@@ -143,6 +143,24 @@ public class IteratorUtils {
         return concat(iterables);
     }
 
+    public static <T> List<T> toList(Iterable<T> iterable) {
+        if (iterable instanceof List) {
+            return (List<T>) iterable;
+        }
+        return toList(iterable.iterator());
+    }
+
+    public static <T> Set<T> toSet(Iterable<T> iterable) {
+        if (iterable instanceof Set) {
+            return (Set<T>) iterable;
+        }
+        return toSet(iterable.iterator());
+    }
+
+    public static <K, V> Map<K, V> toMap(Iterable<Map.Entry<K, V>> iterable) {
+        return toMap(iterable.iterator());
+    }
+
     public static <T> List<T> toList(Iterator<T> iterator) {
         List<T> list = new ArrayList<>();
         while (iterator.hasNext()) {

@@ -211,9 +211,9 @@ class TestCharReader {
         reader.reset()
         assertEquals(
             "test", reader.parse(
-            { expect("false") },
-            { expect("test") }
-        ))
+                { expect("false") },
+                { expect("test") }
+            ))
         reader.expectEOS()
     }
 }

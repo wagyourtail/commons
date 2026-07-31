@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.val;
-import xyz.wagyourtail.commons.core.Utils;
+import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.lazy.Lazy;
 
 import java.io.ByteArrayInputStream;
@@ -27,7 +27,7 @@ public abstract class ResourceProvider implements Closeable {
                 return null;
             }
             val manifestURL = manifestURLs.nextElement();
-            val data = Utils.readAllBytes(manifestURL.openStream());
+            val data = IOUtils.readAllBytes(manifestURL.openStream());
             Manifest manifestFile = new Manifest();
             manifestFile.read(new ByteArrayInputStream(data));
             Attributes mainAttributes = manifestFile.getMainAttributes();

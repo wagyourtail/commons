@@ -4,7 +4,7 @@ import xyz.wagyourtail.commonskt.properties.internallyNullable
 import xyz.wagyourtail.commonskt.utils.iterable
 import xyz.wagyourtail.commonskt.utils.withDelimiter
 
-abstract class Data<T: Any, E : Data.Content<*>> protected constructor(
+abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
     rawContent: T?,
     content: E?
 ) {
@@ -42,7 +42,7 @@ abstract class Data<T: Any, E : Data.Content<*>> protected constructor(
         visitor.visitEnd(this)
     }
 
-    abstract class OnlyRaw<T: Any, E : Content<*>>(rawContent: T) : Data<T, E>(rawContent) {
+    abstract class OnlyRaw<T : Any, E : Content<*>>(rawContent: T) : Data<T, E>(rawContent) {
 
         override val content: E
             get() = buildContent()
@@ -53,7 +53,7 @@ abstract class Data<T: Any, E : Data.Content<*>> protected constructor(
 
     }
 
-    abstract class OnlyParsed<T: Any, E : Content<*>>(content: E) : Data<T, E>(content) {
+    abstract class OnlyParsed<T : Any, E : Content<*>>(content: E) : Data<T, E>(content) {
 
         override val rawContent: T
             get() = buildRawContent()

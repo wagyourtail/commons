@@ -2,7 +2,10 @@ package xyz.wagyourtail.commonskt.collection.sorted
 
 import xyz.wagyourtail.commonskt.collection.MutableMapEntry
 
-class MutableSortedMapImpl<K, V> private constructor(override val entries: MutableSortedSetImpl<MutableMap.MutableEntry<K, V>>, override val comparator: Comparator<K>) : MutableSortedMap<K, V> {
+class MutableSortedMapImpl<K, V> private constructor(
+    override val entries: MutableSortedSetImpl<MutableMap.MutableEntry<K, V>>,
+    override val comparator: Comparator<K>
+) : MutableSortedMap<K, V> {
 
     constructor(comparator: Comparator<K>) : this(
         MutableSortedSetImpl(Comparator { a, b -> comparator.compare(a.key, b.key) }),
@@ -220,13 +223,13 @@ class MutableSortedMapImpl<K, V> private constructor(override val entries: Mutab
     }
 }
 
-fun <K: Comparable<K>, V> mutableSortedMapOf(vararg pairs: Pair<K, V>): MutableSortedMap<K, V> {
+fun <K : Comparable<K>, V> mutableSortedMapOf(vararg pairs: Pair<K, V>): MutableSortedMap<K, V> {
     val map = MutableSortedMapImpl<K, V>(naturalOrder())
     map.putAll(pairs)
     return map
 }
 
-fun <K, V> mutableSortedMapOf(vararg pairs: Pair<K, V>, comparator: Comparator<K>) : MutableSortedMap<K, V> {
+fun <K, V> mutableSortedMapOf(vararg pairs: Pair<K, V>, comparator: Comparator<K>): MutableSortedMap<K, V> {
     val map = MutableSortedMapImpl<K, V>(comparator)
     map.putAll(pairs.reversed())
     return map
