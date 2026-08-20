@@ -40,6 +40,9 @@ allprojects {
 
     dependencies {
         if (!kotlin) {
+            val compileOnly by configurations.getting
+            val annotationProcessor by configurations.getting
+
             val testImplementation by configurations.getting
             val testCompileOnly by configurations.getting
             val testRuntimeOnly by configurations.getting

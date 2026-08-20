@@ -1,7 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs.impl;
 
 import org.apache.commons.io.function.IOStream;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class DirectoryFileSystem extends VirtualFileSystem {
             PathFile pathFile = (PathFile) directory;
             this.pathWatcher(pathFile.getPath());
         } else {
-            this.filteredListener(directory);
+            this.filteredListener(directory, this.parent);
         }
         if (!directory.isDirectory()) throw new IllegalArgumentException("VirtualFile must be a directory");
     }
@@ -73,8 +72,8 @@ public class DirectoryFileSystem extends VirtualFileSystem {
         return files;
     }
 
-    private void filteredListener(VirtualFile vf) {
-        vf.parentFs.addListener(
+    private void filteredListener(VirtualFile vf, VirtualFileSystem parentFs) {
+        parentFs.addListener(
                 new FileSystemChangeListener() {
                     @Override
                     public void onAdded(VirtualFile file) {
@@ -165,6 +164,7 @@ public class DirectoryFileSystem extends VirtualFileSystem {
     }
 
     @Override
+    @Nullable
     protected SeekableByteChannel getDataIntl(VirtualFile fi) throws IOException {
         if (this.parent != null) {
             return this.parent.getFile(this.location.path + fi.path).getData();
@@ -200,18 +200,23 @@ public class DirectoryFileSystem extends VirtualFileSystem {
     }
 
     @Override
-    public void write(@NotNull OutputStream os) throws IOException {
+    public void write(OutputStream os) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected synchronized void putData(VirtualFile fi, SeekableByteChannel data) throws IOException {
+    protected synchronized void putData(VirtualFile fi, @Nullable SeekableByteChannel data) throws IOException {
         if (this.parent != null) {
             this.parent.getFile(this.location.path + fi.path).setData(data);
         } else if (location instanceof PathFile) {
             PathFile path = (PathFile) this.location;
-            try (OutputStream os = Files.newOutputStream(path.getPath().resolve(fi.path), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-                IOUtils.transferTo(data, os);
+            Path loc = path.getPath().resolve(fi.path);
+            if (data == null) {
+                Files.deleteIfExists(loc);
+            } else {
+                try (OutputStream os = Files.newOutputStream(loc, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+                    IOUtils.transferTo(data, os);
+                }
             }
         } else {
             throw new IOException("Cannot put data for non-path file");

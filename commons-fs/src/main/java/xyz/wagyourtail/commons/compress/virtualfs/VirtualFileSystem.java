@@ -1,7 +1,7 @@
 package xyz.wagyourtail.commons.compress.virtualfs;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.listener.FileSystemChangeListener;
@@ -24,7 +24,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
     protected final Map<String, VirtualFile> files = new HashMap<>();
     protected final Map<String, Set<VirtualFile>> directories = new ConcurrentHashMap<>();
     protected final FileSystemChangeListeners listeners = new FileSystemChangeListeners();
-    Map<VirtualFile, SeekableByteChannel> pendingWrites = new HashMap<>();
+    Map<VirtualFile, @Nullable SeekableByteChannel> pendingWrites = new HashMap<>();
     private volatile boolean read = false;
     @Getter
     private boolean closed = false;
@@ -57,6 +57,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
         return name;
     }
 
+    @Nullable
     SeekableByteChannel getData(VirtualFile fi) throws IOException {
         if (this.pendingWrites.containsKey(fi)) {
             return this.pendingWrites.get(fi);
@@ -67,6 +68,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
         return null;
     }
 
+    @Nullable
     SeekableByteChannel getExtraData(VirtualFile fi) {
         if (this.files.containsKey(fi.path)) {
             return this.getExtraDataIntl(fi);
@@ -74,8 +76,14 @@ public abstract class VirtualFileSystem implements AutoCloseable {
         return null;
     }
 
+    @Nullable
     protected abstract SeekableByteChannel getDataIntl(VirtualFile fi) throws IOException;
 
+    protected boolean exists(VirtualFile fi) {
+        return this.files.containsKey(fi.path);
+    }
+
+    @Nullable
     protected SeekableByteChannel getExtraDataIntl(VirtualFile fi) {
         return null;
     }
@@ -84,11 +92,16 @@ public abstract class VirtualFileSystem implements AutoCloseable {
 
     public abstract long getCompressedSize(VirtualFile fi) throws IOException;
 
-    protected synchronized void putData(VirtualFile fi, SeekableByteChannel data) throws IOException {
+    protected synchronized void putData(VirtualFile fi, @Nullable SeekableByteChannel data) throws IOException {
         this.pendingWrites.put(fi, data);
         if (this.files.containsKey(fi.path)) {
-            this.listeners.onModified(fi);
-        } else {
+            if (data == null) {
+                this.files.remove(fi.path);
+                this.listeners.onRemoved(fi);
+            } else {
+                this.listeners.onModified(fi);
+            }
+        } else if (data != null) {
             this.files.put(fi.path, fi);
             this.listeners.onAdded(fi);
         }
@@ -164,7 +177,7 @@ public abstract class VirtualFileSystem implements AutoCloseable {
         return baos.wrap();
     }
 
-    public abstract void write(@NotNull OutputStream os) throws IOException;
+    public abstract void write(OutputStream os) throws IOException;
 
     @Override
     public boolean equals(Object obj) {

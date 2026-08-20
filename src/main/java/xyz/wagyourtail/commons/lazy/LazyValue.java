@@ -5,7 +5,7 @@ import xyz.wagyourtail.commons.core.lazy.Lazy;
 
 import java.util.function.Supplier;
 
-public class LazyValue<T> extends Lazy<T> {
+public class LazyValue<T> extends Lazy<T> implements Supplier<T> {
 
     public Supplier<T> supplier;
 

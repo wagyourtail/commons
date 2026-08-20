@@ -1,12 +1,12 @@
 package xyz.wagyourtail.commons.compress.virtualfs.impl.single;
 
+import lombok.val;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.tukaani.xz.XZ;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
-import xyz.wagyourtail.commons.compress.virtualfs.impl.SingleFileFilesystem;
 import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.io.FastWrapOutputStream;
 import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
@@ -29,8 +29,12 @@ public class XZArchiveFileSystem extends SingleFileFilesystem {
     }
 
     @Override
+    @Nullable
     protected SeekableByteChannel getDataIntl(VirtualFile fi) throws IOException {
-        try (XZCompressorInputStream in = new XZCompressorInputStream(new SeekableByteChannelInputStream(this.location.getData()))) {
+        val data = this.location.getData();
+        if (data == null) return null;
+        data.position(0);
+        try (XZCompressorInputStream in = new XZCompressorInputStream(new SeekableByteChannelInputStream(data))) {
             FastWrapOutputStream out = new FastWrapOutputStream();
             in.transferTo(out);
             return out.wrap();
@@ -38,16 +42,17 @@ public class XZArchiveFileSystem extends SingleFileFilesystem {
     }
 
     @Override
-    public void write(@NotNull OutputStream os) throws IOException {
-        XZCompressorOutputStream writer = new XZCompressorOutputStream(os, compressionLevel);
-        Collection<VirtualFile> files = this.getFiles();
-        if (files.size() != 1) {
-            throw new IOException("XZArchiveFile must have exactly 1 file");
+    public void write(OutputStream os) throws IOException {
+        try (XZCompressorOutputStream writer = new XZCompressorOutputStream(os, compressionLevel)) {
+            Collection<VirtualFile> files = this.getFiles();
+            if (files.size() != 1) {
+                throw new IOException("XZArchiveFile must have exactly 1 file");
+            }
+            SeekableByteChannel data = files.iterator().next().getData();
+            if (data == null) return;
+            data.position(0);
+            IOUtils.transferTo(data, writer);
         }
-        SeekableByteChannel data = files.iterator().next().getData();
-        data.position(0);
-        IOUtils.transferTo(data, writer);
-        writer.close();
     }
 
 

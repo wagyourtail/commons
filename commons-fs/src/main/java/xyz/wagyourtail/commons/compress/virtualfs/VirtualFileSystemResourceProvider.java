@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs;
 
+import lombok.val;
 import xyz.wagyourtail.commons.core.Utils;
 import xyz.wagyourtail.commons.core.classloader.ResourceProvider;
 import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
@@ -18,9 +19,13 @@ public class VirtualFileSystemResourceProvider extends ResourceProvider {
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        return Collections.enumeration(Collections.singleton(Utils.bufferURL(name, () ->
-                new SeekableByteChannelInputStream(vfs.getFile(name).getData())
-        )));
+        VirtualFile vf = vfs.getFile(name);
+        if (!vf.exists()) return Collections.emptyEnumeration();
+        return Collections.enumeration(Collections.singleton(Utils.bufferURL(name, () -> {
+            val data = vf.getData();
+            if (data == null) return null;
+            return new SeekableByteChannelInputStream(data);
+        })));
     }
 
     @Override

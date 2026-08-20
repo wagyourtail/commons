@@ -3,11 +3,11 @@ package xyz.wagyourtail.commons.compress.virtualfs;
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel;
 import org.apache.commons.io.function.IOSupplier;
 import org.apache.tika.Tika;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.SoftReference;
@@ -24,9 +24,10 @@ public class VirtualFile {
     private static final Cleaner CLEANER = Cleaner.create();
 
     public final String path;
+    @Nullable
     public final VirtualFileSystem parentFs;
-    public Icon icon;
-    protected volatile Supplier<CleaningSeekableByteChannel> cachedContents = () -> null;
+    protected volatile Supplier<@Nullable CleaningSeekableByteChannel> cachedContents = () -> null;
+    @Nullable
     protected volatile String mimeType;
 
     public VirtualFile(final byte[] data, final String path) {
@@ -46,11 +47,11 @@ public class VirtualFile {
         this.path = path;
     }
 
-    public static boolean isArchiveFile(String path, IOSupplier<SeekableByteChannel> bytes) throws IOException {
+    public static boolean isArchiveFile(String path, IOSupplier<@Nullable SeekableByteChannel> bytes) throws IOException {
         return VirtualFileSystemFactory.getSupportedMimes().contains(getMimeType(path, bytes));
     }
 
-    public static boolean isClassFile(String path, IOSupplier<SeekableByteChannel> bytes) throws IOException {
+    public static boolean isClassFile(String path, IOSupplier<@Nullable SeekableByteChannel> bytes) throws IOException {
         if (!path.endsWith(".class") && !path.endsWith(".class/")) return false;
         SeekableByteChannel buf = bytes.get();
         if (buf == null) return false;
@@ -62,12 +63,14 @@ public class VirtualFile {
         return buffer.getInt() == 0xCAFEBABE;
     }
 
-    public static String getMimeType(String name, IOSupplier<SeekableByteChannel> bytes) throws IOException {
+    @Nullable
+    public static String getMimeType(String name, IOSupplier<@Nullable SeekableByteChannel> bytes) throws IOException {
         // short circuit for class files, because they are the most common for our use case
         if (isClassFile(name, bytes)) {
             return "application/java-vm";
         }
         SeekableByteChannel data = bytes.get();
+        if (data == null) return null;
         data.position(0);
         try (SeekableByteChannelInputStream t = new SeekableByteChannelInputStream(data)) {
             return tika.detect(t, name);
@@ -82,12 +85,20 @@ public class VirtualFile {
     }
 
     public boolean isFile() throws IOException {
-        if (!this.isDirectory()) return true;
-        if (this.getData() == null) return false;
-        return this.getData().size() > 0L;
+        return !this.isDirectory();
     }
 
+    public boolean exists() throws IOException {
+        if (this.parentFs != null) {
+            return this.parentFs.exists(this);
+        } else {
+            return this.isDirectory() || this.getData() != null;
+        }
+    }
+
+    @Nullable
     public VirtualFile getParent() throws IOException {
+        if (this.parentFs == null) throw new IOException("filesystem is null");
         int slash;
         if (this.path.endsWith("/")) {
             slash = this.path.substring(0, this.path.length() - 1).lastIndexOf('/');
@@ -98,12 +109,7 @@ public class VirtualFile {
             if (this.path.isEmpty()) return null;
             return this.parentFs.getFile("");
         }
-        VirtualFile fi = this.parentFs.getFile(this.path.substring(0, slash + 1));
-        if (fi == null) {
-            LOGGER.warn("Parent file not found: {}", this.path.substring(0, slash + 1));
-            return new VirtualFile(this.parentFs, this.path.substring(0, slash + 1));
-        }
-        return fi;
+        return this.parentFs.getFile(this.path.substring(0, slash + 1));
     }
 
     public String fileName() {
@@ -142,6 +148,7 @@ public class VirtualFile {
         return name;
     }
 
+    @Nullable
     public SeekableByteChannel getData() throws IOException {
         CleaningSeekableByteChannel cached = this.cachedContents.get();
         if (cached == null) {
@@ -149,6 +156,7 @@ public class VirtualFile {
                 cached = this.cachedContents.get();
                 if (cached == null) {
                     try {
+                        if (parentFs == null) throw new NullPointerException("parentFs is null");
                         SeekableByteChannel uncompressed = this.parentFs.getData(this);
                         cached = CleaningSeekableByteChannel.wrap(uncompressed);
                         this.cachedContents = new SoftReference<>(cached)::get;
@@ -162,12 +170,20 @@ public class VirtualFile {
         return cached;
     }
 
-    public synchronized void setData(SeekableByteChannel data) throws IOException {
-        CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
-        this.cachedContents = () -> cached;
-        this.parentFs.putData(this, cached);
+    public synchronized void setData(@Nullable SeekableByteChannel data) throws IOException {
+        if (data != null) {
+            CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
+            this.cachedContents = () -> cached;
+            if (this.parentFs != null)
+                this.parentFs.putData(this, cached);
+        } else {
+            this.cachedContents = () -> null;
+            if (this.parentFs != null)
+                this.parentFs.putData(this, null);
+        }
     }
 
+    @Nullable
     public SeekableByteChannel getExtraData() {
         if (this.parentFs == null) return null;
         try {
@@ -186,10 +202,16 @@ public class VirtualFile {
     }
 
     public long getCompressedSize() throws IOException {
+        if (this.parentFs == null) return 0;
         return this.parentFs.getCompressedSize(this);
     }
 
     public long getSize() throws IOException {
+        if (this.parentFs == null) {
+            SeekableByteChannel data = this.getData();
+            if (data == null) throw new NullPointerException("SeekableByteChannel of file " + this.path + " is null");
+            return data.size();
+        }
         return this.parentFs.getSize(this);
     }
 
@@ -201,6 +223,7 @@ public class VirtualFile {
         return isClassFile(this.path, this::getData);
     }
 
+    @Nullable
     public String getMimeType() throws IOException {
         if (!this.isFile()) {
             return "inode/directory";
@@ -222,7 +245,7 @@ public class VirtualFile {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (!(obj instanceof VirtualFile)) return false;
         return this.parentFs == ((VirtualFile) obj).parentFs && this.path.equals(((VirtualFile) obj).path);
     }
@@ -247,7 +270,8 @@ public class VirtualFile {
             });
         }
 
-        public static CleaningSeekableByteChannel wrap(SeekableByteChannel data) {
+        @Nullable
+        public static CleaningSeekableByteChannel wrap(@Nullable SeekableByteChannel data) {
             if (data == null) return null;
             if (data instanceof CleaningSeekableByteChannel) return (CleaningSeekableByteChannel) data;
             return new CleaningSeekableByteChannel(data);

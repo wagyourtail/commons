@@ -1,11 +1,11 @@
 package xyz.wagyourtail.commons.compress.virtualfs.impl.single;
 
+import lombok.val;
 import org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream;
 import org.apache.commons.compress.compressors.pack200.Pack200CompressorOutputStream;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystemFactory;
-import xyz.wagyourtail.commons.compress.virtualfs.impl.SingleFileFilesystem;
 import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.io.FastWrapOutputStream;
 import xyz.wagyourtail.commons.core.io.SeekableByteChannelInputStream;
@@ -23,8 +23,12 @@ public class Pack200ArchiveFileSystem extends SingleFileFilesystem {
     }
 
     @Override
+    @Nullable
     protected SeekableByteChannel getDataIntl(VirtualFile fi) throws IOException {
-        try (Pack200CompressorInputStream in = new Pack200CompressorInputStream(new SeekableByteChannelInputStream(this.location.getData()))) {
+        val data = this.location.getData();
+        if (data == null) return null;
+        data.position(0);
+        try (Pack200CompressorInputStream in = new Pack200CompressorInputStream(new SeekableByteChannelInputStream(data))) {
             FastWrapOutputStream out = new FastWrapOutputStream();
             in.transferTo(out);
             return out.wrap();
@@ -32,16 +36,17 @@ public class Pack200ArchiveFileSystem extends SingleFileFilesystem {
     }
 
     @Override
-    public void write(@NotNull OutputStream os) throws IOException {
-        Pack200CompressorOutputStream writer = new Pack200CompressorOutputStream(os);
-        Collection<VirtualFile> files = this.getFiles();
-        if (files.size() != 1) {
-            throw new IOException("Pack200ArchiveFile must have exactly 1 file");
+    public void write(OutputStream os) throws IOException {
+        try (Pack200CompressorOutputStream writer = new Pack200CompressorOutputStream(os)) {
+            Collection<VirtualFile> files = this.getFiles();
+            if (files.size() != 1) {
+                throw new IOException("Pack200ArchiveFile must have exactly 1 file");
+            }
+            SeekableByteChannel data = files.iterator().next().getData();
+            if (data == null) return;
+            data.position(0);
+            IOUtils.transferTo(data, writer);
         }
-        SeekableByteChannel data = files.iterator().next().getData();
-        data.position(0);
-        IOUtils.transferTo(data, writer);
-        writer.close();
     }
 
 

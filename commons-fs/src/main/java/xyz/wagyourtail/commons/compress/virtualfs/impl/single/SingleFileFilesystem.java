@@ -1,5 +1,6 @@
-package xyz.wagyourtail.commons.compress.virtualfs.impl;
+package xyz.wagyourtail.commons.compress.virtualfs.impl.single;
 
+import lombok.val;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFileSystem;
 
@@ -28,7 +29,11 @@ public abstract class SingleFileFilesystem extends VirtualFileSystem {
     @Override
     public long getSize(VirtualFile fi) throws IOException {
         if (this.getFiles().contains(fi)) {
-            return fi.getData().size();
+            val data = fi.getData();
+            if (data == null) {
+                return -1;
+            }
+            return data.size();
         }
         return -1;
     }

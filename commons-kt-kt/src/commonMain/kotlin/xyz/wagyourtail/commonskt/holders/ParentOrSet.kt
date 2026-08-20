@@ -1,15 +1,18 @@
 package xyz.wagyourtail.commonskt.holders
 
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
 @Suppress("UNCHECKED_CAST")
-class ParentOrSet<T> private constructor() {
+class ParentOrSet<T> private constructor() : () -> T, ReadWriteProperty<Any, T> {
     private object EMPTY
 
     private var value: Any? = EMPTY
-    private var parent: ParentOrSet<T>? = null
+    private var parent: (() -> T)? = null
 
     fun get(): T {
         return if (value == EMPTY) {
-            parent!!.get()
+            parent!!.invoke()
         } else {
             value as T
         }
@@ -23,7 +26,24 @@ class ParentOrSet<T> private constructor() {
         parent = parentOrSet
     }
 
+    /**
+     * @since 1.0.5
+     */
+    constructor(parent: () -> T) : this() {
+        this.parent = parent
+    }
+
     constructor(value: T) : this() {
         this.value = value
+    }
+
+    override fun invoke(): T = get()
+
+    override fun getValue(thisRef: Any, property: KProperty<*>): T {
+        return get()
+    }
+
+    override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
+        set(value)
     }
 }
