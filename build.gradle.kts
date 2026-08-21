@@ -4,7 +4,8 @@ plugins {
     kotlin("multiplatform") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.lombok") version libs.versions.kotlin.asProvider() apply false
     kotlin("plugin.serialization") version libs.versions.kotlin.asProvider() apply false
-    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
+    alias(libs.plugins.commons)
+    alias(libs.plugins.lombok)
     `java-library`
     `maven-publish`
 }
@@ -15,6 +16,7 @@ allprojects {
     apply(plugin = "xyz.wagyourtail.commons-gradle")
     if (!kotlin) {
         apply(plugin = "java-library")
+        apply(plugin = "io.freefair.lombok")
 
         commons.autoToolchain(8, 17)
 
@@ -48,15 +50,9 @@ allprojects {
             val testRuntimeOnly by configurations.getting
             val testAnnotationProcessor by configurations.getting
 
-            compileOnly(rootProject.libs.lombok)
-            annotationProcessor(rootProject.libs.lombok)
-
             testImplementation(rootProject.libs.junit.jupiter)
             testRuntimeOnly(rootProject.libs.junit.platform.launcher)
 //            testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-            testCompileOnly(rootProject.libs.lombok)
-            testAnnotationProcessor(rootProject.libs.lombok)
         }
     }
 
