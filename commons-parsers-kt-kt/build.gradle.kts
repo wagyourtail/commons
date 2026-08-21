@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -11,15 +15,25 @@ kotlin {
             freeCompilerArgs = listOf("-Xjsr305=strict")
         }
     }
+
     js {
+        useCommonJs()
         browser {
-            useCommonJs()
         }
-        nodejs {
-            useCommonJs()
-        }
+        nodejs()
         binaries.executable()
     }
+    wasmJs {
+        browser {
+        }
+        nodejs()
+        binaries.executable()
+    }
+    wasmWasi {
+        nodejs()
+        binaries.executable()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
