@@ -192,6 +192,7 @@ class TestCharReader {
     fun testCopyWithLimit() {
         val reader = StringCharReader("abcdefghijkl")
         assertEquals('a', reader.take())
+        @Suppress("DEPRECATION")
         val copy = reader.copy(5)
         assertEquals("bcdef", copy.takeRemaining())
         copy.reset()

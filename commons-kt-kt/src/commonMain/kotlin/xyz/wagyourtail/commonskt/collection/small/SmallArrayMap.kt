@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.collection.small
 
+@Suppress("UNCHECKED_CAST")
 class SmallArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableMap<K, V>() {
     private var ks = arrayOfNulls<Any?>(initialSize)
     private var vs = arrayOfNulls<Any?>(initialSize)
@@ -127,7 +128,7 @@ class SmallArrayMap<K, V>(val initialSize: Int = 0, val resizeAmount: Int = 1) :
     }
 
     private fun removeAt(index: Int) {
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in 0..<size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         if (index == --size) {
             if (size < ks.size - resizeAmount) {
                 val newKs = arrayOfNulls<Any>(ks.size - resizeAmount)

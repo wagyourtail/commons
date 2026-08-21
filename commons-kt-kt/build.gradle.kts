@@ -48,7 +48,7 @@ kotlin {
     linuxArm64()
 
     sourceSets {
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 api(libs.jetbrains.annotations)
                 api(libs.kotlin.coroutines)
@@ -57,18 +57,18 @@ kotlin {
                 api(libs.kotlin.serialization)
             }
         }
-        val commonTest by getting {
+        getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.kotlin.serialization.json)
             }
         }
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
 //                implementation(kotlin("test-junit"))
@@ -76,11 +76,11 @@ kotlin {
                 implementation(libs.junit.platform.launcher)
             }
         }
-        val jsMain by getting {
+        getByName("jsMain") {
             dependencies {
             }
         }
-        val jsTest by getting {
+        getByName("jsTest") {
             dependencies {
                 implementation(kotlin("test-js"))
             }

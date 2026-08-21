@@ -98,19 +98,19 @@ fun <E> Collection<E>.firstAndMaybeLast(): List<E> {
     }
 }
 
-fun <E> buildMutableList(@BuilderInference block: MutableList<E>.() -> Unit): MutableList<E> {
+fun <E> buildMutableList(block: MutableList<E>.() -> Unit): MutableList<E> {
     val list = mutableListOf<E>()
     list.block()
     return list
 }
 
-fun <E> buildMutableSet(@BuilderInference block: MutableSet<E>.() -> Unit): MutableSet<E> {
+fun <E> buildMutableSet(block: MutableSet<E>.() -> Unit): MutableSet<E> {
     val set = mutableSetOf<E>()
     set.block()
     return set
 }
 
-fun <K, V> buildMutableMap(@BuilderInference block: MutableMap<K, V>.() -> Unit): MutableMap<K, V> {
+fun <K, V> buildMutableMap(block: MutableMap<K, V>.() -> Unit): MutableMap<K, V> {
     val map = mutableMapOf<K, V>()
     map.block()
     return map

@@ -4,8 +4,9 @@ import xyz.wagyourtail.commonskt.utils.iterable
 import kotlin.coroutines.*
 import kotlin.experimental.ExperimentalTypeInference
 
+@Suppress("UNCHECKED_CAST")
 @OptIn(ExperimentalTypeInference::class)
-fun <T> mutableIterator(@BuilderInference block: suspend MutableSequenceScope<T>.() -> Unit): MutableIterator<T> {
+fun <T> mutableIterator(block: suspend MutableSequenceScope<T>.() -> Unit): MutableIterator<T> {
     val iterator = SequenceBuilderMutableIterator<T>()
     iterator.nextStep = block.createCoroutine(iterator, iterator) as Continuation<Boolean>?
     return iterator

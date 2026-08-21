@@ -31,6 +31,7 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
         return ""
     }
 
+    @Suppress("DEPRECATION")
     @Deprecated("parse is better")
     override fun copy() = copy(endPos - pos)
 
@@ -69,6 +70,7 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
     override fun <R> parse(reader: CharReader<*>.() -> R): R {
         mark()
         try {
+            @Suppress("DEPRECATION")
             val wrapping = copy()
             val value = reader(wrapping)
             pos = wrapping.pos

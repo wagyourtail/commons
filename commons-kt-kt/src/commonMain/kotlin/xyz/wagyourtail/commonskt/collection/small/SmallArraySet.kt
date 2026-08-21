@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.collection.small
 
+@Suppress("UNCHECKED_CAST")
 class SmallArraySet<E>(val initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableSet<E>() {
     private var backing = arrayOfNulls<Any>(initialSize)
 
@@ -30,7 +31,7 @@ class SmallArraySet<E>(val initialSize: Int = 0, val resizeAmount: Int = 1) : Ab
     }
 
     private fun removeAt(index: Int) {
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in indices) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         if (index == --size) {
             if (size < backing.size - resizeAmount) {
                 val newBacking = arrayOfNulls<Any>(backing.size - resizeAmount)

@@ -6,6 +6,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlin.experimental.ExperimentalTypeInference
 
 @OptIn(ExperimentalTypeInference::class)
-suspend fun <A, B> Iterable<A>.parallelMap(@BuilderInference f: suspend (A) -> B): List<B> = coroutineScope {
+suspend fun <A, B> Iterable<A>.parallelMap(f: suspend (A) -> B): List<B> = coroutineScope {
     map { async { f(it) } }.awaitAll()
 }
