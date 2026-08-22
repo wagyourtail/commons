@@ -12,31 +12,13 @@ public class IteratorUtils {
 
             @NotNull
             @Override
+            @SuppressWarnings("unchecked")
             public Iterator<T> iterator() {
-                return new Iterator<T>() {
-                    final Deque<Iterable<? extends T>> queue = new ArrayDeque<>(Arrays.asList(iterables));
-                    Iterable<? extends T> current = queue.removeFirst();
-                    Iterator<? extends T> previous = null;
-
-                    @Override
-                    public boolean hasNext() {
-                        if (current.iterator().hasNext()) return true;
-                        if (queue.isEmpty()) return false;
-                        current = queue.removeFirst();
-                        return hasNext();
-                    }
-
-                    @Override
-                    public T next() {
-                        previous = current.iterator();
-                        return previous.next();
-                    }
-
-                    @Override
-                    public void remove() {
-                        previous.remove();
-                    }
-                };
+                Iterator<? extends T>[] iters = new Iterator[iterables.length];
+                for (int i = 0; i < iterables.length; i++) {
+                    iters[i] = iterables[i].iterator();
+                }
+                return concat(iters);
             }
 
         };
@@ -59,6 +41,7 @@ public class IteratorUtils {
 
             @Override
             public T next() {
+                if (!hasNext()) throw new NoSuchElementException();
                 previous = current;
                 return current.next();
             }
@@ -96,6 +79,7 @@ public class IteratorUtils {
 
             @Override
             public T next() {
+                if (!hasNext()) throw new NoSuchElementException();
                 previous = current;
                 queue.addLast(current);
                 current = queue.removeFirst();
