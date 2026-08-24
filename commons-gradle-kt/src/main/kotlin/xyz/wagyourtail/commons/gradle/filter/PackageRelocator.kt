@@ -2,12 +2,13 @@ package xyz.wagyourtail.commons.gradle.filter
 
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.ClassRemapper
 import org.objectweb.asm.commons.Remapper
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 
-class PackageRelocator(val map: Map<String, String>) : Remapper(), ContentMapper.StreamMapper {
+class PackageRelocator(val map: Map<String, String>) : Remapper(Opcodes.ASM9), ContentMapper.StreamMapper {
 
     override fun map(internalName: String): String {
         for ((from, to) in map) {
