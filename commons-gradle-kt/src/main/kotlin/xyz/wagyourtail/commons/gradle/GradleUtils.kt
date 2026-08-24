@@ -99,7 +99,7 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
         MavenCoords(it.group, it.name, it.version)
     }
 
-    if (!capabilityLocations.isEmpty() && (location == null || !capabilityLocations.contains(location))) {
+    if (capabilityLocations.isNotEmpty() && (location == null || !capabilityLocations.contains(location))) {
         location = capabilityLocations[0]
     }
 
@@ -130,12 +130,12 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
     return location
 }
 
-fun <T> NamedDomainObjectContainer<T>.maybeRegister(
+fun <T: Any> NamedDomainObjectContainer<T>.maybeRegister(
     name: String,
     action: T.() -> Unit = {}
 ): NamedDomainObjectProvider<T> {
     return try {
-        named(name) as NamedDomainObjectProvider<T>
+        named(name)
     } catch (_: UnknownTaskException) {
         register(name)
     }.also {
@@ -149,12 +149,12 @@ fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
     action: S.() -> Unit = {}
 ): NamedDomainObjectProvider<S> {
     return try {
-        named(name, classType.java) as NamedDomainObjectProvider<S>
+        named(name, classType.java)
     } catch (_: UnknownTaskException) {
         register(name, classType.java)
     }.also {
         it.configure(action)
-    } as NamedDomainObjectProvider<S>
+    }
 }
 
 fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
@@ -163,20 +163,20 @@ fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
     action: S.() -> Unit = {}
 ): NamedDomainObjectProvider<S> {
     return try {
-        named(name, classType) as NamedDomainObjectProvider<S>
+        named(name, classType)
     } catch (_: UnknownTaskException) {
         register(name, classType)
     }.also {
         it.configure(action)
-    } as NamedDomainObjectProvider<S>
+    }
 }
 
-inline fun <reified S : T, T> PolymorphicDomainObjectContainer<T>.maybeRegister(
+inline fun <reified S : T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
     name: String,
     noinline action: S.() -> Unit = {}
 ): NamedDomainObjectProvider<S> {
     return try {
-        named(name, S::class.java) as NamedDomainObjectProvider<S>
+        named(name, S::class.java)
     } catch (_: UnknownTaskException) {
         register(name, S::class.java)
     }.also {

@@ -8,10 +8,12 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.jvm.tasks.Jar
+import org.gradle.work.DisableCachingByDefault
 import xyz.wagyourtail.commons.gradle.filter.ContentMapper
 import xyz.wagyourtail.commons.gradle.filter.PackageRelocator
 import java.nio.charset.StandardCharsets
 
+@DisableCachingByDefault
 abstract class ShadowJar : Jar() {
 
     @get:Internal

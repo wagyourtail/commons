@@ -13,23 +13,26 @@ plugins {
 allprojects {
     val kotlin = project.projectDir.name.endsWith("-kt")
 
-    apply(plugin = "xyz.wagyourtail.commons-gradle")
-    if (!kotlin) {
-        apply(plugin = "java-library")
-        apply(plugin = "io.freefair.lombok")
+    @Suppress("AvoidApplyPluginMethod")
+    run {
+        apply(plugin = "xyz.wagyourtail.commons-gradle")
+        if (!kotlin) {
+            apply(plugin = "java-library")
+            apply(plugin = "io.freefair.lombok")
 
-        commons.autoToolchain(8, 17)
+            commons.autoToolchain(8, 17)
 
-        java {
-            withSourcesJar()
-            withJavadocJar()
+            java {
+                withSourcesJar()
+                withJavadocJar()
+            }
+        } else {
+            apply(plugin = "base")
         }
-    } else {
-        apply(plugin = "base")
+        apply(plugin = "maven-publish")
     }
-    apply(plugin = "maven-publish")
 
-    group = project.properties["maven_group"] as String
+    group = project.findProperty("maven_group") as String
     commons.autoVersion()
 
     base {
@@ -42,13 +45,8 @@ allprojects {
 
     dependencies {
         if (!kotlin) {
-            val compileOnly by configurations.getting
-            val annotationProcessor by configurations.getting
-
-            val testImplementation by configurations.getting
-            val testCompileOnly by configurations.getting
-            val testRuntimeOnly by configurations.getting
-            val testAnnotationProcessor by configurations.getting
+            val testImplementation = configurations.getByName("testImplementation")
+            val testRuntimeOnly = configurations.getByName("testRuntimeOnly")
 
             testImplementation(rootProject.libs.junit.jupiter)
             testRuntimeOnly(rootProject.libs.junit.platform.launcher)

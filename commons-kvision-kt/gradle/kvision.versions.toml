@@ -1,6 +1,6 @@
 [versions]
-kvision = "8.2.0"
-ktor = "3.1.0"
+kvision = "9.6.0"
+ktor = "3.5.2"
 
 [libraries]
 kvision_server_ktor_koin = { module = "io.kvision:kvision-server-ktor-koin", version.ref = "kvision" }
