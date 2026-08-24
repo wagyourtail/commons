@@ -115,7 +115,7 @@ fun <V> Iterable<IndexedValue<V?>>.filterNotNullValues(): List<IndexedValue<V>> 
 
 
 @OptIn(ExperimentalTypeInference::class)
-fun <E> iterable(@BuilderInference block: suspend SequenceScope<E>.() -> Unit): Iterable<E> {
+fun <E> iterable(block: suspend SequenceScope<E>.() -> Unit): Iterable<E> {
     return object : Iterable<E> {
         override fun iterator() = iterator(block)
     }

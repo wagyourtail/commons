@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.collection.small
 
+@Suppress("UNCHECKED_CAST")
 class SmallArrayList<E>(initialSize: Int = 0, val resizeAmount: Int = 1) : AbstractMutableList<E>() {
     private var backing = arrayOfNulls<Any>(initialSize)
 
@@ -7,13 +8,13 @@ class SmallArrayList<E>(initialSize: Int = 0, val resizeAmount: Int = 1) : Abstr
         private set
 
     override fun set(index: Int, element: E): E {
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in indices) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         backing[index] = element
         return element
     }
 
     override fun add(index: Int, element: E) {
-        if (index < 0 || index > size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in 0..size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         if (size == backing.size) {
             val newBacking = arrayOfNulls<Any>(backing.size + resizeAmount)
             backing.copyInto(newBacking, 0, 0, index)
@@ -27,7 +28,7 @@ class SmallArrayList<E>(initialSize: Int = 0, val resizeAmount: Int = 1) : Abstr
     }
 
     override fun removeAt(index: Int): E {
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in indices) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         val element = backing[index] as E
         if (index == --size) {
             if (size < backing.size - resizeAmount) {
@@ -49,7 +50,7 @@ class SmallArrayList<E>(initialSize: Int = 0, val resizeAmount: Int = 1) : Abstr
     }
 
     override fun get(index: Int): E {
-        if (index < 0 || index >= size) throw IndexOutOfBoundsException("Index: $index, Size: $size")
+        if (index !in indices) throw IndexOutOfBoundsException("Index: $index, Size: $size")
         return backing[index] as E
     }
 

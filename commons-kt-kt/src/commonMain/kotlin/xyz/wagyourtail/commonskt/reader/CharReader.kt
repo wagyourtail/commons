@@ -43,6 +43,7 @@ abstract class CharReader<T : CharReader<T>> {
     /**
      * @return a copy of the reader at the current position
      */
+    @Suppress("DEPRECATION")
     @Deprecated("parse is better")
     open fun copy(): T {
         return copy(Int.MAX_VALUE)
@@ -86,7 +87,7 @@ abstract class CharReader<T : CharReader<T>> {
                     if (taken.isEmpty()) {
                         mark()
                     }
-                    taken += next.toChar()
+                    taken += next
                     break
                 } else if (!taken.isEmpty()) {
                     val newStart = taken.indexOf(characters[0], 1)

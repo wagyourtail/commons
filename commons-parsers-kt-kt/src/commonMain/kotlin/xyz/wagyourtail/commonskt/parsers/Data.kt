@@ -88,7 +88,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
         val delimiter: Any
     ) : Content<Any>() {
 
-
+        @Suppress("UNCHECKED_CAST")
         override val entries: Iterable<Any>
             get() = (content as List<Any>).withDelimiter(delimiter)
 

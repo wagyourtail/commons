@@ -1,27 +1,27 @@
 [versions]
-asm = "9.8"
-kotlin = "2.1.21"
+asm = "9.10.1"
+kotlin = "2.4.10"
 
-jb_annotations = "26.0.2"
+jb_annotations = "26.1.0"
 jb_annotations5 = "24.1.0"
 
-commons-io = "2.19.0"
-tika = "3.2.0"
+commons-io = "2.22.0"
+tika = "3.3.2"
 
-apache_commons_compress = "1.27.1"
-xz = "1.10"
-zstd = "1.5.7-3"
+apache_commons_compress = "1.28.0"
+xz = "1.12"
+zstd = "1.5.7-15"
 
-kotlin_datetime = "0.6.2"
-kotlin_coroutines = "1.10.2"
-kotlin_atomicfu = "0.27.0"
-kotlin_serialization = "1.8.1"
+kotlin_datetime = "0.8.0"
+kotlin_coroutines = "1.11.0"
+kotlin_atomicfu = "0.33.0"
+kotlin_serialization = "1.11.0"
 
-jvm_downgrader = "1.3.1"
+commons_plugin = "1.0.4-SNAPSHOT"
+lombok_plugin = "9.5.0"
+jvm_downgrader = "2.0.1"
 
-lombok = "1.18.38"
-
-junit = "5.13.0"
+junit = "5.14.4"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -35,7 +35,7 @@ jvm_downgrader = { module = "xyz.wagyourtail.jvmdowngrader:jvmdowngrader", versi
 jetbrains_annotations = { module = "org.jetbrains:annotations", version.ref = "jb_annotations" }
 jetbrains_annotations_j5 = { module = "org.jetbrains:annotations-java5", version.ref = "jb_annotations5" }
 
-commons_io = { module = "commons-io:commons-io", version.ref = "commons_io" }
+commons_io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 tika_core = { module = "org.apache.tika:tika-core", version.ref = "tika" }
 tika_parsers = { module = "org.apache.tika:tika-parsers", version.ref = "tika" }
 
@@ -50,13 +50,12 @@ kotlin_atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "ko
 kotlin_serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlin_serialization" }
 kotlin_serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin_serialization" }
 
-
-lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
-
 junit_jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit_jupiter_params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit_platform_launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 [plugins]
+commons = { id = "xyz.wagyourtail.commons-gradle", version.ref = "commons_plugin"}
+lombok = { id = "io.freefair.lombok", version.ref = "lombok_plugin" }
 jvm_downgrader = { id = "xyz.wagyourtail.jvmdowngrader", version.ref = "jvm_downgrader" }
 kotlinx_atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlin_atomicfu" }

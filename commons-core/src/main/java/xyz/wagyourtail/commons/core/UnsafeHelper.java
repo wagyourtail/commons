@@ -8,6 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
+@SuppressWarnings("unchecked")
 public class UnsafeHelper {
 
     private static Unsafe cachedUnsafe;

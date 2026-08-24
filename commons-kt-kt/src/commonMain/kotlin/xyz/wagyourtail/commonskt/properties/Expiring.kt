@@ -4,13 +4,15 @@ import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
-expect fun currentTimeMillis(): Long
-
 class Expiring<T>(private val expireAfter: Duration = 1.days, private val refCreator: () -> T) :
     ReadOnlyProperty<Any?, T> {
+    companion object {
+        private fun currentTimeMillis(): Long = Clock.System.now().toEpochMilliseconds()
+    }
 
     private var lastUpdate = 0L
     private var value: T? = null
@@ -28,5 +30,4 @@ class Expiring<T>(private val expireAfter: Duration = 1.days, private val refCre
         }
         return value!!
     }
-
 }

@@ -23,5 +23,4 @@ actual class WeakDelegate<T> actual constructor(private val refCreator: () -> T)
             }
         }
     }
-
 }

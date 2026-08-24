@@ -4,7 +4,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class ParentOrSet<T> private constructor() : () -> T, ReadWriteProperty<Any, T> {
+class ParentOrSet<T> private constructor() : ReadWriteProperty<Any, T> {
     private object EMPTY
 
     private var value: Any? = EMPTY
@@ -23,7 +23,7 @@ class ParentOrSet<T> private constructor() : () -> T, ReadWriteProperty<Any, T> 
     }
 
     constructor(parentOrSet: ParentOrSet<T>) : this() {
-        parent = parentOrSet
+        parent = parentOrSet::get
     }
 
     /**
@@ -37,7 +37,7 @@ class ParentOrSet<T> private constructor() : () -> T, ReadWriteProperty<Any, T> 
         this.value = value
     }
 
-    override fun invoke(): T = get()
+    operator fun invoke() = get()
 
     override fun getValue(thisRef: Any, property: KProperty<*>): T {
         return get()
