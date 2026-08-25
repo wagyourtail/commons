@@ -1,6 +1,11 @@
 package xyz.wagyourtail.commonskt.reader
 
+import kotlinx.atomicfu.AtomicInt
+import kotlinx.coroutines.NonCancellable.children
 import xyz.wagyourtail.commonskt.utils.translateEscapes
+import kotlin.math.min
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 abstract class CharReader<T : CharReader<T>> {
 
@@ -41,26 +46,16 @@ abstract class CharReader<T : CharReader<T>> {
     }
 
     /**
-     * @return a copy of the reader at the current position
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated("parse is better")
-    open fun copy(): T {
-        return copy(Int.MAX_VALUE)
-    }
-
-    /**
-     * @return a copy of the reader at the current position, with a limit.
+     * @return a copy of the reader at the current position.
      * @since 1.0.4
      */
-    @Deprecated("parse is better")
-    abstract fun copy(limit: Int): T
+    abstract fun copy(limit: Int = Int.MAX_VALUE): CharReader<*>
 
 
     /**
      * set this position as remembered.
      */
-    abstract fun mark()
+    abstract fun mark(limit: Int = Int.MAX_VALUE)
 
     /**
      * reset to remembered mark position, or beginning if no mark.
@@ -359,7 +354,11 @@ abstract class CharReader<T : CharReader<T>> {
     open fun <R> parse(reader: CharReader<*>.() -> R): R {
         this.mark()
         try {
-            return reader(WrappingReader(this, Int.MAX_VALUE))
+            val br = BufferedCharReader(this, Int.MAX_VALUE)
+            val ret = reader(br)
+            this.reset()
+            this.skip(br.position)
+            return ret
         } catch (e: ParseException) {
             this.reset()
             throw e
@@ -409,53 +408,117 @@ abstract class CharReader<T : CharReader<T>> {
             }
         }
 
-    class WrappingReader(private val reader: CharReader<*>, private val limit: Int) : CharReader<WrappingReader>() {
-        private val sb = StringBuilder()
-        private var position = 0
+    /**
+     * This wrapping class uses the reader class as a delegate,
+     * so don't do multithreaded stuff or interleave using the outer reader
+     * with the wrapped reader.
+     */
+    class BufferedCharReader(private val reader: CharReader<*>, private var limit: Int) : CharReader<BufferedCharReader>() {
+        private val buffer = StringBuilder()
+        internal var position = 0
         private var mark = 0
 
         override fun peek(): Char? {
+            return peekAt(position)
+        }
+
+        fun peekAt(position: Int): Char? {
             if (position == limit) {
                 return null
             }
-            if (position >= sb.length) {
-                val next = reader.take() ?: return null
-                sb.append(next)
-                return next
+            if (position >= buffer.length) {
+                return reader.peek()
             }
-            return sb[position]
+            return buffer[position]
         }
 
         override fun take(): Char? {
+            return takeAt(position++)
+        }
+
+        fun takeAt(position: Int): Char? {
             if (position == limit) {
                 return null
             }
-            if (position >= sb.length) {
-                val next = reader.take()
-                position++
-                if (next == null) return null
-                sb.append(next)
+            if (position == buffer.length) {
+                val next = reader.take() ?: return null
+                buffer.append(next)
                 return next
             }
-            return sb[position++]
+            return buffer[position]
         }
 
-        @Deprecated("parse is better")
-        override fun copy(): WrappingReader {
-            return WrappingReader(reader, limit - position)
+        override fun copy(limit: Int): CopyReader {
+            if (limit < 0) throw IllegalArgumentException("limit < 0")
+            val limit = position + limit
+            return CopyReader(position, min(if (limit < position) Int.MAX_VALUE else limit, this.limit))
         }
 
-        @Deprecated("parse is better")
-        override fun copy(limit: Int): WrappingReader {
-            return WrappingReader(reader, limit)
+        override fun <R> parse(reader: CharReader<*>.() -> R): R {
+            this.mark()
+            try {
+                val br = copy()
+                val ret = reader(br)
+                this.position = br.position
+                return ret
+            } catch (e: ParseException) {
+                this.reset()
+                throw e
+            }
         }
 
-        override fun mark() {
+        override fun mark(limit: Int) {
             mark = position
         }
 
         override fun reset() {
             position = mark
+        }
+
+        inner class CopyReader(internal var position: Int, private val limit: Int) : CharReader<CopyReader>() {
+            private var mark: Int = position
+
+            override fun peek(): Char? {
+                if (position == limit) {
+                    return null
+                }
+                return peekAt(position)
+            }
+
+            override fun take(): Char? {
+                if (position == limit) {
+                    return null
+                }
+                return takeAt(position++)
+            }
+
+            override fun copy(limit: Int): CopyReader {
+                if (limit < 0) throw IllegalArgumentException("limit < 0")
+                val limit = position + limit
+                return CopyReader(position, min(if (limit < position) Int.MAX_VALUE else limit, this.limit))
+            }
+
+            override fun <R> parse(reader: CharReader<*>.() -> R): R {
+                this.mark()
+                try {
+                    val br = copy()
+                    val ret = reader(br)
+                    this.position = br.position
+                    return ret
+                } catch (e: ParseException) {
+                    this.reset()
+                    throw e
+                }
+            }
+
+            override fun mark(limit: Int) {
+                mark = position
+            }
+
+            override fun reset() {
+                position = mark
+            }
+
         }
 
     }

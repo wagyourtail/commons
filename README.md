@@ -1,7 +1,6 @@
 # Wagyourtail Commons
 
-This repository contains common files for the Wagyourtail's projects.
-including many useful utilities.
+This repository contains common files for the Wagyourtail's projects. including many useful utilities.
 
 maven: `https://maven.wagyourtail.xyz/releases` or `https://maven.wagyourtail.xyz/snapshots`
 

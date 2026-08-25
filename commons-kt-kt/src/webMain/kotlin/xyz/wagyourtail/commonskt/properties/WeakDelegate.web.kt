@@ -2,8 +2,6 @@
 
 package xyz.wagyourtail.commonskt.properties
 
-import kotlin.js.ExperimentalWasmJsInterop
-import kotlin.js.JsAny
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 

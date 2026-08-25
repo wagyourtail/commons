@@ -19,14 +19,22 @@ abstract class GradleSettingsExtension @Inject constructor(@get:Internal val set
      * auto-adds subprojects by searching for `build.gradle` and `build.gradle.kts`
      */
     @JvmOverloads
-    fun autoSubprojects(rootDir: File = settings.layout.rootDirectory.asFile, configProject: ProjectDescriptor.() -> Unit = { }) {
+    fun autoSubprojects(
+        rootDir: File = settings.layout.rootDirectory.asFile,
+        configProject: ProjectDescriptor.() -> Unit = { }
+    ) {
         for (directory in rootDir.listFiles() ?: emptyArray()) {
             if (directory.isDirectory) {
                 if (directory.equals(buildSrc)) continue
                 val groovy = directory.resolve("build.gradle").exists()
                 val kts = directory.resolve("build.gradle.kts").exists()
                 if (groovy || kts) {
-                    settings.include(directory.relativeTo(settings.layout.rootDirectory.asFile).path.replace(File.separator, ":"))
+                    settings.include(
+                        directory.relativeTo(settings.layout.rootDirectory.asFile).path.replace(
+                            File.separator,
+                            ":"
+                        )
+                    )
                     settings.project(directory).apply {
                         autoVersionConfig(this)
                         this.configProject()
@@ -62,7 +70,10 @@ abstract class GradleSettingsExtension @Inject constructor(@get:Internal val set
      * @since 1.0.6
      */
     @JvmOverloads
-    fun autoVersionConfig(project: ProjectDescriptor = settings.rootProject, name: ProjectDescriptor.(File) -> String = { it.name.removeSuffix(".versions.toml") + "Libs" }) {
+    fun autoVersionConfig(
+        project: ProjectDescriptor = settings.rootProject,
+        name: ProjectDescriptor.(File) -> String = { it.name.removeSuffix(".versions.toml") + "Libs" }
+    ) {
         val projectDir = project.projectDir
         val gradle = projectDir.resolve("gradle")
         if (gradle.isDirectory) {
@@ -91,7 +102,7 @@ abstract class GradleSettingsExtension @Inject constructor(@get:Internal val set
         )
         @ClosureParams(
             value = SimpleType::class,
-            options = [ "java.io.File" ]
+            options = ["java.io.File"]
         )
         configProject: Closure<*>
     ) {

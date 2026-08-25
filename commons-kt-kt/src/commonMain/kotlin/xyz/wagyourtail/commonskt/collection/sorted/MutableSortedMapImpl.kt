@@ -35,15 +35,15 @@ class MutableSortedMapImpl<K, V> private constructor(
             }
 
             override fun headSet(toElement: K): MutableSortedSet<K> {
-                return entries.headSet(KeyOnly(toElement)).map { it.key }.let { keyList ->
-                    MutableSortedSetImpl(keyList.toMutableList(), comparator)
-                }
+                return headMap(toElement).keys
             }
 
             override fun tailSet(fromElement: K): MutableSortedSet<K> {
-                return entries.tailSet(KeyOnly(fromElement)).map { it.key }.let { keyList ->
-                    MutableSortedSetImpl(keyList.toMutableList(), comparator)
-                }
+                return tailMap(fromElement).keys
+            }
+
+            override fun asReversed(): MutableSortedSet<K> {
+                return this@MutableSortedMapImpl.asReversed().keys
             }
 
             override val size: Int
@@ -94,6 +94,14 @@ class MutableSortedMapImpl<K, V> private constructor(
             override fun clear() {
                 entries.clear()
             }
+
+            override fun removeFirst(): K {
+                return entries.removeFirst().key
+            }
+
+            override fun removeLast(): K {
+                return entries.removeLast().key
+            }
         }
 
     override fun firstKey(): K {
@@ -110,6 +118,10 @@ class MutableSortedMapImpl<K, V> private constructor(
 
     override fun tailMap(fromKey: K): MutableSortedMapImpl<K, V> {
         return MutableSortedMapImpl(entries.tailSet(KeyOnly(fromKey)), comparator)
+    }
+
+    override fun asReversed(): MutableSortedMap<K, V> {
+        return MutableSortedMapImpl(entries.asReversed(), comparator.reversed())
     }
 
     override val size: Int

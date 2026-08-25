@@ -59,8 +59,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     /**
      * @return a copy of the reader at the current position
      */
-    @Deprecated
-    public T copy() {
+    public final CharReader<?> copy() {
         return copy(Integer.MAX_VALUE);
     }
 
@@ -68,16 +67,15 @@ public abstract class CharReader<T extends CharReader<? super T>> {
      * @return a copy of the reader at the current position, with a limit to the number of characters it can read.
      * @since 1.0.4
      */
-    @Deprecated
-    public abstract T copy(int limit);
+    public abstract CharReader<?> copy(int limit);
 
-    /**
-     * set this position as remembered.
-     */
     public void mark() {
         mark(Integer.MAX_VALUE);
     }
 
+    /**
+     * set this position as remembered.
+     */
     public abstract void mark(int limit);
 
     /**
@@ -543,7 +541,11 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     public <R> R parse(StringCharReader.ElementReader<R> reader) {
         this.mark();
         try {
-            return reader.read(new WrappingReader(this, Integer.MAX_VALUE));
+            val br = new BufferedCharReader(this, Integer.MAX_VALUE);
+            val ret = reader.read(br);
+            this.reset();
+            this.skip(br.position);
+            return ret;
         } catch (ParseException t) {
             this.reset();
             throw t;
@@ -612,27 +614,46 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
     /**
      * This wrapping class uses the reader class as a delegate,
-     * so don't do multithreaded stuff, or interleave using the outer reader
+     * so don't do multithreaded stuff or interleave using the outer reader
      * with the wrapped reader.
      */
-    public static class WrappingReader extends CharReader<WrappingReader> {
+    public static class BufferedCharReader extends CharReader<BufferedCharReader> {
         private final StringBuilder sb = new StringBuilder();
         private final CharReader<?> reader;
         private final int limit;
-        private int position = 0;
+        int position = 0;
         private int mark = 0;
 
-        public WrappingReader(CharReader<?> reader, int limit) {
+        public BufferedCharReader(CharReader<?> reader, int limit) {
             this.reader = reader;
             this.limit = limit;
         }
 
         @Override
         public int peek() {
+            return peekAt(position);
+        }
+
+        private int peekAt(int position) {
             if (position == limit) {
                 return -1;
             }
             if (position >= sb.length()) {
+                return reader.peek();
+            }
+            return sb.charAt(position);
+        }
+
+        @Override
+        public int take() {
+            return takeAt(position++);
+        }
+
+        private int takeAt(int position) {
+            if (position == limit) {
+                return -1;
+            }
+            if (position == sb.length()) {
                 int next = reader.take();
                 if (next == -1) return -1;
                 sb.append((char) next);
@@ -642,28 +663,23 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         }
 
         @Override
-        public int take() {
-            if (position == limit) {
-                return -1;
-            }
-            if (position >= sb.length()) {
-                int next = reader.take();
-                position++;
-                if (next == -1) return -1;
-                sb.append((char) next);
-                return next;
-            }
-            return sb.charAt(position++);
+        public CopyReader copy(int limit) {
+            if (limit < 0) throw new IllegalArgumentException("limit < 0");
+            limit = position + limit;
+            return new CopyReader(position, Math.min(limit < position ? Integer.MAX_VALUE : limit, this.limit));
         }
 
-        @Override
-        public WrappingReader copy() {
-            return new WrappingReader(reader, limit - position);
-        }
-
-        @Override
-        public WrappingReader copy(int limit) {
-            return new WrappingReader(reader, limit);
+        public <R> R parse(StringCharReader.ElementReader<R> reader) {
+            this.mark();
+            try {
+                val br = copy(Integer.MAX_VALUE);
+                val ret = reader.read(br);
+                this.position = br.position;
+                return ret;
+            } catch (ParseException t) {
+                this.reset();
+                throw t;
+            }
         }
 
         @Override
@@ -676,8 +692,61 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             position = mark;
         }
 
-        public String getAllRead() {
+        public String getBuffer() {
             return sb.toString();
+        }
+
+        public class CopyReader extends CharReader<CopyReader> {
+            private final int limit;
+            int position;
+            private int mark;
+
+            public CopyReader(int position, int limit) {
+                this.position = position;
+                this.limit = limit;
+                this.mark = position;
+            }
+
+            @Override
+            public int peek() {
+                return peekAt(position);
+            }
+
+            @Override
+            public int take() {
+                if (position == limit) return -1;
+                return takeAt(position++);
+            }
+
+            @Override
+            public CopyReader copy(int limit) {
+                if (limit < 0) throw new IllegalArgumentException("limit < 0");
+                limit = position + limit;
+                return new CopyReader(position, Math.min(limit < position ? Integer.MAX_VALUE : limit, this.limit));
+            }
+
+            public <R> R parse(StringCharReader.ElementReader<R> reader) {
+                this.mark();
+                try {
+                    val br = copy(Integer.MAX_VALUE);
+                    val ret = reader.read(br);
+                    this.position = br.position;
+                    return ret;
+                } catch (ParseException t) {
+                    this.reset();
+                    throw t;
+                }
+            }
+
+            @Override
+            public void mark(int limit) {
+                mark = position;
+            }
+
+            @Override
+            public void reset() {
+                position = mark;
+            }
         }
     }
 

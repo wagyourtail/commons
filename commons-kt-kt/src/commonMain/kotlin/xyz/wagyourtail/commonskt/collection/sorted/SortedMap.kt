@@ -18,6 +18,8 @@ interface SortedMap<K, V> : Map<K, V> {
 
     fun subMap(fromKey: K, toKey: K): SortedMap<K, V> = tailMap(fromKey).headMap(toKey)
 
+    fun asReversed(): SortedMap<K, V>
+
 }
 
 interface MutableSortedMap<K, V> : SortedMap<K, V>, MutableMap<K, V> {
@@ -31,5 +33,7 @@ interface MutableSortedMap<K, V> : SortedMap<K, V>, MutableMap<K, V> {
     override fun tailMap(fromKey: K): MutableSortedMap<K, V>
 
     override fun subMap(fromKey: K, toKey: K): MutableSortedMap<K, V> = tailMap(fromKey).headMap(toKey)
+
+    override fun asReversed(): MutableSortedMap<K, V>
 
 }

@@ -27,13 +27,9 @@ public class StringCharReader extends CharReader<StringCharReader> {
     }
 
     @Override
-    public StringCharReader copy() {
-        return copy(endPos - pos);
-    }
-
-    @Override
     public StringCharReader copy(int limit) {
-        StringCharReader copy = new StringCharReader(buffer, pos, pos + limit);
+        limit = pos + limit;
+        StringCharReader copy = new StringCharReader(buffer, pos, Math.min(limit < pos ? Integer.MAX_VALUE : limit, endPos));
         copy.mark();
         return copy;
     }
@@ -101,7 +97,7 @@ public class StringCharReader extends CharReader<StringCharReader> {
     public <R> R parse(StringCharReader.ElementReader<R> reader) {
         this.mark();
         try {
-            val wrapping = copy();
+            val wrapping = copy(Integer.MAX_VALUE);
             val value = reader.read(wrapping);
             this.pos = wrapping.pos;
             return value;

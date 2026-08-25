@@ -31,13 +31,10 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
         return ""
     }
 
-    @Suppress("DEPRECATION")
-    @Deprecated("parse is better")
-    override fun copy() = copy(endPos - pos)
-
-    @Deprecated("parse is better")
     override fun copy(limit: Int): StringCharReader {
-        return StringCharReader(buffer, pos, pos + limit).also { it.mark() }
+        if (limit < 0) throw IllegalArgumentException("limit < 0")
+        val limit = pos + limit
+        return StringCharReader(buffer, pos, min(endPos, if (limit < pos) Int.MAX_VALUE else limit)).also { it.mark() }
     }
 
     override fun takeRemaining(): String {
@@ -59,7 +56,7 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
         return str
     }
 
-    override fun mark() {
+    override fun mark(limit: Int) {
         mark = pos
     }
 
@@ -70,7 +67,6 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
     override fun <R> parse(reader: CharReader<*>.() -> R): R {
         mark()
         try {
-            @Suppress("DEPRECATION")
             val wrapping = copy()
             val value = reader(wrapping)
             pos = wrapping.pos

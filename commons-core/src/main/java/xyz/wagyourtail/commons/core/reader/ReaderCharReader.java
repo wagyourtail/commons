@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 
-public class ReaderCharReader extends CharReader<ReaderCharReader> {
+public class ReaderCharReader extends CharReader<ReaderCharReader> implements AutoCloseable {
     private final Reader reader;
     private int nextChar;
 
@@ -38,11 +38,6 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
     }
 
     @Override
-    public ReaderCharReader copy() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public ReaderCharReader copy(int limit) {
         throw new UnsupportedOperationException();
     }
@@ -60,4 +55,29 @@ public class ReaderCharReader extends CharReader<ReaderCharReader> {
         nextChar = reader.read();
     }
 
+    public Buffered buffered() {
+        return buffered(Integer.MAX_VALUE);
+    }
+
+    public Buffered buffered(int limit) {
+        return new Buffered(this, limit);
+    }
+
+    @Override
+    public void close() throws Exception {
+        reader.close();
+    }
+
+    public class Buffered extends BufferedCharReader implements AutoCloseable {
+
+        public Buffered(CharReader<?> reader, int limit) {
+            super(reader, limit);
+        }
+
+        @Override
+        public void close() throws Exception {
+            reader.close();
+        }
+
+    }
 }
