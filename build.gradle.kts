@@ -10,6 +10,9 @@ plugins {
     `maven-publish`
 }
 
+commons.autoGroup()
+commons.autoVersion()
+
 allprojects {
     val kotlin = project.projectDir.name.endsWith("-kt")
 
@@ -31,9 +34,6 @@ allprojects {
         }
         apply(plugin = "maven-publish")
     }
-
-    group = project.findProperty("maven_group") as String
-    commons.autoVersion()
 
     base {
         archivesName = project.name

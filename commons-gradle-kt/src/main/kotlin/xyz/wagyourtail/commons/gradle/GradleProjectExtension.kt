@@ -22,7 +22,14 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     @get:Inject
     abstract val softwareComponentFactory: SoftwareComponentFactory
 
-    fun autoGroup(group: String = project.findProperty("maven_group") as String) {
+    val autoVersion by lazy {
+        project.objects.newInstance(AutoVersionConfig::class.java, project)
+    }
+
+    /**
+     * just a fun little shortcut for `project.group = project.
+     */
+    fun autoGroup(group: String = project.property("maven_group") as String) {
         project.group = group
     }
 
@@ -82,8 +89,6 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
 
     @JvmOverloads
     fun autoVersion(includeSubprojects: Boolean = true, builder: AutoVersionConfig.() -> Unit) {
-        val autoVersion = project.objects.newInstance(AutoVersionConfig::class.java, project)
-
         autoVersion.builder()
 
         autoVersion.apply(project, includeSubprojects)
@@ -133,7 +138,7 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
      * and adding the git shorthash to the implementation version
      */
     @JvmOverloads
-    fun autoVersion(version: String = project.findProperty("version") as String, defaultSnapshot: Boolean = false) {
+    fun autoVersion(version: String = project.property("version") as String, defaultSnapshot: Boolean = false) {
         val isSnapshot =
             if (defaultSnapshot) !project.hasProperty("version_release") else project.hasProperty("version_snapshot")
         autoVersion {

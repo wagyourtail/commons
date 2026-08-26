@@ -1,8 +1,10 @@
 package xyz.wagyourtail.commons.java8.utils;
 
+import lombok.val;
 import xyz.wagyourtail.commons.core.IteratorUtils;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -29,22 +31,39 @@ public class IteratorUtils8 extends IteratorUtils {
 
     public static <E> Iterator<E> filter(Iterator<E> iterator, Predicate<E> predicate) {
         return new Iterator<E>() {
+            private E next;
+
             @Override
             public boolean hasNext() {
-                return iterator.hasNext();
+                if (next != null) {
+                    return true;
+                }
+                while (iterator.hasNext()) {
+                    next = iterator.next();
+                    if (predicate.test(next)) {
+                        return true;
+                    }
+                }
+                next = null;
+                return false;
             }
 
             @Override
             public E next() {
-                E next = iterator.next();
-                while (!predicate.test(next) && iterator.hasNext()) {
-                    next = iterator.next();
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
                 }
-                return next;
+                val n = next;
+                next = null;
+                return n;
             }
 
             @Override
             public void remove() {
+                if (next != null) {
+                    throw new IllegalStateException("can't remove after hasNext()");
+
+                }
                 iterator.remove();
             }
         };

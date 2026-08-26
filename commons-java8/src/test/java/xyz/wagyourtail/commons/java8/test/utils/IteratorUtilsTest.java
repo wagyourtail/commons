@@ -18,4 +18,11 @@ public class IteratorUtilsTest {
         assertEquals(List.of(1, 2, 3, 4, 5, 6), IteratorUtils8.toList(result));
     }
 
+    @Test
+    public void testFilter() {
+        var list = List.of(1, 2, 3, 4, 5, 6, 7);
+        var result = IteratorUtils8.filter(list.iterator(), x -> x % 2 == 0);
+        assertEquals(List.of(2, 4, 6), IteratorUtils8.toList(result));
+    }
+
 }

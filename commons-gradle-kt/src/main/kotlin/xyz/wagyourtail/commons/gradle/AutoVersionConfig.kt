@@ -77,7 +77,7 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
         snapshot.set(!project.hasProperty("version_release"))
     }
 
-    fun versionProperty(version: String = project.findProperty("version") as String) {
+    fun versionProperty(version: String = project.property("version") as String) {
         this.version.set(version)
         this.implementationVersion.set(version)
     }
@@ -100,8 +100,16 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
     }
 
     fun apply(project: Project, subprojects: Boolean = true) {
+        val logger = project.commonsLogger.subLogger("AutoVersion")
 
-        project.version = version.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
+        val snapshot = this.snapshot.get()
+        val version = this.version.get() + (if (snapshot) "-SNAPSHOT" else "")
+        val implementationVersion = this.implementationVersion.get()
+
+        logger.info { "Version: $version" }
+        logger.info { "Implementation Version: $implementationVersion" }
+
+        project.version = version
 
         applyImplementationVersion(project)
         if (subprojects) {

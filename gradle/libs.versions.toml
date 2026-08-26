@@ -17,7 +17,7 @@ kotlin_coroutines = "1.11.0"
 kotlin_atomicfu = "0.33.0"
 kotlin_serialization = "1.11.0"
 
-commons_plugin = "1.0.4-SNAPSHOT"
+commons_plugin = "1.0.5-SNAPSHOT"
 lombok_plugin = "9.5.0"
 jvm_downgrader = "2.0.1"
 

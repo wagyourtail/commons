@@ -10,8 +10,17 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
-    id("xyz.wagyourtail.commons-gradle") version "1.0.4-SNAPSHOT"
+    id("xyz.wagyourtail.commons-gradle") version "1.0.5-SNAPSHOT"
 }
+
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath("org.ow2.asm:asm:9.10.1")
+//    }
+//}
 
 commons.autoSubprojects {
     name = projectDir.name.removeSuffix("-kt")
