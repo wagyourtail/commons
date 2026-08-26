@@ -95,21 +95,21 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
                 }
             } else {
                 version.get()
+
             }
         })
     }
 
+    private fun String.snapshotSuffix() =
+        if (!snapshot.get() || endsWith("-SNAPSHOT")) {
+            this
+        } else {
+            "$this-SNAPSHOT"
+        }
+
+
     fun apply(project: Project, subprojects: Boolean = true) {
-        val logger = project.commonsLogger.subLogger("AutoVersion")
-
-        val snapshot = this.snapshot.get()
-        val version = this.version.get() + (if (snapshot) "-SNAPSHOT" else "")
-        val implementationVersion = this.implementationVersion.get()
-
-        logger.info { "Version: $version" }
-        logger.info { "Implementation Version: $implementationVersion" }
-
-        project.version = version
+        project.version = this.version.get().snapshotSuffix()
 
         applyImplementationVersion(project)
         if (subprojects) {
@@ -126,7 +126,7 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
             project.tasks.withType(Jar::class.java).configureEach { task ->
                 task.manifest { mf ->
                     mf.attributes["Implementation-Version"] =
-                        implementationVersion.get() + (if (snapshot.get()) "-SNAPSHOT" else "")
+                        implementationVersion.get().snapshotSuffix()
                 }
             }
         }
