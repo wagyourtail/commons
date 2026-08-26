@@ -29,8 +29,14 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     /**
      * just a fun little shortcut for `project.group = project.
      */
-    fun autoGroup(group: String = project.property("maven_group") as String) {
+    @JvmOverloads
+    fun autoGroup(group: String = project.property("maven_group") as String, includeSubprojects: Boolean = true) {
         project.group = group
+        if (includeSubprojects) {
+            project.subprojects {
+                it.group = group
+            }
+        }
     }
 
     @JvmOverloads

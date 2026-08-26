@@ -10,7 +10,6 @@ plugins {
     `maven-publish`
 }
 
-commons.autoGroup()
 commons.autoVersion()
 
 allprojects {
@@ -34,6 +33,8 @@ allprojects {
         }
         apply(plugin = "maven-publish")
     }
+
+    group = project.findProperty("maven_group") as String
 
     base {
         archivesName = project.name
