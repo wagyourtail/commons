@@ -4,6 +4,8 @@ plugins {
     `java-gradle-plugin`
 }
 
+description = "Gradle plugin for common utilities"
+
 kotlin {
     jvmToolchain(8)
 }

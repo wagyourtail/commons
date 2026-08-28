@@ -4,6 +4,8 @@ java {
     }
 }
 
+description = "a bunch of utilities for working with asm"
+
 dependencies {
     compileOnly(libs.jetbrains.annotations.j5)
 

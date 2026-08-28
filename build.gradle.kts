@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.testRuntimeOnly
 import java.net.URI
 
 plugins {
@@ -46,9 +47,6 @@ allprojects {
 
     dependencies {
         if (!kotlin) {
-            val testImplementation = configurations.getByName("testImplementation")
-            val testRuntimeOnly = configurations.getByName("testRuntimeOnly")
-
             testImplementation(rootProject.libs.junit.jupiter)
             testRuntimeOnly(rootProject.libs.junit.platform.launcher)
 //            testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -105,10 +103,7 @@ allprojects {
 
 }
 
-evaluationDependsOnChildren()
-
 dependencies {
-    compileOnly(libs.jetbrains.annotations)
-
     api(project(":commons-core"))
+    compileOnly(libs.jetbrains.annotations)
 }

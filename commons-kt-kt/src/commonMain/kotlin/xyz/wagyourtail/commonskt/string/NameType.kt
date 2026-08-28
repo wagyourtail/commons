@@ -9,6 +9,10 @@ fun String.convertNameType(from: NameType, to: NameType): String {
         return this
     }
 
+    if (this.isEmpty()) {
+        return this
+    }
+
     // shortcuts
 
     // - pascal/camel
@@ -44,7 +48,7 @@ fun String.convertNameType(from: NameType, to: NameType): String {
  * @param split should return an iterable of the lowercase words making up the name (with initalisms remaining capitalized)
  * @param join should join the iterable of words into a string
  */
-data class NameType(val split: (String) -> Iterable<String>, val join: (Iterable<String>) -> String) {
+data class NameType(internal val split: (String) -> Iterable<String>, internal val join: (Iterable<String>) -> String) {
 
     companion object {
         val CAMEL_CASE = NameType(

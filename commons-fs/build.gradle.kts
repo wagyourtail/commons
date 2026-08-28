@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.jvm.downgrader)
 }
 
+description = "Robust filesystem utils, for viewing contents of .zip, .tar, and more"
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
@@ -31,7 +33,7 @@ jvmdg.defaultShadeTask.configure {
 
 publishing {
     publications {
-        getByName<MavenPublication>("maven") {
+        named<MavenPublication>("maven") {
 
             artifact(jvmdg.defaultShadeTask)
 

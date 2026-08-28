@@ -1,14 +1,14 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsSubTargetDsl
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
     alias(libs.plugins.kotlinx.atomicfu)
 }
+
+description = "kotlin utilities"
 
 kotlin {
     jvmToolchain(8)
@@ -48,7 +48,7 @@ kotlin {
     linuxArm64()
 
     sourceSets {
-        getByName("commonMain") {
+        commonMain {
             dependencies {
                 api(libs.jetbrains.annotations)
                 api(libs.kotlin.coroutines)
@@ -57,18 +57,18 @@ kotlin {
                 api(libs.kotlin.serialization)
             }
         }
-        getByName("commonTest") {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.kotlin.serialization.json)
             }
         }
-        getByName("jvmMain") {
+        jvmMain {
             dependencies {
             }
         }
-        getByName("jvmTest") {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test"))
 //                implementation(kotlin("test-junit"))
@@ -76,11 +76,11 @@ kotlin {
                 implementation(libs.junit.platform.launcher)
             }
         }
-        getByName("jsMain") {
+        jsMain {
             dependencies {
             }
         }
-        getByName("jsTest") {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -88,6 +88,6 @@ kotlin {
     }
 }
 
-val jvmTest by tasks.getting(Test::class) {
+tasks.named("jvmTest", Test::class) {
     useJUnitPlatform()
 }

@@ -12,25 +12,25 @@ kotlin {
     }
 
     sourceSets {
-        getByName("commonMain") {
+        commonMain {
             dependencies {
                 api(project(":commons-kt"))
                 api(libs.kotlin.datetime)
             }
         }
-        getByName("commonTest") {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        getByName("jsMain") {
+        jsMain {
             dependencies {
                 api(kvisionLibs.kvision)
                 api(kvisionLibs.kvision.bootstrap)
             }
         }
-        getByName("jsTest") {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }

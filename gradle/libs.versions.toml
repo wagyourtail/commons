@@ -55,7 +55,7 @@ junit_jupiter_params = { module = "org.junit.jupiter:junit-jupiter-params", vers
 junit_platform_launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 [plugins]
-commons = { id = "xyz.wagyourtail.commons-gradle", version.ref = "commons_plugin"}
+commons = { id = "xyz.wagyourtail.commons-gradle", version.ref = "commons_plugin" }
 lombok = { id = "io.freefair.lombok", version.ref = "lombok_plugin" }
 jvm_downgrader = { id = "xyz.wagyourtail.jvmdowngrader", version.ref = "jvm_downgrader" }
 kotlinx_atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlin_atomicfu" }

@@ -1,14 +1,13 @@
-package xyz.wagyourtail.commons.java8.utils;
+package xyz.wagyourtail.commons.utils;
 
 import lombok.val;
-import xyz.wagyourtail.commons.core.IteratorUtils;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class IteratorUtils8 extends IteratorUtils {
+public class IteratorUtils extends xyz.wagyourtail.commons.core.IteratorUtils {
 
     public static <E, R> Iterator<R> map(final Iterator<E> iterator, final Function<E, R> mapper) {
         return new Iterator<R>() {

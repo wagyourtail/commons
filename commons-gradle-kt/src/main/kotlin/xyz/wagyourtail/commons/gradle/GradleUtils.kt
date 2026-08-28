@@ -130,7 +130,7 @@ fun ResolvedArtifactResult.getCoords(): MavenCoords {
     return location
 }
 
-fun <T: Any> NamedDomainObjectContainer<T>.maybeRegister(
+fun <T : Any> NamedDomainObjectContainer<T>.maybeRegister(
     name: String,
     action: T.() -> Unit = {}
 ): NamedDomainObjectProvider<T> {
@@ -171,7 +171,7 @@ fun <S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
     }
 }
 
-inline fun <reified S : T, T: Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
+inline fun <reified S : T, T : Any> PolymorphicDomainObjectContainer<T>.maybeRegister(
     name: String,
     noinline action: S.() -> Unit = {}
 ): NamedDomainObjectProvider<S> {

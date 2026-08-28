@@ -80,7 +80,7 @@ public class SimpleLogger extends Logger {
         if (isLevel(level)) {
             String content = prefix.getPrefix(level) + message;
             if (useAnsiColors) {
-                out.println(getColor(level).wrap(content));
+                out.println(getColor(level).foreground.wrap(content));
             } else {
                 out.println(content);
             }

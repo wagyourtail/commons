@@ -16,10 +16,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClassInfo {
     @Getter
@@ -30,10 +27,10 @@ public class ClassInfo {
     private final boolean isInterface;
     @Getter
     private final List<String> interfaces;
-    private final Lazy<List<MethodInfo>> methods;
-    private final Lazy<List<FieldInfo>> fields;
+    private final Lazy<Set<MethodInfo>> methods;
+    private final Lazy<Set<FieldInfo>> fields;
 
-    public ClassInfo(boolean isInterface, String name, String superName, List<String> interfaces, Lazy<List<MethodInfo>> methods, Lazy<List<FieldInfo>> fields) {
+    public ClassInfo(boolean isInterface, String name, String superName, List<String> interfaces, Lazy<Set<MethodInfo>> methods, Lazy<Set<FieldInfo>> fields) {
         this.isInterface = isInterface;
         this.name = name;
         this.superName = superName;
@@ -58,10 +55,10 @@ public class ClassInfo {
                 Type.getInternalName(clazz),
                 Type.getInternalName(superClass),
                 interfaces,
-                new Lazy<List<MethodInfo>>() {
+                new Lazy<Set<MethodInfo>>() {
                     @Override
-                    protected List<MethodInfo> supplier() {
-                        List<MethodInfo> methods = new ArrayList<>();
+                    protected Set<MethodInfo> supplier() {
+                        Set<MethodInfo> methods = new LinkedHashSet<>();
 
                         for (Method m : clazz.getDeclaredMethods()) {
                             methods.add(MethodInfo.of(m));
@@ -77,10 +74,10 @@ public class ClassInfo {
                         return methods;
                     }
                 },
-                new Lazy<List<FieldInfo>>() {
+                new Lazy<Set<FieldInfo>>() {
                     @Override
-                    protected List<FieldInfo> supplier() {
-                        List<FieldInfo> fields = new ArrayList<>();
+                    protected Set<FieldInfo> supplier() {
+                        Set<FieldInfo> fields = new LinkedHashSet<>();
                         for (Field f : clazz.getDeclaredFields()) {
                             fields.add(FieldInfo.of(f));
                         }
@@ -96,20 +93,20 @@ public class ClassInfo {
                 cn.name,
                 cn.superName,
                 cn.interfaces,
-                new Lazy<List<MethodInfo>>() {
+                new Lazy<Set<MethodInfo>>() {
                     @Override
-                    protected List<MethodInfo> supplier() {
-                        List<MethodInfo> methods = new ArrayList<>();
+                    protected Set<MethodInfo> supplier() {
+                        Set<MethodInfo> methods = new LinkedHashSet<>();
                         for (MethodNode mn : cn.methods) {
                             methods.add(MethodInfo.of(mn));
                         }
                         return methods;
                     }
                 },
-                new Lazy<List<FieldInfo>>() {
+                new Lazy<Set<FieldInfo>>() {
                     @Override
-                    protected List<FieldInfo> supplier() {
-                        List<FieldInfo> fields = new ArrayList<>();
+                    protected Set<FieldInfo> supplier() {
+                        Set<FieldInfo> fields = new LinkedHashSet<>();
                         for (FieldNode fd : cn.fields) {
                             fields.add(FieldInfo.of(fd));
                         }
@@ -133,20 +130,20 @@ public class ClassInfo {
                 reader.getClassName(),
                 reader.getSuperName(),
                 Arrays.asList(reader.getInterfaces()),
-                new Lazy<List<MethodInfo>>() {
+                new Lazy<Set<MethodInfo>>() {
                     @Override
-                    protected List<MethodInfo> supplier() {
-                        List<MethodInfo> methods = new ArrayList<>();
+                    protected Set<MethodInfo> supplier() {
+                        Set<MethodInfo> methods = new LinkedHashSet<>();
                         for (MethodNode mn : cn.get().methods) {
                             methods.add(MethodInfo.of(mn));
                         }
                         return methods;
                     }
                 },
-                new Lazy<List<FieldInfo>>() {
+                new Lazy<Set<FieldInfo>>() {
                     @Override
-                    protected List<FieldInfo> supplier() {
-                        List<FieldInfo> fields = new ArrayList<>();
+                    protected Set<FieldInfo> supplier() {
+                        Set<FieldInfo> fields = new LinkedHashSet<>();
                         for (FieldNode fd : cn.get().fields) {
                             fields.add(FieldInfo.of(fd));
                         }
@@ -261,11 +258,11 @@ public class ClassInfo {
         };
     }
 
-    public List<MethodInfo> getMethods() {
+    public Set<MethodInfo> getMethods() {
         return methods.get();
     }
 
-    public List<FieldInfo> getFields() {
+    public Set<FieldInfo> getFields() {
         return fields.get();
     }
 

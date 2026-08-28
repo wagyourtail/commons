@@ -5,6 +5,8 @@ java {
     }
 }
 
+description = "Core utilities"
+
 dependencies {
     compileOnly(libs.jetbrains.annotations.j5)
     testImplementation(libs.asm)

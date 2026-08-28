@@ -1,4 +1,4 @@
-package xyz.wagyourtail.commons;
+package xyz.wagyourtail.commons.utils;
 
 import java.io.File;
 import java.io.IOException;

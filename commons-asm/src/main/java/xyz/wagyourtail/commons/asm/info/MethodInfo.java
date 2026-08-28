@@ -8,12 +8,25 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 @AllArgsConstructor
 public class MethodInfo {
     public final int access;
     public final String name;
     public final Type desc;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MethodInfo that = (MethodInfo) o;
+        return Objects.equals(name, that.name) && Objects.equals(desc, that.desc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, desc);
+    }
 
     public static MethodInfo of(Method method) {
         return new MethodInfo(

@@ -100,12 +100,11 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
         })
     }
 
-    private fun String.snapshotSuffix() =
-        if (!snapshot.get() || endsWith("-SNAPSHOT")) {
-            this
-        } else {
-            "$this-SNAPSHOT"
-        }
+    private fun String.snapshotSuffix() = if (!snapshot.get() || endsWith("-SNAPSHOT")) {
+        this
+    } else {
+        "$this-SNAPSHOT"
+    }
 
 
     fun apply(project: Project, subprojects: Boolean = true) {
@@ -125,8 +124,7 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
         project.afterEvaluate {
             project.tasks.withType(Jar::class.java).configureEach { task ->
                 task.manifest { mf ->
-                    mf.attributes["Implementation-Version"] =
-                        implementationVersion.get().snapshotSuffix()
+                    mf.attributes["Implementation-Version"] = implementationVersion.get().snapshotSuffix()
                 }
             }
         }

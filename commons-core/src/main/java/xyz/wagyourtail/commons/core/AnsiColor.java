@@ -1,46 +1,51 @@
 package xyz.wagyourtail.commons.core;
 
-import lombok.Getter;
+import xyz.wagyourtail.commons.core.console.ConsoleFormatting;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
-@Getter
 public enum AnsiColor {
-    RESET("\u001B[0m"),
-    BLACK("\u001B[30m"),
-    RED("\u001B[31m"),
-    GREEN("\u001B[32m"),
-    YELLOW("\u001B[33m"),
-    BLUE("\u001B[34m"),
-    PURPLE("\u001B[35m"),
-    CYAN("\u001B[36m"),
-    LIGHT_GRAY("\u001B[37m"),
+    /**
+     * @deprecated Use {@link ConsoleFormatting#RESET} instead
+     */
+    @Deprecated
+    RESET(0),
 
-    DARK_GRAY("\u001B[90m"),
-    LIGHT_RED("\u001B[91m"),
-    LIGHT_GREEN("\u001B[92m"),
-    LIGHT_YELLOW("\u001B[93m"),
-    LIGHT_BLUE("\u001B[94m"),
-    LIGHT_PURPLE("\u001B[95m"),
-    LIGHT_CYAN("\u001B[96m"),
-    WHITE("\u001B[97m");
+    BLACK(30),
+    RED(31),
+    GREEN(32),
+    YELLOW(33),
+    BLUE(34),
+    PURPLE(35),
+    CYAN(36),
+    LIGHT_GRAY(37),
 
-    private final String ansiColor;
+    DARK_GRAY(90),
+    LIGHT_RED(91),
+    LIGHT_GREEN(92),
+    LIGHT_YELLOW(93),
+    LIGHT_BLUE(94),
+    LIGHT_PURPLE(95),
+    LIGHT_CYAN(96),
+    WHITE(97);
 
-    AnsiColor(String ansiColor) {
-        this.ansiColor = ansiColor;
+    public final ConsoleFormatting foreground;
+    public final ConsoleFormatting background;
+
+    AnsiColor(int value) {
+        foreground = new ConsoleFormatting(value);
+
+        if (value == 0) {
+            background = new ConsoleFormatting(value);
+        } else {
+            background = new ConsoleFormatting(value + 10);
+        }
     }
 
+    /**
+     * @deprecated Use {@link AnsiColor#foreground}.{@link ConsoleFormatting#wrap(String)} instead
+     */
+    @Deprecated
     public String wrap(String message) {
-        String[] parts = message.split("\n");
-        StringBuilder sb = new StringBuilder();
-        Iterator<String> it = Arrays.asList(parts).iterator();
-        while (it.hasNext()) {
-            sb.append(ansiColor).append(it.next()).append(RESET.ansiColor);
-            if (it.hasNext()) sb.append("\n");
-        }
-        return sb.toString();
+        return foreground.wrap(message);
     }
 
 }

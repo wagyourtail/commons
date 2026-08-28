@@ -8,6 +8,9 @@ plugins {
     alias(libs.plugins.kotlinx.atomicfu)
 }
 
+description = "some parsers based on CharReader.kt"
+
+
 kotlin {
     jvmToolchain(8)
     jvm {
@@ -35,22 +38,22 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(project(":commons-kt"))
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test"))
 //                implementation(kotlin("test-junit"))
@@ -58,11 +61,11 @@ kotlin {
                 implementation(libs.junit.platform.launcher)
             }
         }
-        val jsMain by getting {
+        jsMain {
             dependencies {
             }
         }
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -70,6 +73,6 @@ kotlin {
     }
 }
 
-val jvmTest by tasks.getting(Test::class) {
+tasks.named("jvmTest", Test::class) {
     useJUnitPlatform()
 }

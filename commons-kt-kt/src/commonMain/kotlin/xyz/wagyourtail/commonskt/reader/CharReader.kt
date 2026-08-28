@@ -1,11 +1,7 @@
 package xyz.wagyourtail.commonskt.reader
 
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.coroutines.NonCancellable.children
 import xyz.wagyourtail.commonskt.utils.translateEscapes
 import kotlin.math.min
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 abstract class CharReader<T : CharReader<T>> {
 
@@ -413,7 +409,8 @@ abstract class CharReader<T : CharReader<T>> {
      * so don't do multithreaded stuff or interleave using the outer reader
      * with the wrapped reader.
      */
-    class BufferedCharReader(private val reader: CharReader<*>, private var limit: Int) : CharReader<BufferedCharReader>() {
+    class BufferedCharReader(private val reader: CharReader<*>, private var limit: Int) :
+        CharReader<BufferedCharReader>() {
         private val buffer = StringBuilder()
         internal var position = 0
         private var mark = 0

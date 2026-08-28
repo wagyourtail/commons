@@ -63,7 +63,12 @@ public class NameType {
             new Function<Iterable<String>, String>() {
                 @Override
                 public String apply(Iterable<String> strings) {
-                    return StringUtils.capitalize(CAMEL_CASE.join.apply(strings));
+                    val iter = strings.iterator();
+                    StringBuilder sb = new StringBuilder();
+                    while (iter.hasNext()) {
+                        sb.append(StringUtils.capitalize(iter.next()));
+                    }
+                    return sb.toString();
                 }
             }
     );
@@ -102,8 +107,16 @@ public class NameType {
     private final Function<Iterable<String>, String> join;
 
 
+    public static String convert(String value, NameType from, NameType to) {
+        return from.convert(to, value);
+    }
+
     public String convert(NameType to, String value) {
         if (to == this) {
+            return value;
+        }
+
+        if (value.isEmpty()) {
             return value;
         }
 
@@ -112,7 +125,7 @@ public class NameType {
         if (this == PASCAL_CASE && to == CAMEL_CASE) {
             if (
                     (value.length() >= 3 && Character.isUpperCase(value.charAt(0)) && Character.isUpperCase(value.charAt(1)) && Character.isUpperCase(value.charAt(2))) ||
-                    (value.length() == 2 && Character.isUpperCase(value.charAt(0)) && Character.isUpperCase(value.charAt(1)))
+                            (value.length() == 2 && Character.isUpperCase(value.charAt(0)) && Character.isUpperCase(value.charAt(1)))
             ) {
                 return value;
             } else {
