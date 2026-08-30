@@ -1,8 +1,8 @@
 package xyz.wagyourtail.commonskt.ref
 
 
-actual class WeakReference<T : Any> actual constructor(value: T) {
-    var value: T? = value
+actual class WeakReference<T : Any> actual constructor(referred: T) {
+    var value: T? = referred
 
     companion object {
         var allow: Boolean = false

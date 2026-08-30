@@ -6,15 +6,15 @@ private external class WeakRef<T : JsAny>(target: T) {
     fun deref(): T?
 }
 
-actual class WeakReference<T : Any> actual constructor(value: T) {
-    private val ref = WeakRef(value as JsAny)
+actual class WeakReference<T : Any> actual constructor(referred: T) {
+    private var ref: WeakRef<JsReference<T>>? = WeakRef(referred.toJsReference())
 
     @Suppress("UNCHECKED_CAST")
     actual fun get(): T? {
-        return ref.deref() as T?
+        return ref?.deref()?.get()
     }
 
     actual fun clear() {
-        ref.deref()
+        ref = null
     }
 }
