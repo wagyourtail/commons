@@ -1,6 +1,6 @@
 package xyz.wagyourtail.commonskt.parsers.impl.constant.test
 
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.BuildStringVisitor
 import xyz.wagyourtail.commonskt.parsers.impl.Constant
 import xyz.wagyourtail.commonskt.reader.ParseException
 import kotlin.test.Test
@@ -43,16 +43,16 @@ class ConstantTest {
 
     @Test
     fun testVisitor() {
-        assertEquals("null", StringData.BuildStringVisitor.apply(Constant.checked("null")))
-        assertEquals("true", StringData.BuildStringVisitor.apply(Constant.checked("true")))
-        assertEquals("10e+24", StringData.BuildStringVisitor.apply(Constant.checked("10e+24")))
-        assertEquals("-NaND", StringData.BuildStringVisitor.apply(Constant.checked("-NaND")))
-        assertEquals("0.10e+24f", StringData.BuildStringVisitor.apply(Constant.checked("0.10e+24f")))
-        assertEquals("0b1010", StringData.BuildStringVisitor.apply(Constant.checked("0b1010")))
-        assertEquals("0x1010L", StringData.BuildStringVisitor.apply(Constant.checked("0x1010L")))
-        assertEquals("0123l", StringData.BuildStringVisitor.apply(Constant.checked("0123l")))
-        assertEquals("0", StringData.BuildStringVisitor.apply(Constant.checked("0")))
-        assertEquals("1", StringData.BuildStringVisitor.apply(Constant.checked("1")))
+        assertEquals("null", BuildStringVisitor.apply(Constant.checked("null")))
+        assertEquals("true", BuildStringVisitor.apply(Constant.checked("true")))
+        assertEquals("10e+24", BuildStringVisitor.apply(Constant.checked("10e+24")))
+        assertEquals("-NaND", BuildStringVisitor.apply(Constant.checked("-NaND")))
+        assertEquals("0.10e+24f", BuildStringVisitor.apply(Constant.checked("0.10e+24f")))
+        assertEquals("0b1010", BuildStringVisitor.apply(Constant.checked("0b1010")))
+        assertEquals("0x1010L", BuildStringVisitor.apply(Constant.checked("0x1010L")))
+        assertEquals("0123l", BuildStringVisitor.apply(Constant.checked("0123l")))
+        assertEquals("0", BuildStringVisitor.apply(Constant.checked("0")))
+        assertEquals("1", BuildStringVisitor.apply(Constant.checked("1")))
     }
 
     @Test

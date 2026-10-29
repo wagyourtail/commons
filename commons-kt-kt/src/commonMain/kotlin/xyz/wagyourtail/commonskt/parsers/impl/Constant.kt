@@ -1,35 +1,51 @@
 package xyz.wagyourtail.commonskt.parsers.impl
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.parsers.impl.constant.BooleanConstant
 import xyz.wagyourtail.commonskt.parsers.impl.constant.NumberConstant
 import xyz.wagyourtail.commonskt.parsers.impl.constant.StringConstant
 import xyz.wagyourtail.commonskt.reader.CharReader
 
-class Constant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(rawContent) {
+class Constant : RawStringData {
 
-    constructor(content: SingleContent<*>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<Constant, SingleContent<*>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): Constant {
-            return Constant(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<Constant>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek() ?: return false
+            return c == '"' || c == '-' || c == '.' || c in '0'..'9' ||
+                c == 't' || c == 'f' || c == 'n' || c == 'N' || c == 'I'
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-            return SingleContent(
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
+            append(
                 reader.parse(
                     "constant",
-                    BooleanConstant::invoke,
-                    StringConstant::invoke,
-                    NumberConstant::invoke,
+                    { BooleanConstant.read(this) },
+                    { StringConstant.read(this) },
+                    { NumberConstant.read(this) },
                     {
                         expect("null")
-                        null
+                        "null"
                     }
-                ))
+                )
+            )
         }
+
+        override fun unchecked(value: String): Constant = Constant(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Constant =
+            Constant(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Constant = read(rawContent)
 
     }
 
@@ -75,8 +91,8 @@ class Constant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(r
             }
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

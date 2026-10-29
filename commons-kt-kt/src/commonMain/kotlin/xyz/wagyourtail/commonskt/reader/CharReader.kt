@@ -42,7 +42,11 @@ abstract class CharReader<T : CharReader<T>> {
     }
 
     /**
-     * @return a copy of the reader at the current position.
+     * @return a copy of the reader at the current position, with its own
+     * position/mark state; multiple copies may be active and interleaved
+     * freely — reading a copy never moves the parent or sibling copies.
+     * Sequential (stream) readers cannot copy; wrap them in
+     * [BufferedCharReader] first.
      * @since 1.0.4
      */
     abstract fun copy(limit: Int = Int.MAX_VALUE): CharReader<*>
@@ -50,11 +54,18 @@ abstract class CharReader<T : CharReader<T>> {
 
     /**
      * set this position as remembered.
+     * @param limit maximum chars that may be consumed before the mark becomes
+     * invalid — advisory for buffer/string readers (always replayable), but
+     * on sequential readers it bounds the recorded replay buffer like
+     * java.io's read-ahead limit.
      */
     abstract fun mark(limit: Int = Int.MAX_VALUE)
 
     /**
      * reset to remembered mark position, or beginning if no mark.
+     * On sequential readers this throws [IllegalStateException] when there is
+     * no active mark (unset, or invalidated by exceeding the mark limit or by
+     * [skip]).
      */
     abstract fun reset()
 
@@ -68,7 +79,32 @@ abstract class CharReader<T : CharReader<T>> {
 
     open fun takeUntil(char: Char) = takeUntil { it == char }
 
+    /**
+     * take until the given substring is about to be read — the match is not
+     * consumed (the reader is left positioned at it). Uses [copy] for
+     * speculation so it does not disturb the caller's mark; falls back to a
+     * mark/reset scan on readers that don't support copying (raw streams).
+     */
     fun takeUntil(characters: String): String {
+        val probe = try {
+            copy()
+        } catch (e: UnsupportedOperationException) {
+            null
+        }
+        if (probe != null) {
+            val sb = StringBuilder()
+            while (peek() != null) {
+                val copy = copy()
+                try {
+                    copy.expect(characters)
+                    return sb.toString()
+                } catch (_: ParseException) {
+                    sb.append(take() as Char)
+                }
+            }
+            return sb.toString()
+        }
+        // fallback for readers without copy() — mark/reset scan
         val sb = StringBuilder()
         var next = peek()
         var taken = ""
@@ -172,11 +208,17 @@ abstract class CharReader<T : CharReader<T>> {
 
     fun takeRemainingLiteralOnLine(sep: Char) = takeRemainingLiteralOnLine { it == sep }
 
-//    fun takeWholeNumber(leadingZero: Boolean = false): Int {
-//        if (leadingZero) {
-//            return takeWhile { it.isDigit() }.toInt()
-//        }
-//    }
+    fun takeWholeNumber(leadingZero: Boolean = false): Long {
+        // don't allow leading zero, but allow 0 by itself
+        val text = takeWhile { it.isDigit() }
+        if (!leadingZero && text.startsWith("0") && text.length > 1) {
+            throw createException("Leading zero not allowed: $text")
+        }
+        if (text.isEmpty()) {
+            throw createException("Expected number")
+        }
+        return text.toLong()
+    }
 
     fun takeString(leinient: Boolean = true, escapeDoubleQuote: Boolean = false, quote: Char = '"'): String {
         return takeString(leinient, escapeDoubleQuote, quote = quote.toString())
@@ -252,15 +294,15 @@ abstract class CharReader<T : CharReader<T>> {
             } else {
                 sb.append(last)
                 if (escapeDoubleQuote) {
-                    mark()
-                    expect(quote)
-                    try {
-                        sb.append(expect(quote))
+                    // doubled "quote quote" → append one literal quote and
+                    // continue; speculation via parseOrNull so the caller's
+                    // mark is not disturbed
+                    if (parseOrNull({ expect(quote); expect(quote); true }) == true) {
+                        sb.append(quote)
                         if (noTranslateEscapes) {
                             sb.append(quote)
                         }
-                    } catch (_: ParseException) {
-                        reset()
+                    } else {
                         break
                     }
                 } else {
@@ -410,32 +452,49 @@ abstract class CharReader<T : CharReader<T>> {
      * with the wrapped reader.
      */
     class BufferedCharReader(private val reader: CharReader<*>, private var limit: Int) :
-        CharReader<BufferedCharReader>() {
+        CharReader<BufferedCharReader>(), BackedCharReader {
         private val buffer = StringBuilder()
         internal var position = 0
         private var mark = 0
+
+        override val backingBuffer: CharSequence
+            get() = buffer
+
+        override val backingPosition: Int
+            get() = position
 
         override fun peek(): Char? {
             return peekAt(position)
         }
 
         fun peekAt(position: Int): Char? {
-            if (position == limit) {
+            if (position >= limit) {
                 return null
             }
-            if (position >= buffer.length) {
+            if (position > buffer.length) {
+                return null
+            }
+            if (position == buffer.length) {
                 return reader.peek()
             }
             return buffer[position]
         }
 
         override fun take(): Char? {
-            return takeAt(position++)
+            if (position >= limit) {
+                return null
+            }
+            val next = takeAt(position) ?: return null
+            position++
+            return next
         }
 
         fun takeAt(position: Int): Char? {
-            if (position == limit) {
+            if (position >= limit) {
                 return null
+            }
+            if (position > buffer.length) {
+                throw IllegalStateException("position $position is beyond the buffered frontier ${buffer.length}")
             }
             if (position == buffer.length) {
                 val next = reader.take() ?: return null
@@ -451,15 +510,22 @@ abstract class CharReader<T : CharReader<T>> {
             return CopyReader(position, min(if (limit < position) Int.MAX_VALUE else limit, this.limit))
         }
 
+        /**
+         * parse is mark-transparent: the caller's mark/reset state is
+         * preserved across both success and failure.
+         */
         override fun <R> parse(reader: CharReader<*>.() -> R): R {
-            this.mark()
+            val savedPosition = position
+            val savedMark = mark
             try {
                 val br = copy()
                 val ret = reader(br)
                 this.position = br.position
+                this.mark = savedMark
                 return ret
             } catch (e: ParseException) {
-                this.reset()
+                this.position = savedPosition
+                this.mark = savedMark
                 throw e
             }
         }
@@ -472,21 +538,29 @@ abstract class CharReader<T : CharReader<T>> {
             position = mark
         }
 
-        inner class CopyReader(internal var position: Int, private val limit: Int) : CharReader<CopyReader>() {
+        inner class CopyReader(internal var position: Int, private val limit: Int) : CharReader<CopyReader>(), BackedCharReader {
             private var mark: Int = position
 
+            override val backingBuffer: CharSequence
+                get() = buffer
+
+            override val backingPosition: Int
+                get() = position
+
             override fun peek(): Char? {
-                if (position == limit) {
+                if (position >= limit) {
                     return null
                 }
                 return peekAt(position)
             }
 
             override fun take(): Char? {
-                if (position == limit) {
+                if (position >= limit) {
                     return null
                 }
-                return takeAt(position++)
+                val next = takeAt(position) ?: return null
+                position++
+                return next
             }
 
             override fun copy(limit: Int): CopyReader {
@@ -495,15 +569,22 @@ abstract class CharReader<T : CharReader<T>> {
                 return CopyReader(position, min(if (limit < position) Int.MAX_VALUE else limit, this.limit))
             }
 
+            /**
+             * parse is mark-transparent: the caller's mark/reset state is
+             * preserved across both success and failure.
+             */
             override fun <R> parse(reader: CharReader<*>.() -> R): R {
-                this.mark()
+                val savedPosition = position
+                val savedMark = mark
                 try {
                     val br = copy()
                     val ret = reader(br)
                     this.position = br.position
+                    this.mark = savedMark
                     return ret
                 } catch (e: ParseException) {
-                    this.reset()
+                    this.position = savedPosition
+                    this.mark = savedMark
                     throw e
                 }
             }

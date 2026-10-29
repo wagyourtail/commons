@@ -67,4 +67,8 @@ public class SeekableByteChannelInputStream extends InputStream {
         this.pos = this.mark;
     }
 
+    @Override
+    public void close() throws IOException {
+        this.channel.close();
+    }
 }

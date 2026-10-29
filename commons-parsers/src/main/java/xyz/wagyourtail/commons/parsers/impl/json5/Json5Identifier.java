@@ -1,102 +1,167 @@
 package xyz.wagyourtail.commons.parsers.impl.json5;
 
-import lombok.val;
 import xyz.wagyourtail.commons.core.StringUtils;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
+import xyz.wagyourtail.commons.core.data.ParseCache;
 
-public class Json5Identifier extends StringData.OnlyRaw<Data.SingleContent<String>> {
+public class Json5Identifier extends RawStringData {
 
-    public Json5Identifier(String rawContent) {
-        super(rawContent, Json5Identifier::getContentChecked);
+    protected Json5Identifier(String rawContent) {
+        super(rawContent);
     }
 
-    public Json5Identifier(CharReader<?> reader) {
-        super(reader, Json5Identifier::getContentChecked);
+    private Json5Identifier(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
-    public static Json5Identifier parse(String reader) {
-        StringCharReader charReader = new StringCharReader(reader);
-        val content = new Json5Identifier(charReader);
-        charReader.expectEOS();
-        return content;
+    public Json5Identifier(Content content) {
+        super(content);
     }
 
-    public static Json5Identifier unchecked(String reader) {
-        return new Json5Identifier(reader);
-    }
+    public static final Companion COMPANION = new Companion();
 
-    public static Data.SingleContent<String> getContentChecked(CharReader<?> r) {
-        StringBuilder sb = new StringBuilder();
-        char first = (char) r.take();
-        if (first == '\\') {
-            String s = takeUnicodeEscapeSequence(r);
-            if (s.length() != 1) {
-                throw r.createException("Invalid identifier start: " + s);
-            }
-            first = s.charAt(0);
+    public static class Companion extends StringDataCompanion<Json5Identifier> {
+
+        private static boolean isStartChar(int c) {
+            return Character.isAlphabetic(c) || c == '$' || c == '_';
         }
-        if (
-                !Character.isAlphabetic(first) &&
-                        first != '$' &&
-                        first != '_'
-        ) {
-            throw r.createException("Invalid identifier start: " + first);
-        }
-        sb.append(first);
 
-        while (!r.exhausted()) {
-            r.mark();
-            char c = (char) r.take();
-            if (c == '\\') {
-                String s = takeUnicodeEscapeSequence(r);
-                if (s.length() != 1) {
-                    throw r.createException("Invalid identifier character: " + s);
-                }
-                c = s.charAt(0);
-            }
-            if (
-                    Character.isAlphabetic(c) ||
-                            c == '$' ||
-                            c == '_'
-            ) {
-                sb.append(c);
-                continue;
-            }
+        private static boolean isContinueChar(int c) {
+            if (Character.isAlphabetic(c) || c == '$' || c == '_') return true;
             int type = Character.getType(c);
-            if (
-                    type == Character.NON_SPACING_MARK ||
-                            type == Character.COMBINING_SPACING_MARK ||
-                            type == Character.DECIMAL_DIGIT_NUMBER ||
-                            type == Character.CONNECTOR_PUNCTUATION ||
-                            c == '\u200C' ||
-                            c == '\u200D'
-            ) {
-                sb.append(c);
-                continue;
+            return type == Character.NON_SPACING_MARK ||
+                type == Character.COMBINING_SPACING_MARK ||
+                type == Character.DECIMAL_DIGIT_NUMBER ||
+                type == Character.CONNECTOR_PUNCTUATION ||
+                c == '\u200C' || c == '\u200D';
+        }
+
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            int c = reader.peek();
+            return c == '\\' || isStartChar(c);
+        }
+
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            StringBuilder raw = new StringBuilder();
+            int c = reader.take();
+            if (c == -1) {
+                throw reader.createException("Unexpected end of input");
             }
-            r.reset();
-            break;
+            raw.append((char) c);
+            int check = c;
+            if (c == '\\') {
+                String[] seq = takeUnicodeEscapeSequence(reader);
+                if (seq[0].length() != 1) {
+                    throw reader.createException("Invalid identifier start: " + seq[0]);
+                }
+                raw.append(seq[1]);
+                check = seq[0].charAt(0);
+            }
+            if (!isStartChar(check)) {
+                throw reader.createException("Invalid identifier start: " + (char) check);
+            }
+
+            while (!reader.exhausted()) {
+                reader.mark();
+                c = reader.take();
+                check = c;
+                String seqRaw = null;
+                if (c == '\\') {
+                    String[] seq = takeUnicodeEscapeSequence(reader);
+                    if (seq[0].length() != 1) {
+                        throw reader.createException("Invalid identifier character: " + seq[0]);
+                    }
+                    seqRaw = seq[1];
+                    check = seq[0].charAt(0);
+                }
+                if (isContinueChar(check)) {
+                    if (seqRaw == null) raw.append((char) c);
+                    else raw.append('\\').append(seqRaw);
+                    continue;
+                }
+                reader.reset();
+                break;
+            }
+            append.append(raw.toString());
         }
 
-        return new SingleContent<>(sb.toString());
-    }
-
-    private static String takeUnicodeEscapeSequence(CharReader<?> reader) {
-        reader.expect('u');
-
-        StringBuilder hex = new StringBuilder(4);
-        for (int i = 0; i < 4; i++) {
-            hex.append(reader.expect("hex", c -> (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')));
+        /**
+         * reads a backslash-u escape — returns {decoded, rawSeq}. note: legacy
+         * grammar consumed exactly 3 hex digits after the 'u'.
+         */
+        private static String[] takeUnicodeEscapeSequence(CharReader<?> reader) {
+            reader.expect('u');
+            StringBuilder hex = new StringBuilder(4);
+            for (int i = 0; i < 3; i++) {
+                hex.append(reader.expect("hex", c -> Character.isDigit(c) ||
+                    (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')));
+            }
+            return new String[]{
+                new String(Character.toChars(Integer.parseInt(hex.toString(), 16))),
+                "u" + hex
+            };
         }
 
-        return new String(Character.toChars(Integer.parseInt(hex.toString(), 16)));
+        @Override
+        public Json5Identifier unchecked(String value) {
+            return new Json5Identifier(value);
+        }
+
+        @Override
+        public Json5Identifier uncheckedView(CharSequence buffer, int start, int end) {
+            return new Json5Identifier(buffer, start, end);
+        }
+
     }
 
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public Json5Identifier(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
+    public static Json5Identifier parse(String rawContent) {
+        return COMPANION.checked(rawContent);
+    }
+
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
+    public static Json5Identifier unchecked(String rawContent) {
+        return COMPANION.unchecked(rawContent);
+    }
+
+    /** identifier name with escape sequences decoded */
     public String getValue() {
-        return StringUtils.translateEscapes(getRawContent());
+        return COMPANION.cached(getRawContent(), new ParseCache.Compute<String>() {
+            @Override
+            public String compute() {
+                String raw = getRawContent();
+                StringBuilder sb = new StringBuilder();
+                int i = 0;
+                while (i < raw.length()) {
+                    if (raw.charAt(i) == '\\' && i + 4 < raw.length() && raw.charAt(i + 1) == 'u') {
+                        sb.append(new String(Character.toChars(
+                            Integer.parseInt(raw.substring(i + 2, i + 5), 16))));
+                        i += 5;
+                    } else {
+                        sb.append(raw.charAt(i++));
+                    }
+                }
+                return sb.toString();
+            }
+        });
+    }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
     }
 
 }

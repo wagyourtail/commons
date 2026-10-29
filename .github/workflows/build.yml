@@ -25,7 +25,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Publish
-        run: ./gradlew publish -Pmvn.user=${{ secrets.MAVEN_USER }} -Pmvn.key=${{ secrets.MAVEN_TOKEN }} --info --stacktrace
+        # -Pversion_release: releases must never resolve to a -SNAPSHOT
+        # version; explicit flag keeps semantics correct even if the
+        # resolved commons-gradle plugin is a stale pre-fix snapshot
+        run: ./gradlew publish -Pversion_release -Pmvn.user=${{ secrets.MAVEN_USER }} -Pmvn.key=${{ secrets.MAVEN_TOKEN }} --info --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:

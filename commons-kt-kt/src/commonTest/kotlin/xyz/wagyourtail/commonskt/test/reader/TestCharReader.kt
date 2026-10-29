@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commonskt.test.reader
 
+import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.reader.StringCharReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -216,5 +217,108 @@ class TestCharReader {
                 { expect("test") }
             ))
         reader.expectEOS()
+    }
+
+    // --- concurrent copies / EOS / mark-transparency ---
+
+    @Test
+    fun testMultipleConcurrentCopies() {
+        // copies of a buffered reader must be fully independent — advancing
+        // one must not move another or the parent
+        val base = CharReader.BufferedCharReader(StringCharReader("abcdefghij"), Int.MAX_VALUE)
+        val a = base.copy()
+        assertEquals("abcd", a.take(4))
+        val b = base.copy()
+        assertEquals("ab", b.take(2))
+        assertEquals("ef", a.take(2))
+        assertEquals('c', b.take())
+        assertEquals("abcd", base.take(4))
+        assertEquals("ghij", a.takeRemaining())
+        assertEquals("defghij", b.takeRemaining())
+        assertEquals("efghij", base.takeRemaining())
+    }
+
+    @Test
+    fun testTakeAtEOSIsStable() {
+        // repeated takes past EOS must keep returning null, not corrupt or crash
+        val reader = CharReader.BufferedCharReader(StringCharReader("ab"), Int.MAX_VALUE)
+        val copy = reader.copy()
+        assertEquals("ab", copy.takeRemaining())
+        assertNull(copy.take())
+        assertNull(copy.take())
+        assertNull(copy.take())
+        val c2 = reader.copy()
+        assertEquals("ab", c2.takeRemaining())
+        assertNull(c2.take())
+        assertNull(c2.take())
+        assertEquals("ab", reader.takeRemaining())
+        assertNull(reader.take())
+        assertNull(reader.take())
+    }
+
+    @Test
+    fun testCopyLimitRespected() {
+        val reader = CharReader.BufferedCharReader(StringCharReader("abcdef"), Int.MAX_VALUE)
+        val copy = reader.copy(2)
+        assertEquals('a', copy.take())
+        assertEquals('b', copy.take())
+        assertNull(copy.take())
+        assertNull(copy.take())
+        assertNull(copy.peek())
+        assertEquals("abcdef", reader.takeRemaining())
+    }
+
+    @Test
+    fun testNestedCopies() {
+        val reader = CharReader.BufferedCharReader(StringCharReader("aabbcc"), Int.MAX_VALUE)
+        val outer = reader.copy(4)
+        assertEquals('a', outer.take())
+        val inner = outer.copy(2)
+        assertEquals("ab", inner.takeRemaining())
+        assertNull(inner.take())
+        assertNull(inner.take())
+        // outer continues at its own position, independent of the inner copy
+        assertEquals("abb", outer.takeRemaining())
+        assertNull(outer.take())
+        assertEquals("aabbcc", reader.takeRemaining())
+    }
+
+    @Test
+    fun testCopiesOnStringReader() {
+        // multiple independent copies over a string reader (lookup pattern
+        // used by shouldRead(reader.copy()))
+        val reader = StringCharReader("key1=val1")
+        val a = reader.copy()
+        val b = reader.copy()
+        assertEquals("key1", a.takeUntil('='))
+        assertEquals("key1", b.takeUntil('='))
+        a.expect('=')
+        assertEquals("val1", a.takeRemaining())
+        b.expect('=')
+        assertEquals("val1", b.takeRemaining())
+        assertEquals("key1=val1", reader.takeRemaining())
+    }
+
+    @Test
+    fun testMarkSurvivesParse() {
+        // a caller's mark must not be clobbered by an intervening parse()
+        val reader = StringCharReader("hello world")
+        reader.take(2)
+        reader.mark()
+        reader.take(4)
+        assertEquals("ok", reader.parse { expect("world"); "ok" })
+        reader.reset()
+        assertEquals("llo world", reader.takeRemaining())
+    }
+
+    @Test
+    fun testMarkSurvivesTakeString() {
+        // takeString internally speculates — it must not disturb a user mark
+        val reader = StringCharReader("xy \"abc\" rest")
+        reader.take(3)
+        reader.mark()
+        assertEquals("abc", reader.takeString(escapeDoubleQuote = true))
+        reader.reset()
+        assertEquals("\"abc\" rest", reader.takeRemaining())
     }
 }

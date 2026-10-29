@@ -1,24 +1,30 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.translateEscapes
 
-class Json5StringConstant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<String>>(rawContent) {
+class Json5StringConstant : RawStringData {
 
-    constructor(content: SingleContent<String>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<Json5StringConstant, Data.SingleContent<String>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): Json5StringConstant {
-            return Json5StringConstant(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<Json5StringConstant>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek()
+            return c == '"' || c == '\''
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<String> {
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
             val quote = reader.peek()
             if (quote == '\"' || quote == '\'') {
-                return SingleContent(
+                append(
                     reader.takeString(
                         leinient = true,
                         escapeNewline = true,
@@ -26,9 +32,18 @@ class Json5StringConstant(rawContent: String) : StringData.OnlyRaw<Data.SingleCo
                         quote = quote.toString()
                     )
                 )
+                return
             }
             throw reader.createException("Expected string start char but got: $quote")
         }
+
+        override fun unchecked(value: String): Json5StringConstant = Json5StringConstant(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Json5StringConstant =
+            Json5StringConstant(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Json5StringConstant = read(rawContent)
 
     }
 
@@ -38,8 +53,8 @@ class Json5StringConstant(rawContent: String) : StringData.OnlyRaw<Data.SingleCo
             return content.substring(1, content.length - 1).replace("\\\n", "").translateEscapes()
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): SingleContent<String> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

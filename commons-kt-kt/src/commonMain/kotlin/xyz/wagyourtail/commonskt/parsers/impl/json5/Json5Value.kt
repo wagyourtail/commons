@@ -1,34 +1,56 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.parsers.impl.constant.BooleanConstant
 import xyz.wagyourtail.commonskt.reader.CharReader
 
-class Json5Value(content: SingleContent<*>) : StringData.OnlyParsed<Data.SingleContent<*>>(content) {
+class Json5Value : RawStringData {
 
-    companion object : StringDataBuilder<Json5Value, Data.SingleContent<*>> {
+    constructor(rawContent: String) : super(rawContent)
 
-        override fun invoke(rawContent: CharReader<*>): Json5Value {
-            return Json5Value(checkedBuildContent(rawContent))
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
+
+    constructor(content: Content) : super(content)
+
+    companion object : StringDataCompanion<Json5Value>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek() ?: return false
+            return c == '{' || c == '[' || c == '"' || c == '\'' ||
+                BooleanConstant.shouldRead(reader) || Json5Number.shouldRead(reader) || c == 'n'
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-            return SingleContent<Any?>(
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
+            append(
                 reader.parse(
                     "json5 value",
-                    Json5Object::invoke,
-                    Json5Array::invoke,
-                    Json5StringConstant::invoke,
-                    BooleanConstant::invoke,
-                    Json5Number::invoke,
+                    { Json5Object.read(this) },
+                    { Json5Array.read(this) },
+                    { Json5StringConstant.read(this) },
+                    { BooleanConstant.read(this) },
+                    { Json5Number.read(this) },
                     {
                         expect("null")
-                        null
+                        "null"
                     }
-                ))
+                )
+            )
         }
 
+        override fun unchecked(value: String): Json5Value = Json5Value(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Json5Value =
+            Json5Value(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Json5Value = read(rawContent)
+
+    }
+
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

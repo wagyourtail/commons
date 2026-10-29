@@ -1,62 +1,81 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.iterable
 
-class Json5Object(content: ObjectContent) : StringData.OnlyParsed<Json5Object.ObjectContent>(content) {
+class Json5Object : RawStringData {
 
-    companion object : StringDataBuilder<Json5Object, ObjectContent> {
+    constructor(rawContent: String) : super(rawContent)
 
-        override fun invoke(rawContent: CharReader<*>): Json5Object {
-            return Json5Object(checkedBuildContent(rawContent))
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
+
+    constructor(content: ObjectContent) : super(content)
+
+    companion object : StringDataCompanion<Json5Object>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            return reader.peek() == '{'
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): ObjectContent {
-            val entries = mutableListOf<Any>()
-            val entryMap = mutableMapOf<String, Json5ObjectEntry>()
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
             reader.expect('{')
+            append('{')
             while (!reader.exhausted()) {
                 while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
-                        Json5Whitespace::invoke,
-                        Json5Comment::invoke
+                        { Json5Whitespace.read(this) },
+                        { Json5Comment.read(this) }
                     )
                     if (value == null) break
-                    entries.add(value)
+                    append(value)
                 }
                 if (reader.peek() == '}') {
                     break
                 }
 
-                val entry = Json5ObjectEntry(reader)
-                entries.add(entry)
-                entryMap[entry.key] = entry
+                append(Json5ObjectEntry.read(reader))
 
                 while (!reader.exhausted()) {
                     val value = reader.parseOrNull(
-                        Json5Whitespace::invoke,
-                        Json5Comment::invoke
+                        { Json5Whitespace.read(this) },
+                        { Json5Comment.read(this) }
                     )
                     if (value == null) break
-                    entries.add(value)
+                    append(value)
                 }
                 if (reader.peek() == ',') {
-                    entries.add(reader.take()!!)
+                    append(reader.take()!!)
                 } else {
                     break
                 }
             }
             reader.expect('}')
-            return ObjectContent(entries)
+            append('}')
         }
 
+        override fun unchecked(value: String): Json5Object = Json5Object(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Json5Object =
+            Json5Object(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Json5Object = read(rawContent)
+
+    }
+
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        val list = mutableListOf<Any>()
+        Companion.read(reader) { list.add(it) }
+        return ObjectContent(list.subList(1, list.size - 1).toMutableList())
     }
 
     class ObjectContent(
         val data: MutableList<Any>,
         val entryMap: MutableMap<String, Json5ObjectEntry>
-    ) : Content<Any>() {
+    ) : Content() {
 
         constructor(data: MutableList<Any>) : this(data, mutableMapOf()) {
             for (entry in data) {

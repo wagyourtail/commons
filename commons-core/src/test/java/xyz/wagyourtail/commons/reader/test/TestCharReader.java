@@ -2,8 +2,12 @@ package xyz.wagyourtail.commons.reader.test;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import xyz.wagyourtail.commons.core.reader.CharReader;
+import xyz.wagyourtail.commons.core.reader.ReaderCharReader;
 import xyz.wagyourtail.commons.core.reader.StringCharReader;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -208,4 +212,101 @@ class TestCharReader {
         assertEquals(-1, reader.take());
     }
 
+    // --- concurrent copies / EOS / mark-transparency ---
+
+    @Test
+    public void testMultipleConcurrentCopies() {
+        CharReader.BufferedCharReader base = new CharReader.BufferedCharReader(new StringCharReader("abcdefghij"), Integer.MAX_VALUE);
+        CharReader<?> a = base.copy(Integer.MAX_VALUE);
+        assertEquals("abcd", a.take(4));
+        CharReader<?> b = base.copy(Integer.MAX_VALUE);
+        assertEquals("ab", b.take(2));
+        assertEquals("ef", a.take(2));
+        assertEquals('c', (char) b.take());
+        assertEquals("abcd", base.take(4));
+        assertEquals("ghij", a.takeRemaining());
+        assertEquals("defghij", b.takeRemaining());
+        assertEquals("efghij", base.takeRemaining());
+    }
+
+    @Test
+    public void testTakeAtEOSIsStable() {
+        CharReader.BufferedCharReader reader = new CharReader.BufferedCharReader(new StringCharReader("ab"), Integer.MAX_VALUE);
+        CharReader<?> copy = reader.copy(Integer.MAX_VALUE);
+        assertEquals("ab", copy.takeRemaining());
+        assertEquals(-1, copy.take());
+        assertEquals(-1, copy.take());
+        CharReader<?> c2 = reader.copy(Integer.MAX_VALUE);
+        assertEquals("ab", c2.takeRemaining());
+        assertEquals(-1, c2.take());
+        assertEquals(-1, c2.take());
+        assertEquals("ab", reader.takeRemaining());
+        assertEquals(-1, reader.take());
+        assertEquals(-1, reader.take());
+    }
+
+    @Test
+    public void testCopyLimitRespected() {
+        CharReader.BufferedCharReader reader = new CharReader.BufferedCharReader(new StringCharReader("abcdef"), Integer.MAX_VALUE);
+        CharReader<?> copy = reader.copy(2);
+        assertEquals('a', (char) copy.take());
+        assertEquals('b', (char) copy.take());
+        assertEquals(-1, copy.take());
+        assertEquals(-1, copy.take());
+        assertEquals(-1, copy.peek());
+        assertEquals("abcdef", reader.takeRemaining());
+    }
+
+    @Test
+    public void testNestedCopies() {
+        CharReader.BufferedCharReader reader = new CharReader.BufferedCharReader(new StringCharReader("aabbcc"), Integer.MAX_VALUE);
+        CharReader<?> outer = reader.copy(4);
+        assertEquals('a', (char) outer.take());
+        CharReader<?> inner = outer.copy(2);
+        assertEquals("ab", inner.takeRemaining());
+        assertEquals(-1, inner.take());
+        assertEquals("abb", outer.takeRemaining());
+        assertEquals(-1, outer.take());
+        assertEquals("aabbcc", reader.takeRemaining());
+    }
+
+    @Test
+    public void testMarkSurvivesParse() {
+        StringCharReader reader = new StringCharReader("hello world");
+        reader.take(2);
+        reader.mark();
+        reader.take(4);
+        assertEquals("ok", reader.parse(r -> {
+            r.expect("world");
+            return "ok";
+        }));
+        reader.reset();
+        assertEquals("llo world", reader.takeRemaining());
+    }
+
+    @Test
+    public void testStreamMarkReset() throws IOException {
+        // bounded replay mark/reset on a raw stream reader
+        ReaderCharReader reader = new ReaderCharReader(new StringReader("abcdef"));
+        assertEquals('a', (char) reader.take());
+        assertEquals('b', (char) reader.take());
+        reader.mark(3);
+        assertEquals('c', (char) reader.take());
+        assertEquals('d', (char) reader.take());
+        reader.reset();
+        assertEquals('c', (char) reader.take());
+        assertEquals('d', (char) reader.take());
+        assertEquals('e', (char) reader.take());
+        // reset again — mark still active
+        reader.reset();
+        assertEquals("cde", reader.take(3));
+        // exceed the readlimit → mark invalidated
+        reader.reset();
+        reader.take(4); // c,d,e,f — recording 'f' exceeds limit 3
+        try {
+            reader.reset();
+            org.junit.jupiter.api.Assertions.fail("expected IllegalStateException");
+        } catch (IllegalStateException expected) {
+        }
+    }
 }

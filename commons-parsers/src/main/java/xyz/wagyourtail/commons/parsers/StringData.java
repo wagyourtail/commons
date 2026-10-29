@@ -6,6 +6,10 @@ import xyz.wagyourtail.commons.core.reader.StringCharReader;
 
 import java.util.function.Function;
 
+/**
+ * @deprecated superseded by {@link xyz.wagyourtail.commons.core.data.StringData}
+ */
+@Deprecated
 public abstract class StringData<E extends Data.Content<?>> extends Data<String, E> {
 
     public StringData(String rawContent) {
@@ -74,6 +78,10 @@ public abstract class StringData<E extends Data.Content<?>> extends Data<String,
             BuildStringVisitor visitor = new BuildStringVisitor();
             data.accept(visitor);
             return visitor.build();
+        }
+
+        public static String apply(xyz.wagyourtail.commons.core.data.StructuredData<?> data) {
+            return xyz.wagyourtail.commons.core.data.BuildStringVisitor.apply(data);
         }
 
         @Override

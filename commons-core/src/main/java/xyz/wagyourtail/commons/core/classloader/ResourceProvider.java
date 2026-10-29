@@ -1,9 +1,6 @@
 package xyz.wagyourtail.commons.core.classloader;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.val;
+import lombok.*;
 import xyz.wagyourtail.commons.core.IOUtils;
 import xyz.wagyourtail.commons.core.lazy.Lazy;
 
@@ -50,8 +47,10 @@ public abstract class ResourceProvider implements Closeable {
     public abstract Enumeration<URL> getResources(String name) throws IOException;
 
     @Builder
-    @Getter
+    @Data
     public static class PackageInfo {
+        public static final PackageInfo EMPTY = PackageInfo.builder().build();
+
         @Builder.Default
         private final String specTitle = null;
         @Builder.Default

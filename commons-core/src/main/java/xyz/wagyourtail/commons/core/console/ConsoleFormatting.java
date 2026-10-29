@@ -157,6 +157,7 @@ public class ConsoleFormatting {
      * @param font index of 0-10
      */
     public static ConsoleFormatting font(byte font) {
+        if (font < 0 || font > 10) throw new IndexOutOfBoundsException("Font value out of range");
         return new ConsoleFormatting(10 + font);
     }
 
@@ -165,10 +166,12 @@ public class ConsoleFormatting {
      * @return a forground color in the <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit">3/4 bit table</a>
      */
     public static ConsoleFormatting foregroundANSI(byte color) {
+        if (color < 0 || color > 15) throw new IndexOutOfBoundsException("Color value out of range");
         return AnsiColor.values()[color + 1].foreground;
     }
 
     public static ConsoleFormatting backgroundANSI(byte color) {
+        if (color < 0 || color > 15) throw new IndexOutOfBoundsException("Color value out of range");
         return AnsiColor.values()[color + 1].background;
     }
 
@@ -191,14 +194,35 @@ public class ConsoleFormatting {
      * @return a foreground color in the <a href="https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit">256 color palette</a>
      */
     public static ConsoleFormatting foreground24(byte r, byte g, byte b) {
+        return new ConsoleFormatting(38, 2, r & 0xff, g & 0xff, b & 0xff);
+    }
+
+    public static ConsoleFormatting foreground24(int rgb) {
+        int r = (rgb >> 16) & 0xff;
+        int g = (rgb >> 8) & 0xff;
+        int b = rgb & 0xff;
         return new ConsoleFormatting(38, 2, r, g, b);
     }
 
     public static ConsoleFormatting background24(byte r, byte g, byte b) {
+        return new ConsoleFormatting(48, 2, r & 0xff, g & 0xff, b & 0xff);
+    }
+
+    public static ConsoleFormatting background24(int rgb) {
+        int r = (rgb >> 16) & 0xff;
+        int g = (rgb >> 8) & 0xff;
+        int b = rgb & 0xff;
         return new ConsoleFormatting(48, 2, r, g, b);
     }
 
     public static ConsoleFormatting underline24(byte r, byte g, byte b) {
+        return new ConsoleFormatting(58, 2, r & 0xff, g & 0xff, b & 0xff);
+    }
+
+    public static ConsoleFormatting underline24(int rgb) {
+        int r = (rgb >> 16) & 0xff;
+        int g = (rgb >> 8) & 0xff;
+        int b = rgb & 0xff;
         return new ConsoleFormatting(58, 2, r, g, b);
     }
 

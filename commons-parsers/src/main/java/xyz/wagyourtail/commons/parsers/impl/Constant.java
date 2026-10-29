@@ -1,48 +1,82 @@
 package xyz.wagyourtail.commons.parsers.impl;
 
-import lombok.val;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 import xyz.wagyourtail.commons.parsers.impl.constant.BooleanConstant;
 import xyz.wagyourtail.commons.parsers.impl.constant.NumberConstant;
 import xyz.wagyourtail.commons.parsers.impl.constant.StringConstant;
 
 import java.util.Locale;
 
-public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
+public class Constant extends RawStringData {
 
-    private Constant(String rawContent) {
-        super(rawContent, Constant::getContentChecked);
+    protected Constant(String rawContent) {
+        super(rawContent);
     }
 
-    public Constant(CharReader<?> content) {
-        super(content, Constant::getContentChecked);
+    private Constant(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
+    public Constant(Content content) {
+        super(content);
+    }
+
+    public static final Companion COMPANION = new Companion();
+
+    public static class Companion extends StringDataCompanion<Constant> {
+
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            int c = reader.peek();
+            return c == '"' || c == '-' || c == '.' || (c >= '0' && c <= '9') ||
+                c == 't' || c == 'f' || c == 'n' || c == 'N' || c == 'I';
+        }
+
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            append.append(reader.parse(
+                    "constant",
+                    BooleanConstant.COMPANION::read,
+                    StringConstant.COMPANION::read,
+                    NumberConstant.COMPANION::read,
+                    (r) -> {
+                        r.expect("null");
+                        return "null";
+                    }
+            ));
+        }
+
+        @Override
+        public Constant unchecked(String value) {
+            return new Constant(value);
+        }
+
+        @Override
+        public Constant uncheckedView(CharSequence buffer, int start, int end) {
+            return new Constant(buffer, start, end);
+        }
+
+    }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public Constant(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
     public static Constant parse(String rawContent) {
-        StringCharReader reader = new StringCharReader(rawContent);
-        val constant = new Constant(reader);
-        reader.expectEOS();
-        return constant;
+        return COMPANION.checked(rawContent);
     }
 
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
     public static Constant unchecked(String rawContent) {
-        return new Constant(rawContent);
-    }
-
-    private static SingleContent<?> getContentChecked(CharReader<?> reader) {
-        return new SingleContent<>(reader.parse(
-                "constant",
-                BooleanConstant::new,
-                StringConstant::new,
-                NumberConstant::new,
-                r -> {
-                    r.expect("null");
-                    return null;
-                }
-        ));
+        return COMPANION.unchecked(rawContent);
     }
 
     public boolean isNull() {
@@ -54,12 +88,12 @@ public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
     }
 
     public boolean isBoolean() {
-        val raw = getRawContent().toLowerCase(Locale.ROOT);
+        String raw = getRawContent().toLowerCase(Locale.ROOT);
         return raw.equals("true") || raw.equals("false");
     }
 
     public boolean isNumber() {
-        val first = getRawContent().charAt(0);
+        int first = getRawContent().charAt(0);
 
         if (first == '-') {
             return true;
@@ -92,5 +126,9 @@ public class Constant extends StringData.OnlyRaw<Data.SingleContent<?>> {
         throw new IllegalStateException();
     }
 
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
+    }
 
 }

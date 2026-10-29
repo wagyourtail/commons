@@ -1,126 +1,136 @@
 package xyz.wagyourtail.commonskt.parsers.impl.constant
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.parsers.impl.constant.number.*
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.unaryMinus
 
 
-class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>(rawContent) {
+class NumberConstant : RawStringData {
 
-    constructor(content: ListContent<*>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<NumberConstant, ListContent<*>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): NumberConstant {
-            return NumberConstant(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<NumberConstant>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek() ?: return false
+            return c == '-' || c == '.' || c == 'N' || c == 'I' || c.isDigit()
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
-            val content = mutableListOf<Any>()
-
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
             val first: Char? = reader.peek()
             if (first == '-') {
-                content.add(reader.take()!!)
+                append(reader.take()!!)
             }
             var next: Char? = reader.peek()
             if (next != null && next > '0' && next <= '9') {
-                content.add(WholePart(reader))
+                append(WholePart.read(reader))
                 next = reader.peek()
                 if (next == 'l' || next == 'L') {
-                    content.add(reader.take() as Char)
-                    return ListContent(content)
+                    append(reader.take()!!)
+                    return
                 }
                 if (next == '.') {
-                    content.add(reader.take() as Char)
+                    append(reader.take()!!)
                     next = reader.peek()
                     if (next!! >= '0' && next <= '9') {
-                        content.add(DecimalPart(reader))
+                        append(DecimalPart.read(reader))
                     }
                     next = reader.peek()
                 }
                 if (next == 'e' || next == 'E') {
-                    content.add(reader.take() as Char)
-                    content.add(ExponentPart(reader))
+                    append(reader.take()!!)
+                    append(ExponentPart.read(reader))
                     next = reader.peek()
                 }
             } else if (next == '0') {
-                content.add(reader.take() as Char)
+                append(reader.take()!!)
                 next = reader.peek()
                 when (next) {
                     '.' -> {
-                        content.add(reader.take() as Char)
+                        append(reader.take()!!)
                         next = reader.peek()
                         if (next!! >= '0' && next <= '9') {
-                            content.add(DecimalPart(reader))
+                            append(DecimalPart.read(reader))
                         }
                         next = reader.peek()
                         if (next == 'e' || next == 'E') {
-                            content.add(reader.take() as Char)
-                            content.add(ExponentPart(reader))
+                            append(reader.take()!!)
+                            append(ExponentPart.read(reader))
                             next = reader.peek()
                         }
                     }
 
                     'x', 'X' -> {
-                        content.add(reader.take() as Char)
-                        content.add(HexPart(reader))
+                        append(reader.take()!!)
+                        append(HexPart.read(reader))
                         next = reader.peek()
                         if (next == 'l' || next == 'L') {
-                            content.add(reader.take() as Char)
+                            append(reader.take()!!)
                         }
-                        return ListContent(content)
+                        return
                     }
 
                     'b', 'B' -> {
-                        content.add(reader.take() as Char)
-                        content.add(BinaryPart(reader))
+                        append(reader.take()!!)
+                        append(BinaryPart.read(reader))
                         next = reader.peek()
                         if (next == 'l' || next == 'L') {
-                            content.add(reader.take() as Char)
+                            append(reader.take()!!)
                         }
-                        return ListContent(content)
+                        return
                     }
 
                     null -> {}
                     else -> if (next >= '0' && next < '8') {
-                        content.add(OctalPart(reader))
+                        append(OctalPart.read(reader))
                         next = reader.peek()
                         if (next == 'l' || next == 'L') {
-                            content.add(reader.take() as Char)
+                            append(reader.take()!!)
                         }
-                        return ListContent(content)
+                        return
                     }
                 }
             } else if (next == '.') {
-                content.add(reader.take() as Char)
-                content.add(DecimalPart(reader))
+                append(reader.take()!!)
+                append(DecimalPart.read(reader))
                 next = reader.peek()
                 if (next == 'e' || next == 'E') {
-                    content.add(reader.take() as Char)
-                    content.add(ExponentPart(reader))
+                    append(reader.take()!!)
+                    append(ExponentPart.read(reader))
                     next = reader.peek()
                 }
             } else if (next == 'I') {
-                content.add(reader.expect("Infinity"))
+                append(reader.expect("Infinity"))
                 next = reader.peek()
             } else if (next == 'N') {
-                content.add(reader.expect("NaN"))
+                append(reader.expect("NaN"))
                 next = reader.peek()
             } else {
                 throw reader.createException("Not a number character: " + next as Char)
             }
 
-            if (next == null) return ListContent(content)
+            if (next == null) return
             if (next == 'f' || next == 'F'
                 || next == 'd' || next == 'D'
             ) {
-                content.add(reader.take() as Char)
+                append(reader.take()!!)
             }
-
-            return ListContent(content)
         }
+
+        override fun unchecked(value: String): NumberConstant = NumberConstant(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): NumberConstant =
+            NumberConstant(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): NumberConstant = read(rawContent)
 
     }
 
@@ -294,8 +304,8 @@ class NumberConstant(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*
             throw IllegalStateException()
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

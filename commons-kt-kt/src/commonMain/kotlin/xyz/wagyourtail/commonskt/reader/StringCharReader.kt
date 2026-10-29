@@ -4,8 +4,14 @@ import xyz.wagyourtail.commonskt.utils.indexOf
 import kotlin.math.min
 
 class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: Int = buffer.length) :
-    CharReader<StringCharReader>() {
+    CharReader<StringCharReader>(), BackedCharReader {
     private var mark: Int = 0
+
+    override val backingBuffer: CharSequence
+        get() = buffer
+
+    override val backingPosition: Int
+        get() = pos
 
     override fun peek(): Char? {
         if (pos < endPos) {
@@ -39,7 +45,9 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
 
     override fun takeRemaining(): String {
         if (pos < endPos) {
-            return buffer.substring(pos, endPos)
+            val str = buffer.substring(pos, endPos)
+            pos = endPos
+            return str
         }
         return ""
     }
@@ -64,15 +72,22 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
         pos = mark
     }
 
+    /**
+     * parse is mark-transparent: the caller's mark/reset state is preserved
+     * across both success and failure.
+     */
     override fun <R> parse(reader: CharReader<*>.() -> R): R {
-        mark()
+        val savedPos = pos
+        val savedMark = mark
         try {
             val wrapping = copy()
             val value = reader(wrapping)
             pos = wrapping.pos
+            mark = savedMark
             return value
         } catch (e: ParseException) {
-            reset()
+            pos = savedPos
+            mark = savedMark
             throw e
         }
     }

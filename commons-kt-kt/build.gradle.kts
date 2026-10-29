@@ -55,6 +55,9 @@ kotlin {
                 api(libs.kotlin.datetime)
                 api(libs.kotlin.atomicfu)
                 api(libs.kotlin.serialization)
+                // optional integration: okio adapters in commonskt.reader only
+                // resolve for consumers that have okio on their classpath
+                compileOnly(libs.okio)
             }
         }
         commonTest {
@@ -66,6 +69,9 @@ kotlin {
         }
         jvmMain {
             dependencies {
+                // optional integration: commonskt.compress helpers resolve
+                // for consumers that have commons-compress on their classpath
+                compileOnly(libs.apache.commons.compress)
             }
         }
         jvmTest {
@@ -78,6 +84,10 @@ kotlin {
         }
         jsMain {
             dependencies {
+                // optional integration: commons.kvision components resolve
+                // for consumers that have kvision on their classpath
+                compileOnly(kvisionLibs.kvision)
+                compileOnly(kvisionLibs.kvision.bootstrap)
             }
         }
         jsTest {

@@ -10,6 +10,12 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    // self-hosted plugin: keep this pin at "${version}-SNAPSHOT" matching
+    // gradle.properties — a lagging pin resolves a stale plugin jar (the
+    // 1.0.4-SNAPSHOT pin resolved July-2025 code with inverted snapshot
+    // semantics and shipped 1.0.4/1.0.5 as SNAPSHOTs into releases).
+    // after bumping `version`, `publishToMavenLocal` covers the gap until
+    // the next snapshot publish lands the artifact.
     id("xyz.wagyourtail.commons-gradle") version "1.0.5-SNAPSHOT"
 }
 

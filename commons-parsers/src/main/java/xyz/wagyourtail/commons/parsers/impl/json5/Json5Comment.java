@@ -1,56 +1,90 @@
 package xyz.wagyourtail.commons.parsers.impl.json5;
 
-import lombok.val;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.ArrayList;
-import java.util.List;
+public class Json5Comment extends RawStringData {
 
-public class Json5Comment extends StringData.OnlyRaw<Data.ListContent<Object>> {
-    public Json5Comment(String rawContent) {
-        super(rawContent, Json5Comment::getContentChecked);
+    protected Json5Comment(String rawContent) {
+        super(rawContent);
     }
 
-    public Json5Comment(CharReader<?> reader) {
-        super(reader, Json5Comment::getContentChecked);
+    private Json5Comment(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
-    public static Json5Comment parse(String reader) {
-        StringCharReader charReader = new StringCharReader(reader);
-        val content = new Json5Comment(charReader);
-        charReader.expectEOS();
-        return content;
+    public Json5Comment(Content content) {
+        super(content);
     }
 
-    public static Json5Comment unchecked(String rawContent) {
-        return new Json5Comment(rawContent);
-    }
+    public static final Companion COMPANION = new Companion();
 
-    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
-        return new ListContent<>(
-                reader.parse(
-                        "comment",
-                        r -> {
-                            List<Object> content = new ArrayList<>();
-                            content.add(r.expect("//"));
-                            content.add(r.takeUntil("\n"));
-                            if (!r.exhausted()) {
-                                content.add(r.expect('\n'));
-                            }
-                            return content;
-                        },
-                        r -> {
-                            List<Object> content = new ArrayList<>();
-                            content.add(r.expect("/*"));
-                            content.add(r.takeUntil("*/"));
-                            content.add(r.expect("*/"));
-                            return content;
+    public static class Companion extends StringDataCompanion<Json5Comment> {
+
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            if (reader.peek() != '/') return false;
+            CharReader<?> copy = reader.copy(1);
+            int n = copy.take();
+            return n == '/' || n == '*';
+        }
+
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            reader.parse(
+                    "comment",
+                    (r) -> {
+                        append.append(r.expect("//"));
+                        append.append(r.takeUntil("\n"));
+                        if (!r.exhausted()) {
+                            append.append(r.expect('\n'));
                         }
-                )
-        );
+                        return null;
+                    },
+                    (r) -> {
+                        append.append(r.expect("/*"));
+                        append.append(r.takeUntil("*/"));
+                        append.append(r.expect("*/"));
+                        return null;
+                    }
+            );
+        }
+
+        @Override
+        public Json5Comment unchecked(String value) {
+            return new Json5Comment(value);
+        }
+
+        @Override
+        public Json5Comment uncheckedView(CharSequence buffer, int start, int end) {
+            return new Json5Comment(buffer, start, end);
+        }
 
     }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public Json5Comment(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
+    public static Json5Comment parse(String rawContent) {
+        return COMPANION.checked(rawContent);
+    }
+
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
+    public static Json5Comment unchecked(String rawContent) {
+        return COMPANION.unchecked(rawContent);
+    }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
+    }
+
 }

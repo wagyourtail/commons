@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.compress.virtualfs.impl;
 
+import lombok.val;
 import org.apache.commons.io.function.IOStream;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -243,7 +244,11 @@ public class DirectoryFileSystem extends VirtualFileSystem {
 
         @Override
         public DirectoryFileSystem create(String fileName) throws IOException {
-            throw new UnsupportedOperationException();
+            val path = Paths.get(fileName);
+            try {
+                Files.createDirectories(path);
+            } catch (FileAlreadyExistsException ignored) {}
+            return new DirectoryFileSystem(new PathFile(path));
         }
 
     }

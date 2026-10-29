@@ -1,78 +1,120 @@
 package xyz.wagyourtail.commons.parsers.impl.json5;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.val;
-import xyz.wagyourtail.commons.core.IteratorUtils;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.DataCompanion;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent> {
+public class Json5Object extends RawStringData {
 
+    protected Json5Object(String rawContent) {
+        super(rawContent);
+    }
+
+    private Json5Object(CharSequence view, int start, int end) {
+        super(view, start, end);
+    }
 
     public Json5Object(ObjectContent content) {
         super(content);
     }
 
-    public static Json5Object parse(String raw) {
-        StringCharReader charReader = new StringCharReader(raw);
-        val content = contentBuilder(charReader);
-        charReader.expectEOS();
-        return new Json5Object(content);
-    }
+    public static final Companion COMPANION = new Companion();
 
-    public static Json5Object parse(CharReader<?> charReader) {
-        return new Json5Object(contentBuilder(charReader));
-    }
+    public static class Companion extends StringDataCompanion<Json5Object> {
 
-    public static ObjectContent contentBuilder(CharReader<?> reader) {
-        List<Object> entries = new ArrayList<>();
-        Map<String, Json5ObjectEntry> entryMap = new HashMap<>();
-        reader.expect('{');
-        while (!reader.exhausted()) {
-            while (!reader.exhausted()) {
-                val value = reader.parseOrNull(
-                        Json5Whitespace::new,
-                        Json5Comment::new
-                );
-                if (value == null) break;
-                entries.add(value);
-            }
-            if (reader.peek() == '}') {
-                break;
-            }
-
-            val entry = Json5ObjectEntry.parse(reader);
-            entries.add(entry);
-            entryMap.put(entry.getKey(), entry);
-
-            while (!reader.exhausted()) {
-                val value = reader.parseOrNull(
-                        Json5Whitespace::new,
-                        Json5Comment::new
-                );
-                if (value == null) break;
-                entries.add(value);
-            }
-            if (reader.peek() == ',') {
-                entries.add((char) reader.take());
-            } else {
-                break;
-            }
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            return reader.peek() == '{';
         }
-        reader.expect('}');
-        return new ObjectContent(entries, entryMap);
+
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            reader.expect('{');
+            append.append('{');
+            while (!reader.exhausted()) {
+                while (!reader.exhausted()) {
+                    Object value = reader.parseOrNull(
+                            Json5Whitespace.COMPANION::read,
+                            Json5Comment.COMPANION::read
+                    );
+                    if (value == null) break;
+                    append.append(value);
+                }
+                if (reader.peek() == '}') {
+                    break;
+                }
+
+                append.append(Json5ObjectEntry.COMPANION.read(reader));
+
+                while (!reader.exhausted()) {
+                    Object value = reader.parseOrNull(
+                            Json5Whitespace.COMPANION::read,
+                            Json5Comment.COMPANION::read
+                    );
+                    if (value == null) break;
+                    append.append(value);
+                }
+                if (reader.peek() == ',') {
+                    append.append((char) reader.take());
+                } else {
+                    break;
+                }
+            }
+            reader.expect('}');
+            append.append('}');
+        }
+
+        @Override
+        public Json5Object unchecked(String value) {
+            return new Json5Object(value);
+        }
+
+        @Override
+        public Json5Object uncheckedView(CharSequence buffer, int start, int end) {
+            return new Json5Object(buffer, start, end);
+        }
+
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class ObjectContent extends Data.Content<Object> {
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
+    public static Json5Object parse(String rawContent) {
+        return COMPANION.checked(rawContent);
+    }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public static Json5Object parse(CharReader<?> reader) {
+        return COMPANION.read(reader);
+    }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        final List<Object> list = new ArrayList<>();
+        COMPANION.read(reader, new DataCompanion.Append() {
+            @Override
+            public void append(Object o) {
+                list.add(o);
+            }
+        });
+        return new ObjectContent(new ArrayList<>(list.subList(1, list.size() - 1)));
+    }
+
+    public static class ObjectContent extends Content {
         private final List<Object> entries;
         private final Map<String, Json5ObjectEntry> entryMap;
+
+        public ObjectContent(List<Object> entries, Map<String, Json5ObjectEntry> entryMap) {
+            this.entries = entries;
+            this.entryMap = entryMap;
+        }
 
         public ObjectContent(List<Object> entries) {
             this.entries = entries;
@@ -85,13 +127,21 @@ public class Json5Object extends StringData.OnlyParsed<Json5Object.ObjectContent
             }
         }
 
+        public List<Object> getData() {
+            return entries;
+        }
+
+        public Map<String, Json5ObjectEntry> getEntryMap() {
+            return entryMap;
+        }
+
         @Override
         public Iterable<Object> getEntries() {
-            return IteratorUtils.concat(
-                    Collections.singleton('{'),
-                    entries,
-                    Collections.singleton('}')
-            );
+            List<Object> result = new ArrayList<>();
+            result.add('{');
+            result.addAll(entries);
+            result.add('}');
+            return result;
         }
     }
 

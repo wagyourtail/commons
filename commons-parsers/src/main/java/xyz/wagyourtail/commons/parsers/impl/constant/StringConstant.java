@@ -1,41 +1,77 @@
 package xyz.wagyourtail.commons.parsers.impl.constant;
 
-import lombok.val;
 import xyz.wagyourtail.commons.core.StringUtils;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 
-public class StringConstant extends StringData.OnlyRaw<Data.SingleContent<String>> {
+public class StringConstant extends RawStringData {
 
-
-    private StringConstant(String content) {
-        super(content, StringConstant::getContentChecked);
+    protected StringConstant(String rawContent) {
+        super(rawContent);
     }
 
-    public StringConstant(CharReader<?> content) {
-        super(content, StringConstant::getContentChecked);
+    private StringConstant(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
+    public StringConstant(Content content) {
+        super(content);
+    }
+
+    public static final Companion COMPANION = new Companion();
+
+    public static class Companion extends StringDataCompanion<StringConstant> {
+
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            return reader.peek() == '"';
+        }
+
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            append.append(reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\""));
+        }
+
+        @Override
+        public StringConstant unchecked(String value) {
+            return new StringConstant(value);
+        }
+
+        @Override
+        public StringConstant uncheckedView(CharSequence buffer, int start, int end) {
+            return new StringConstant(buffer, start, end);
+        }
+
+    }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public StringConstant(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
     public static StringConstant parse(String rawContent) {
-        StringCharReader reader = new StringCharReader(rawContent);
-        val number = new StringConstant(reader);
-        reader.expectEOS();
-        return number;
+        return COMPANION.checked(rawContent);
     }
 
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
     public static StringConstant unchecked(String rawContent) {
-        return new StringConstant(rawContent);
-    }
-
-    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
-        return new SingleContent<>(reader.takeString(CharReader.TAKE_STRING_NO_TRANSLATE_ESCAPES, "\""));
+        return COMPANION.unchecked(rawContent);
     }
 
     public String getValue() {
-        val content = getRawContent();
+        String content = getRawContent();
         return StringUtils.translateEscapes(content.substring(1, content.length() - 1));
+    }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
     }
 
 }

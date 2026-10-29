@@ -1,6 +1,7 @@
 package xyz.wagyourtail.commons.compress.virtualfs.file;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.commons.compress.virtualfs.VirtualFile;
@@ -82,6 +83,7 @@ public class PathFile extends VirtualFile {
     }
 
     @Override
+    @Nullable
     public SeekableByteChannel getData() throws IOException {
         if (!Files.exists(this.path)) return null;
         CleaningSeekableByteChannel cached = this.cachedContents.get();
@@ -98,10 +100,16 @@ public class PathFile extends VirtualFile {
     }
 
     @Override
-    public synchronized void setData(SeekableByteChannel data) throws IOException {
-        CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
-        this.cachedContents = new SoftReference<>(cached)::get;
-        Files.copy(new SeekableByteChannelInputStream(data), this.path, StandardCopyOption.REPLACE_EXISTING);
+    public synchronized void setData(@Nullable SeekableByteChannel data) throws IOException {
+        if (data != null) {
+            CleaningSeekableByteChannel cached = CleaningSeekableByteChannel.wrap(data);
+            this.cachedContents = new SoftReference<>(cached)::get;
+            data.position(0);
+            Files.copy(new SeekableByteChannelInputStream(data), this.path, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            Files.delete(this.path);
+            this.cachedContents = () -> null;
+        }
     }
 
     @Override
@@ -110,6 +118,7 @@ public class PathFile extends VirtualFile {
     }
 
     @Override
+    @Nullable
     public String getMimeType() throws IOException {
         if (!this.isFile()) {
             return "inode/directory";

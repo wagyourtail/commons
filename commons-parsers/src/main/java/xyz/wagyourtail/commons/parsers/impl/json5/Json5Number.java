@@ -1,112 +1,137 @@
 package xyz.wagyourtail.commons.parsers.impl.json5;
 
-import lombok.val;
-import lombok.var;
 import xyz.wagyourtail.commons.core.NumberUtils;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 import xyz.wagyourtail.commons.parsers.impl.constant.number.BinaryPart;
 import xyz.wagyourtail.commons.parsers.impl.constant.number.DecimalPart;
 import xyz.wagyourtail.commons.parsers.impl.constant.number.ExponentPart;
 import xyz.wagyourtail.commons.parsers.impl.constant.number.HexPart;
 
-import java.util.ArrayList;
-import java.util.List;
+public class Json5Number extends RawStringData {
 
-public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
-
-    private Json5Number(String rawContent) {
-        super(rawContent, Json5Number::getContentChecked);
+    protected Json5Number(String rawContent) {
+        super(rawContent);
     }
 
-    public Json5Number(CharReader<?> reader) {
-        super(reader, Json5Number::getContentChecked);
+    private Json5Number(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
-    public static Json5Number parse(String rawContent) {
-        StringCharReader reader = new StringCharReader(rawContent);
-        val number = new Json5Number(reader);
-        reader.expectEOS();
-        return number;
+    public Json5Number(Content content) {
+        super(content);
     }
 
-    public static Json5Number unchecked(String rawContent) {
-        return new Json5Number(rawContent);
-    }
+    public static final Companion COMPANION = new Companion();
 
-    private static ListContent<Object> getContentChecked(CharReader<?> reader) {
-        List<Object> content = new ArrayList<>();
+    public static class Companion extends StringDataCompanion<Json5Number> {
 
-        val first = reader.peek();
-        if (first == '-' || first == '+') {
-            content.add((char) reader.take());
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            int c = reader.peek();
+            return c == '-' || c == '+' || c == '.' || c == 'N' || c == 'I' || (c >= '0' && c <= '9');
         }
 
-        var next = reader.peek();
-        if (next > '0' && next <= '9') {
-            content.add(new DecimalPart(reader));
-            next = reader.peek();
-            if (next == '.') {
-                content.add((char) reader.take());
-                next = reader.peek();
-                if (next >= '0' && next <= '9') {
-                    content.add(new DecimalPart(reader));
-                }
-                next = reader.peek();
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            int first = reader.peek();
+            if (first == '-' || first == '+') {
+                append.append((char) reader.take());
             }
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-            }
-        } else if (next == '0') {
-            content.add((char) reader.take());
-            next = reader.peek();
-            switch (next) {
-                case '.':
-                    content.add((char) reader.take());
+
+            int next = reader.peek();
+            if (next > '0' && next <= '9') {
+                append.append(DecimalPart.COMPANION.read(reader));
+                next = reader.peek();
+                if (next == '.') {
+                    append.append((char) reader.take());
                     next = reader.peek();
                     if (next >= '0' && next <= '9') {
-                        content.add(new DecimalPart(reader));
+                        append.append(DecimalPart.COMPANION.read(reader));
                     }
                     next = reader.peek();
-                    if (next == 'e' || next == 'E') {
-                        content.add((char) reader.take());
-                        content.add(new ExponentPart(reader));
-                    }
-                    break;
-                case 'x':
-                case 'X':
-                    content.add((char) reader.take());
-                    content.add(new HexPart(reader));
-                    return new ListContent(content);
-                case 'b':
-                case 'B':
-                    content.add((char) reader.take());
-                    content.add(new BinaryPart(reader));
-                    return new ListContent(content);
-                case -1:
-                default:
-                    break;
+                }
+                if (next == 'e' || next == 'E') {
+                    append.append((char) reader.take());
+                    append.append(ExponentPart.COMPANION.read(reader));
+                }
+            } else if (next == '0') {
+                append.append((char) reader.take());
+                next = reader.peek();
+                switch (next) {
+                    case '.':
+                        append.append((char) reader.take());
+                        next = reader.peek();
+                        if (next >= '0' && next <= '9') {
+                            append.append(DecimalPart.COMPANION.read(reader));
+                        }
+                        next = reader.peek();
+                        if (next == 'e' || next == 'E') {
+                            append.append((char) reader.take());
+                            append.append(ExponentPart.COMPANION.read(reader));
+                        }
+                        break;
+                    case 'x':
+                    case 'X':
+                        append.append((char) reader.take());
+                        append.append(HexPart.COMPANION.read(reader));
+                        return;
+                    case 'b':
+                    case 'B':
+                        append.append((char) reader.take());
+                        append.append(BinaryPart.COMPANION.read(reader));
+                        return;
+                    case -1:
+                    default:
+                        break;
+                }
+            } else if (next == '.') {
+                append.append((char) reader.take());
+                append.append(DecimalPart.COMPANION.read(reader));
+                next = reader.peek();
+                if (next == 'e' || next == 'E') {
+                    append.append((char) reader.take());
+                    append.append(ExponentPart.COMPANION.read(reader));
+                }
+            } else if (next == 'I') {
+                append.append(reader.expect("Infinity"));
+            } else if (next == 'N') {
+                append.append(reader.expect("NaN"));
+            } else {
+                throw reader.createException("Not a number character: " + (char) next);
             }
-        } else if (next == '.') {
-            content.add((char) reader.take());
-            content.add(new DecimalPart(reader));
-            next = reader.peek();
-            if (next == 'e' || next == 'E') {
-                content.add((char) reader.take());
-                content.add(new ExponentPart(reader));
-            }
-        } else if (next == 'I') {
-            content.add(reader.expect("Infinity"));
-        } else if (next == 'N') {
-            content.add(reader.expect("NaN"));
-        } else {
-            throw reader.createException("Not a number character: " + (char) next);
         }
 
-        return new ListContent(content);
+        @Override
+        public Json5Number unchecked(String value) {
+            return new Json5Number(value);
+        }
+
+        @Override
+        public Json5Number uncheckedView(CharSequence buffer, int start, int end) {
+            return new Json5Number(buffer, start, end);
+        }
+
+    }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public Json5Number(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
+    public static Json5Number parse(String rawContent) {
+        return COMPANION.checked(rawContent);
+    }
+
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
+    public static Json5Number unchecked(String rawContent) {
+        return COMPANION.unchecked(rawContent);
     }
 
     public boolean isNegative() {
@@ -125,7 +150,7 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
         String raw = getRawContent();
         if (raw.charAt(0) == '-') {
             return this;
-        } else if (raw.charAt(0) != '+') {
+        } else if (raw.charAt(0) == '+') {
             return unchecked("-" + raw.substring(1));
         } else {
             return unchecked("-" + raw);
@@ -133,11 +158,7 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
     }
 
     public boolean isWhole() {
-        var positive = asPositive().getRawContent();
-
-        if (positive.startsWith("+")) {
-            positive = positive.substring(1);
-        }
+        String positive = asPositive().getRawContent().replaceFirst("^\\+", "");
 
         if (positive.length() == 1) {
             return true;
@@ -147,7 +168,7 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
             return false;
         }
 
-        val last = positive.charAt(positive.length() - 1);
+        char last = positive.charAt(positive.length() - 1);
         if (last == 'd' || last == 'D' || last == 'f' || last == 'F') {
             return false;
         }
@@ -156,33 +177,24 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
     }
 
     public boolean isDecimal() {
-        val raw = getRawContent();
+        String raw = getRawContent();
 
         if (raw.contains(".") || raw.contains("e") || raw.contains("E")) {
             return true;
         }
 
-        var positive = asPositive().getRawContent();
-        if (positive.startsWith("+")) {
-            positive = positive.substring(1);
-        }
+        String positive = asPositive().getRawContent().replaceFirst("^\\+", "");
 
         return positive.startsWith("I") || positive.startsWith("N");
     }
 
     public boolean isHex() {
-        var positive = asPositive().getRawContent();
-        if (positive.startsWith("+")) {
-            positive = positive.substring(1);
-        }
+        String positive = asPositive().getRawContent().replaceFirst("^\\+", "");
         return positive.startsWith("0x") || positive.startsWith("0X");
     }
 
     public boolean isBinary() {
-        var positive = asPositive().getRawContent();
-        if (positive.startsWith("+")) {
-            positive = positive.substring(1);
-        }
+        String positive = asPositive().getRawContent().replaceFirst("^\\+", "");
         return positive.startsWith("0b") || positive.startsWith("0B");
     }
 
@@ -190,10 +202,7 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
         if (isNegative()) {
             return NumberUtils.negate(asPositive().getValue());
         }
-        var raw = getRawContent();
-        if (raw.startsWith("+")) {
-            raw = raw.substring(1);
-        }
+        String raw = asPositive().getRawContent().replaceFirst("^\\+", "");
         if (isHex()) {
             return Long.parseLong(raw.substring(2), 16);
         }
@@ -208,4 +217,10 @@ public class Json5Number extends StringData.OnlyRaw<Data.ListContent<Object>> {
         }
         throw new IllegalStateException();
     }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
+    }
+
 }

@@ -1,29 +1,42 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.translateEscapes
 
-class Json5ObjectKey(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<*>>(rawContent) {
+class Json5ObjectKey : RawStringData {
 
-    constructor(content: Data.SingleContent<*>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<Json5ObjectKey, SingleContent<*>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): Json5ObjectKey {
-            return Json5ObjectKey(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<Json5ObjectKey>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            return Json5StringConstant.shouldRead(reader) || Json5Identifier.shouldRead(reader)
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-            return SingleContent(
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
+            append(
                 reader.parse(
                     "json5 object key",
-                    Json5StringConstant::invoke,
-                    Json5Identifier::invoke
+                    { Json5StringConstant.read(this) },
+                    { Json5Identifier.read(this) }
                 )
             )
         }
+
+        override fun unchecked(value: String): Json5ObjectKey = Json5ObjectKey(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Json5ObjectKey =
+            Json5ObjectKey(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Json5ObjectKey = read(rawContent)
 
     }
 
@@ -36,7 +49,7 @@ class Json5ObjectKey(rawContent: String) : StringData.OnlyRaw<Data.SingleContent
             return raw.translateEscapes()
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): SingleContent<*> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 }

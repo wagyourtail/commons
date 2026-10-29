@@ -64,7 +64,12 @@ public abstract class CharReader<T extends CharReader<? super T>> {
     }
 
     /**
-     * @return a copy of the reader at the current position, with a limit to the number of characters it can read.
+     * @return a copy of the reader at the current position, with a limit to
+     * the number of characters it can read. Copies have their own
+     * position/mark state; multiple copies may be active and interleaved
+     * freely — reading a copy never moves the parent or sibling copies.
+     * Sequential (stream) readers cannot copy; wrap them in
+     * {@link BufferedCharReader} first.
      * @since 1.0.4
      */
     public abstract CharReader<?> copy(int limit);
@@ -75,11 +80,18 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
     /**
      * set this position as remembered.
+     * @param limit maximum chars that may be consumed before the mark becomes
+     * invalid — advisory for buffer/string readers (always replayable), but
+     * on sequential readers it bounds the recorded replay buffer like
+     * java.io's read-ahead limit.
      */
     public abstract void mark(int limit);
 
     /**
      * reset to remembered mark position, or beginning if no mark.
+     * On sequential readers this throws {@link IllegalStateException} when
+     * there is no active mark (unset, or invalidated by exceeding the mark
+     * limit or by {@link #skip(int)}).
      */
     public abstract void reset();
 
@@ -109,7 +121,33 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return sb.toString();
     }
 
+    /**
+     * take until the given substring is about to be read — the match is not
+     * consumed (the reader is left positioned at it). Uses {@link #copy(int)}
+     * for speculation so it does not disturb the caller's mark; falls back to
+     * a mark/reset scan on readers that don't support copying (raw streams).
+     */
     public String takeUntil(String characters) {
+        CharReader<?> probe;
+        try {
+            probe = copy(Integer.MAX_VALUE);
+        } catch (UnsupportedOperationException e) {
+            probe = null;
+        }
+        if (probe != null) {
+            StringBuilder sb = new StringBuilder();
+            while (peek() != -1) {
+                CharReader<?> copy = copy(Integer.MAX_VALUE);
+                try {
+                    copy.expect(characters);
+                    return sb.toString();
+                } catch (ParseException ignored) {
+                    sb.append((char) take());
+                }
+            }
+            return sb.toString();
+        }
+        // fallback for readers without copy() — mark/reset scan
         StringBuilder sb = new StringBuilder();
         int next = peek();
         String taken = "";
@@ -343,7 +381,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         return takeString((leinient ? TAKE_STRING_LEINIENT : 0) | (escapeDoubleQuote ? TAKE_STRING_ESCAPE_DOUBLE_QUOTE : 0), String.valueOf(quote));
     }
 
-    public String takeString(int flags, String quote) {
+    public String takeString(int flags, final String quote) {
         if ((flags & TAKE_STRING_NO_START_QUOTE) == 0) expect(quote);
         StringBuilder sb = new StringBuilder();
         while (!exhausted()) {
@@ -403,15 +441,23 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             } else {
                 sb.append(last);
                 if ((flags & TAKE_STRING_ESCAPE_DOUBLE_QUOTE) != 0) {
-                    mark();
-                    expect(quote);
-                    try {
-                        sb.append(expect(quote));
+                    // doubled "quote quote" → append one literal quote and
+                    // continue; speculation via parseOrNull so the caller's
+                    // mark is not disturbed
+                    Boolean doubled = parseOrNull(new StringCharReader.ElementReader<Boolean>() {
+                        @Override
+                        public Boolean read(CharReader<?> reader) throws ParseException {
+                            reader.expect(quote);
+                            reader.expect(quote);
+                            return true;
+                        }
+                    });
+                    if (doubled != null && doubled) {
+                        sb.append(quote);
                         if ((flags & TAKE_STRING_NO_TRANSLATE_ESCAPES) != 0) {
                             sb.append(quote);
                         }
-                    } catch (ParseException e) {
-                        reset();
+                    } else {
                         break;
                     }
                 } else {
@@ -617,12 +663,22 @@ public abstract class CharReader<T extends CharReader<? super T>> {
      * so don't do multithreaded stuff or interleave using the outer reader
      * with the wrapped reader.
      */
-    public static class BufferedCharReader extends CharReader<BufferedCharReader> {
+    public static class BufferedCharReader extends CharReader<BufferedCharReader> implements BackedCharReader {
         private final StringBuilder sb = new StringBuilder();
         private final CharReader<?> reader;
         private final int limit;
         int position = 0;
         private int mark = 0;
+
+        @Override
+        public CharSequence getBackingBuffer() {
+            return sb;
+        }
+
+        @Override
+        public int getBackingPosition() {
+            return position;
+        }
 
         public BufferedCharReader(CharReader<?> reader, int limit) {
             this.reader = reader;
@@ -635,10 +691,13 @@ public abstract class CharReader<T extends CharReader<? super T>> {
         }
 
         private int peekAt(int position) {
-            if (position == limit) {
+            if (position >= limit) {
                 return -1;
             }
-            if (position >= sb.length()) {
+            if (position > sb.length()) {
+                return -1;
+            }
+            if (position == sb.length()) {
                 return reader.peek();
             }
             return sb.charAt(position);
@@ -646,12 +705,21 @@ public abstract class CharReader<T extends CharReader<? super T>> {
 
         @Override
         public int take() {
-            return takeAt(position++);
+            if (position >= limit) {
+                return -1;
+            }
+            int next = takeAt(position);
+            if (next == -1) return -1;
+            position++;
+            return next;
         }
 
         private int takeAt(int position) {
-            if (position == limit) {
+            if (position >= limit) {
                 return -1;
+            }
+            if (position > sb.length()) {
+                throw new IllegalStateException("position " + position + " is beyond the buffered frontier " + sb.length());
             }
             if (position == sb.length()) {
                 int next = reader.take();
@@ -669,15 +737,22 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             return new CopyReader(position, Math.min(limit < position ? Integer.MAX_VALUE : limit, this.limit));
         }
 
+        /**
+         * parse is mark-transparent: the caller's mark/reset state is
+         * preserved across both success and failure.
+         */
         public <R> R parse(StringCharReader.ElementReader<R> reader) {
-            this.mark();
+            int savedPosition = position;
+            int savedMark = mark;
             try {
                 val br = copy(Integer.MAX_VALUE);
                 val ret = reader.read(br);
                 this.position = br.position;
+                this.mark = savedMark;
                 return ret;
             } catch (ParseException t) {
-                this.reset();
+                this.position = savedPosition;
+                this.mark = savedMark;
                 throw t;
             }
         }
@@ -696,7 +771,7 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             return sb.toString();
         }
 
-        public class CopyReader extends CharReader<CopyReader> {
+        public class CopyReader extends CharReader<CopyReader> implements BackedCharReader {
             private final int limit;
             int position;
             private int mark;
@@ -708,14 +783,28 @@ public abstract class CharReader<T extends CharReader<? super T>> {
             }
 
             @Override
+            public CharSequence getBackingBuffer() {
+                return sb;
+            }
+
+            @Override
+            public int getBackingPosition() {
+                return position;
+            }
+
+            @Override
             public int peek() {
+                if (position >= limit) return -1;
                 return peekAt(position);
             }
 
             @Override
             public int take() {
-                if (position == limit) return -1;
-                return takeAt(position++);
+                if (position >= limit) return -1;
+                int next = takeAt(position);
+                if (next == -1) return -1;
+                position++;
+                return next;
             }
 
             @Override
@@ -725,15 +814,22 @@ public abstract class CharReader<T extends CharReader<? super T>> {
                 return new CopyReader(position, Math.min(limit < position ? Integer.MAX_VALUE : limit, this.limit));
             }
 
+            /**
+             * parse is mark-transparent: the caller's mark/reset state is
+             * preserved across both success and failure.
+             */
             public <R> R parse(StringCharReader.ElementReader<R> reader) {
-                this.mark();
+                int savedPosition = position;
+                int savedMark = mark;
                 try {
                     val br = copy(Integer.MAX_VALUE);
                     val ret = reader.read(br);
                     this.position = br.position;
+                    this.mark = savedMark;
                     return ret;
                 } catch (ParseException t) {
-                    this.reset();
+                    this.position = savedPosition;
+                    this.mark = savedMark;
                     throw t;
                 }
             }

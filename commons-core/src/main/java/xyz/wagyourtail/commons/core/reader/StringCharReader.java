@@ -6,11 +6,21 @@ import xyz.wagyourtail.commons.core.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StringCharReader extends CharReader<StringCharReader> {
+public class StringCharReader extends CharReader<StringCharReader> implements BackedCharReader {
     private final CharSequence buffer;
     private final int endPos;
     private int pos;
     private int mark;
+
+    @Override
+    public CharSequence getBackingBuffer() {
+        return buffer;
+    }
+
+    @Override
+    public int getBackingPosition() {
+        return pos;
+    }
 
     public StringCharReader(CharSequence buffer) {
         this(buffer, 0);
@@ -94,15 +104,22 @@ public class StringCharReader extends CharReader<StringCharReader> {
         pos = mark;
     }
 
+    /**
+     * parse is mark-transparent: the caller's mark/reset state is preserved
+     * across both success and failure.
+     */
     public <R> R parse(StringCharReader.ElementReader<R> reader) {
-        this.mark();
+        int savedPos = pos;
+        int savedMark = mark;
         try {
             val wrapping = copy(Integer.MAX_VALUE);
             val value = reader.read(wrapping);
             this.pos = wrapping.pos;
+            this.mark = savedMark;
             return value;
         } catch (ParseException t) {
-            this.reset();
+            this.pos = savedPos;
+            this.mark = savedMark;
             throw t;
         }
     }

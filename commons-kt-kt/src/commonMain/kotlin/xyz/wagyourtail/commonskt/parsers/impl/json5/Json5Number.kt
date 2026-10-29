@@ -1,7 +1,8 @@
 package xyz.wagyourtail.commonskt.parsers.impl.json5
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.parsers.impl.constant.number.BinaryPart
 import xyz.wagyourtail.commonskt.parsers.impl.constant.number.DecimalPart
 import xyz.wagyourtail.commonskt.parsers.impl.constant.number.ExponentPart
@@ -10,87 +11,96 @@ import xyz.wagyourtail.commonskt.reader.CharReader
 import xyz.wagyourtail.commonskt.utils.unaryMinus
 
 
-class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>(rawContent) {
+class Json5Number : RawStringData {
 
-    constructor(content: Data.ListContent<*>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<Json5Number, ListContent<*>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): Json5Number {
-            return Json5Number(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<Json5Number>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek() ?: return false
+            return c == '-' || c == '+' || c == '.' || c == 'N' || c == 'I' || c.isDigit()
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
-            val content = mutableListOf<Any>()
-
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
             val first = reader.peek()
             if (first == '-' || first == '+') {
-                content.add(reader.take()!!)
+                append(reader.take()!!)
             }
 
             var next = reader.peek()
             if (next != null && next > '0' && next <= '9') {
-                content.add(DecimalPart(reader))
+                append(DecimalPart.read(reader))
                 next = reader.peek()
                 if (next == '.') {
-                    content.add(reader.take()!!)
+                    append(reader.take()!!)
                     next = reader.peek()
                     if (next != null && next >= '0' && next <= '9') {
-                        content.add(DecimalPart(reader))
+                        append(DecimalPart.read(reader))
                     }
                     next = reader.peek()
                 }
                 if (next == 'e' || next == 'E') {
-                    content.add(reader.take()!!)
-                    content.add(ExponentPart(reader))
+                    append(reader.take()!!)
+                    append(ExponentPart.read(reader))
                 }
             } else if (next == '0') {
-                content.add(reader.take()!!)
+                append(reader.take()!!)
                 next = reader.peek()
                 when (next) {
                     '.' -> {
-                        content.add(reader.take()!!)
+                        append(reader.take()!!)
                         next = reader.peek()
                         if (next != null && next >= '0' && next <= '9') {
-                            content.add(DecimalPart(reader))
+                            append(DecimalPart.read(reader))
                         }
                         next = reader.peek()
                         if (next == 'e' || next == 'E') {
-                            content.add(reader.take()!!)
-                            content.add(ExponentPart(reader))
+                            append(reader.take()!!)
+                            append(ExponentPart.read(reader))
                         }
                     }
 
                     'x', 'X' -> {
-                        content.add(reader.take()!!)
-                        content.add(HexPart(reader))
-                        return ListContent(content)
+                        append(reader.take()!!)
+                        append(HexPart.read(reader))
+                        return
                     }
 
                     'b', 'B' -> {
-                        content.add(reader.take()!!)
-                        content.add(BinaryPart(reader))
-                        return ListContent(content)
+                        append(reader.take()!!)
+                        append(BinaryPart.read(reader))
+                        return
                     }
                 }
             } else if (next == '.') {
-                content.add(reader.take()!!)
-                content.add(DecimalPart(reader))
+                append(reader.take()!!)
+                append(DecimalPart.read(reader))
                 next = reader.peek()
                 if (next == 'e' || next == 'E') {
-                    content.add(reader.take()!!)
-                    content.add(ExponentPart(reader))
+                    append(reader.take()!!)
+                    append(ExponentPart.read(reader))
                 }
             } else if (next == 'I') {
-                content.add(reader.expect("Infinity"))
+                append(reader.expect("Infinity"))
             } else if (next == 'N') {
-                content.add(reader.expect("NaN"))
+                append(reader.expect("NaN"))
             } else {
                 throw reader.createException("Not a number character: $next")
             }
-
-            return ListContent(content)
         }
+
+        override fun unchecked(value: String): Json5Number = Json5Number(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): Json5Number =
+            Json5Number(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): Json5Number = read(rawContent)
 
     }
 
@@ -179,8 +189,8 @@ class Json5Number(rawContent: String) : StringData.OnlyRaw<Data.ListContent<*>>(
             }
         }
 
-    override fun checkedBuildContent(reader: CharReader<*>): ListContent<*> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

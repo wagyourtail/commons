@@ -1,40 +1,56 @@
 package xyz.wagyourtail.commonskt.parsers.impl.constant
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.reader.CharReader
 
-class BooleanConstant(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<Boolean>>(rawContent) {
+class BooleanConstant : RawStringData {
 
-    constructor(content: SingleContent<Boolean>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<BooleanConstant, SingleContent<Boolean>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): BooleanConstant {
-            return BooleanConstant(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<BooleanConstant>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            val c = reader.peek()
+            return c == 't' || c == 'f'
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<Boolean> {
-            val value = reader.parse(
-                "boolean",
-                {
-                    expect("true")
-                    true
-                },
-                {
-                    expect("false")
-                    false
-                }
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
+            append(
+                reader.parse(
+                    "boolean",
+                    {
+                        expect("true")
+                        "true"
+                    },
+                    {
+                        expect("false")
+                        "false"
+                    }
+                )
             )
-            return SingleContent(value)
         }
+
+        override fun unchecked(value: String): BooleanConstant = BooleanConstant(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): BooleanConstant =
+            BooleanConstant(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): BooleanConstant = read(rawContent)
+
     }
 
     val value: Boolean
         get() = rawContent.lowercase().toBoolean()
 
-    override fun checkedBuildContent(reader: CharReader<*>): SingleContent<Boolean> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
 
 }

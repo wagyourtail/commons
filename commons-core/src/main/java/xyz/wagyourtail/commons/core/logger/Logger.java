@@ -1,5 +1,6 @@
 package xyz.wagyourtail.commons.core.logger;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -144,6 +145,7 @@ public abstract class Logger {
     }
 
     @Getter
+    @AllArgsConstructor
     public enum Level {
         ALL(Integer.MIN_VALUE),
         TRACE(400),
@@ -155,10 +157,6 @@ public abstract class Logger {
         OFF(Integer.MAX_VALUE);
 
         private final int level;
-
-        Level(int level) {
-            this.level = level;
-        }
 
     }
 

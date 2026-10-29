@@ -2,6 +2,10 @@ package xyz.wagyourtail.commonskt.parsers
 
 import xyz.wagyourtail.commonskt.reader.CharReader
 
+@Deprecated(
+    "superseded by xyz.wagyourtail.commonskt.data.StringData",
+    ReplaceWith("xyz.wagyourtail.commonskt.data.StringData")
+)
 abstract class StringData<E : Data.Content<*>> protected constructor(rawContent: String?, content: E?) :
     Data<String, E>(rawContent, content) {
 
@@ -17,6 +21,7 @@ abstract class StringData<E : Data.Content<*>> protected constructor(rawContent:
         return rawContent
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.RawStringData")
     abstract class OnlyRaw<E : Content<*>>(rawContent: String) : StringData<E>(rawContent) {
 
         override val content: E
@@ -37,6 +42,7 @@ abstract class StringData<E : Data.Content<*>> protected constructor(rawContent:
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.ParsedStringData")
     abstract class OnlyParsed<E : Content<*>>(content: E) : StringData<E>(content) {
 
         override fun buildContent(): E {
@@ -45,6 +51,7 @@ abstract class StringData<E : Data.Content<*>> protected constructor(rawContent:
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.StringDataCompanion")
     interface StringDataBuilder<T : StringData<E>, E : Content<*>> {
 
         operator fun invoke(rawContent: CharReader<*>): T
@@ -60,7 +67,8 @@ abstract class StringData<E : Data.Content<*>> protected constructor(rawContent:
 
     }
 
-    class BuildStringVisitor : DataVisitor {
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.BuildStringVisitor")
+    class BuildStringVisitor : Data.DataVisitor {
         private val sb = StringBuilder()
 
         override fun visit(o: Any?): Boolean {
@@ -80,7 +88,10 @@ abstract class StringData<E : Data.Content<*>> protected constructor(rawContent:
                 data.accept(visitor)
                 return visitor.build()
             }
+
+            fun apply(data: xyz.wagyourtail.commonskt.data.StructuredData<*>): String {
+                return xyz.wagyourtail.commonskt.data.BuildStringVisitor.apply(data)
+            }
         }
     }
-
 }

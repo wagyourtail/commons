@@ -47,6 +47,11 @@ public class VirtualFile {
         this.path = path;
     }
 
+    protected VirtualFile(String path) {
+        this.parentFs = null;
+        this.path = path;
+    }
+
     public static boolean isArchiveFile(String path, IOSupplier<@Nullable SeekableByteChannel> bytes) throws IOException {
         return VirtualFileSystemFactory.getSupportedMimes().contains(getMimeType(path, bytes));
     }

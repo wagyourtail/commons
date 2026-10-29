@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @deprecated superseded by {@link xyz.wagyourtail.commons.core.data.StructuredData}
+ */
+@Deprecated
 public abstract class Data<T, E extends Data.Content<?>> {
     private volatile T rawContent;
     private volatile E content;

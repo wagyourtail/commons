@@ -1,38 +1,76 @@
 package xyz.wagyourtail.commons.parsers.impl.constant.number;
 
-import lombok.val;
+import xyz.wagyourtail.commons.core.data.Content;
+import xyz.wagyourtail.commons.core.data.RawStringData;
+import xyz.wagyourtail.commons.core.data.StringDataCompanion;
 import xyz.wagyourtail.commons.core.reader.CharReader;
-import xyz.wagyourtail.commons.core.reader.StringCharReader;
-import xyz.wagyourtail.commons.parsers.Data;
-import xyz.wagyourtail.commons.parsers.StringData;
 
-public class DecimalPart extends StringData.OnlyRaw<Data.SingleContent<String>> {
+public class DecimalPart extends RawStringData {
 
-    private DecimalPart(String content) {
-        super(content, DecimalPart::getContentChecked);
+    protected DecimalPart(String rawContent) {
+        super(rawContent);
     }
 
-    public DecimalPart(CharReader<?> content) {
-        super(content, DecimalPart::getContentChecked);
+    private DecimalPart(CharSequence view, int start, int end) {
+        super(view, start, end);
     }
 
-    public static DecimalPart parse(String rawContent) {
-        StringCharReader reader = new StringCharReader(rawContent);
-        val number = new DecimalPart(reader);
-        reader.expectEOS();
-        return number;
+    public DecimalPart(Content content) {
+        super(content);
     }
 
-    public static DecimalPart unchecked(String rawContent) {
-        return new DecimalPart(rawContent);
-    }
+    public static final Companion COMPANION = new Companion();
 
-    private static SingleContent<String> getContentChecked(CharReader<?> reader) {
-        val first = reader.peek();
-        if (first < '0' || first > '9') {
-            throw reader.createException("Not a decimal number: " + (char) first);
+    public static class Companion extends StringDataCompanion<DecimalPart> {
+
+        @Override
+        public boolean shouldRead(CharReader<?> reader) {
+            int c = reader.peek();
+            return c != -1 && c >= '0' && c <= '9';
         }
 
-        return new SingleContent<>(reader.takeWhile(e -> e >= '0' && e <= '9'));
+        @Override
+        public void read(CharReader<?> reader, Append append) {
+            int first = reader.peek();
+            if (first == -1 || first < '0' || first > '9') {
+                throw reader.createException("Not a decimal number: " + first);
+            }
+            append.append(reader.takeWhile(e -> e >= '0' && e <= '9'));
+        }
+
+        @Override
+        public DecimalPart unchecked(String value) {
+            return new DecimalPart(value);
+        }
+
+        @Override
+        public DecimalPart uncheckedView(CharSequence buffer, int start, int end) {
+            return new DecimalPart(buffer, start, end);
+        }
+
     }
+
+    /** @deprecated use {@link Companion#read(CharReader)} */
+    @Deprecated
+    public DecimalPart(CharReader<?> reader) {
+        this(COMPANION.read(reader).getRawContent());
+    }
+
+    /** @deprecated use {@link Companion#checked(String)} */
+    @Deprecated
+    public static DecimalPart parse(String rawContent) {
+        return COMPANION.checked(rawContent);
+    }
+
+    /** @deprecated use {@link Companion#unchecked(String)} */
+    @Deprecated
+    public static DecimalPart unchecked(String rawContent) {
+        return COMPANION.unchecked(rawContent);
+    }
+
+    @Override
+    protected Content checkedBuildContent(CharReader<?> reader) {
+        return COMPANION.buildContent(reader);
+    }
+
 }

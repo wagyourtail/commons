@@ -4,6 +4,10 @@ import xyz.wagyourtail.commonskt.properties.internallyNullable
 import xyz.wagyourtail.commonskt.utils.iterable
 import xyz.wagyourtail.commonskt.utils.withDelimiter
 
+@Deprecated(
+    "superseded by xyz.wagyourtail.commonskt.data.StructuredData",
+    ReplaceWith("xyz.wagyourtail.commonskt.data.StructuredData")
+)
 abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
     rawContent: T?,
     content: E?
@@ -42,6 +46,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
         visitor.visitEnd(this)
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.RawStringData/RawBinaryData")
     abstract class OnlyRaw<T : Any, E : Content<*>>(rawContent: T) : Data<T, E>(rawContent) {
 
         override val content: E
@@ -53,6 +58,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.ParsedStringData/ParsedBinaryData")
     abstract class OnlyParsed<T : Any, E : Content<*>>(content: E) : Data<T, E>(content) {
 
         override val rawContent: T
@@ -64,6 +70,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.Content")
     abstract class Content<T> {
 
         abstract val entries: Iterable<T>
@@ -74,6 +81,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.SingleContent")
     open class SingleContent<T>(val value: T) : Content<T>() {
 
         override val entries: Iterable<T>
@@ -81,8 +89,10 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.ListContent")
     open class ListContent<T>(override val entries: List<T>) : Content<T>()
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.ListContentWithDelimiter")
     open class ListContentWithDelimiter<T>(
         val content: List<T>,
         val delimiter: Any
@@ -94,6 +104,7 @@ abstract class Data<T : Any, E : Data.Content<*>> protected constructor(
 
     }
 
+    @Deprecated("superseded by xyz.wagyourtail.commonskt.data.DataVisitor")
     interface DataVisitor {
 
         fun visit(o: Any?): Boolean

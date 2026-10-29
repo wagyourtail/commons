@@ -44,19 +44,30 @@ This contains many java7 helper functions
 
 `xyz.wagyourtail:commons-kt:${version}`
 
-This contains many kotlin helper functions
+This contains many kotlin helper functions, plus:
 
-#### Commons-Compress
+- structured data readers/writers: `CharReader`, `ByteReader` (endian-aware
+  takes, `copy(limit)` windows, bounded mark/reset on streams), `ByteWriter`,
+  okio `BufferedSource`/`BufferedSink` adapters
+- `commonskt.data` — the `StructuredData`/`Content` model (lazy zero-copy view
+  nodes, parsed nodes, `BuildStringVisitor`/`BuildBytesVisitor`)
+- `commonskt.parsers` — structured parsers built on the readers (constants,
+  Json5, SemVer + ranges) — formerly `commons-parsers-kt`
+- `commonskt.compress` helpers (JVM) — resolve when
+  `org.apache.commons:commons-compress` is on the classpath — formerly
+  `commons-compress-kt`
+- `commons.kvision` components/state/vars (JS) — resolve when `io.kvision`
+  is on the classpath — formerly `commons-kvision-kt`
 
-`xyz.wagyourtail:commons-compress:${version}`
+Optional integrations above are `compileOnly`: they compile in for every
+target, and consumers only need the dependency if they call those APIs.
 
-this contains helper functions for apache commons-compress
+#### Commons-Parsers
 
-#### Commons-Kvision
+`xyz.wagyourtail:commons-parsers:${version}`
 
-`xyz.wagyourtail:commons-kvision:${version}`
-
-this contains helper functions and improvements for kvision
+structured string parsers in Java (constants, Json5, SemVer + ranges) on
+`CharReader`, migrated onto the `commons-core` `StructuredData` model
 
 ### Gradle
 

@@ -1,32 +1,44 @@
 package xyz.wagyourtail.commonskt.parsers.impl.constant.number
 
-import xyz.wagyourtail.commonskt.parsers.Data
-import xyz.wagyourtail.commonskt.parsers.StringData
+import xyz.wagyourtail.commonskt.data.Content
+import xyz.wagyourtail.commonskt.data.RawStringData
+import xyz.wagyourtail.commonskt.data.StringDataCompanion
 import xyz.wagyourtail.commonskt.reader.CharReader
 
-class DecimalPart(rawContent: String) : StringData.OnlyRaw<Data.SingleContent<String>>(rawContent) {
+class DecimalPart : RawStringData {
 
-    constructor(content: SingleContent<String>) : this(content.toString())
+    constructor(rawContent: String) : super(rawContent)
 
-    companion object : StringDataBuilder<DecimalPart, SingleContent<String>> {
+    private constructor(view: CharSequence, start: Int, end: Int) : super(view, start, end)
 
-        override fun invoke(rawContent: CharReader<*>): DecimalPart {
-            return DecimalPart(checkedBuildContent(rawContent))
+    constructor(content: Content) : super(content.toString())
+
+    companion object : StringDataCompanion<DecimalPart>() {
+
+        override fun shouldRead(reader: CharReader<*>): Boolean {
+            return reader.peek()?.isDigit() == true
         }
 
-        override fun checkedBuildContent(reader: CharReader<*>): SingleContent<String> {
+        override fun read(reader: CharReader<*>, append: (Any) -> Unit) {
             val first = reader.peek()
             if (first == null || !first.isDigit()) {
                 throw reader.createException("Not a decimal number: $first")
             }
-            return SingleContent(reader.takeWhile { it.isDigit() })
+            append(reader.takeWhile { it.isDigit() })
         }
 
+        override fun unchecked(value: String): DecimalPart = DecimalPart(value)
+
+        override fun uncheckedView(buffer: CharSequence, start: Int, end: Int): DecimalPart =
+            DecimalPart(buffer, start, end)
+
+        /** compat for the old StringDataBuilder call shape */
+        operator fun invoke(rawContent: CharReader<*>): DecimalPart = read(rawContent)
+
     }
 
-    override fun checkedBuildContent(reader: CharReader<*>): SingleContent<String> {
-        return Companion.checkedBuildContent(reader)
+    override fun checkedBuildContent(reader: CharReader<*>): Content {
+        return Companion.buildContent(reader)
     }
-
 
 }
