@@ -62,3 +62,43 @@ fun Path.zipContains(path: String): Boolean {
 }
 
 val CONSTANT_TIME_FOR_ZIP_ENTRIES = GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis
+
+/**
+ * Writes [name] to the stream, synthesizing any parent `dir/` entries
+ * not already in [emittedDirs] first.
+ *
+ * Explicit directory entries are required for package resource
+ * enumeration — `ClassLoader.getResources("com/foo")` only sees a
+ * package if the `com/foo/` entry exists. Plugin systems scanning
+ * packages (log4j2's `packages=`, FML directory discovery) fail
+ * silently against jars that omit them.
+ *
+ * @param name entry path (`/` separated)
+ * @param emittedDirs tracks already-written dir entries; mutated as
+ *        parents are emitted — share one set across a whole jar write
+ * @param time entry timestamp; [CONSTANT_TIME_FOR_ZIP_ENTRIES] for
+ *        deterministic output
+ * @param write body writer, invoked with the open stream
+ */
+fun java.util.zip.ZipOutputStream.putEntryWithDirs(
+    name: String,
+    emittedDirs: MutableSet<String>,
+    time: Long = 0L,
+    write: (java.io.OutputStream) -> Unit
+) {
+    var i = name.indexOf('/')
+    while (i != -1) {
+        val dir = name.substring(0, i + 1)
+        if (emittedDirs.add(dir)) {
+            putNextEntry(java.util.zip.ZipEntry(dir).apply { this.time = time })
+            closeEntry()
+        }
+        i = name.indexOf('/', i + 1)
+    }
+    // explicit `dir/` input entry — the parent loop already emitted
+    // it; writing it again would be a duplicate
+    if (name.endsWith('/')) return
+    putNextEntry(java.util.zip.ZipEntry(name).apply { this.time = time })
+    write(this)
+    closeEntry()
+}
