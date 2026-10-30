@@ -86,6 +86,7 @@ abstract class CharReader<T : CharReader<T>> {
      * mark/reset scan on readers that don't support copying (raw streams).
      */
     fun takeUntil(characters: String): String {
+        if (characters.length == 1) return takeUntil { it == characters[0] }
         val probe = try {
             copy()
         } catch (e: UnsupportedOperationException) {
@@ -94,13 +95,20 @@ abstract class CharReader<T : CharReader<T>> {
         if (probe != null) {
             val sb = StringBuilder()
             while (peek() != null) {
-                val copy = copy()
-                try {
-                    copy.expect(characters)
-                    return sb.toString()
-                } catch (_: ParseException) {
-                    sb.append(take() as Char)
+                // only speculate where the first char could start a match —
+                // otherwise this allocates a copy per position
+                if (peek() == characters[0]) {
+                    val copy = copy()
+                    var matched = true
+                    for (ch in characters) {
+                        if (copy.take() != ch) {
+                            matched = false
+                            break
+                        }
+                    }
+                    if (matched) return sb.toString()
                 }
+                sb.append(take() as Char)
             }
             return sb.toString()
         }
@@ -297,7 +305,7 @@ abstract class CharReader<T : CharReader<T>> {
                     // doubled "quote quote" → append one literal quote and
                     // continue; speculation via parseOrNull so the caller's
                     // mark is not disturbed
-                    if (parseOrNull({ expect(quote); expect(quote); true }) == true) {
+                    if (tryExpect(quote + quote)) {
                         sb.append(quote)
                         if (noTranslateEscapes) {
                             sb.append(quote)
@@ -315,6 +323,21 @@ abstract class CharReader<T : CharReader<T>> {
             return "$quote$sb$quote"
         }
         return sb.toString().translateEscapes(leinient)
+    }
+
+    /**
+     * Non-throwing speculative match — consumed on success, left in
+     * place on failure. Hot-path alternative to 
+     * for per-position scans; requires [copy] support like the same
+     * speculation machinery.
+     */
+    fun tryExpect(characters: String): Boolean {
+        val copy = copy()
+        for (ch in characters) {
+            if (copy.take() != ch) return false
+        }
+        skip(characters.length)
+        return true
     }
 
     fun expect(char: Char, ignoreCase: Boolean = false): Char {

@@ -6,7 +6,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnnotationUtilsTest {
 
@@ -48,6 +50,36 @@ public class AnnotationUtilsTest {
 
         String key() default "defaultKey";
 
+    }
+
+    public @interface ArrayAnnotation {
+
+        int[] ints() default {};
+
+        String name() default "n";
+
+    }
+
+    @Test
+    public void testObjectMethods() throws ClassNotFoundException {
+        AnnotationNode node = new AnnotationNode(Opcodes.ASM9, Type.getDescriptor(ArrayAnnotation.class));
+        node.visit("ints", Arrays.asList(1, 2, 3));
+        node.visit("name", "x");
+
+        ArrayAnnotation a = AnnotationUtils.createAnnotation(node, ArrayAnnotation.class);
+
+        //annotationType — previously NPE
+        assertEquals(ArrayAnnotation.class, a.annotationType());
+
+        //primitive array materializes correctly + cached
+        assertArrayEquals(new int[]{1, 2, 3}, a.ints());
+        assertSame(a.ints(), a.ints(), "cached, not re-allocated");
+
+        //equals/hashCode/toString — previously NPE
+        assertTrue(a.equals(a));
+        assertFalse(a.equals("x"));
+        assertEquals(a.hashCode(), a.hashCode());
+        assertTrue(a.toString().startsWith("@" + ArrayAnnotation.class.getName()));
     }
 
     public @interface NestedAnnotation {

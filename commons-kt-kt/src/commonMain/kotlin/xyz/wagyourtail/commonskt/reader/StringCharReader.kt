@@ -92,20 +92,31 @@ class StringCharReader(val buffer: CharSequence, var pos: Int = 0, val endPos: I
         }
     }
 
-    override fun createException(msg: String, cause: Throwable?): ParseException {
-        var count = 0
-        var lineStart = 0
-        if (!buffer.contains("\n")) {
-            count = -1
-        } else {
-            do {
-                val next = buffer.indexOf('\n', lineStart) + 1
-                if (next == 0 || next > pos) break
-                lineStart = next
-                count++
-            } while (true)
+    /** line-start offsets — built once; exceptions are thrown on
+     *  speculation paths where an O(pos) scan per throw is quadratic */
+    private var lineStarts: IntArray? = null
+
+    private fun lineStarts(): IntArray = lineStarts ?: run {
+        val list = ArrayList<Int>()
+        var i = buffer.indexOf('\n')
+        while (i != -1) {
+            list.add(i + 1)
+            i = buffer.indexOf('\n', i + 1)
         }
-        return ParseException(msg, count + 1, pos - lineStart + 1, cause)
+        list.toIntArray().also { lineStarts = it }
+    }
+
+    override fun createException(msg: String, cause: Throwable?): ParseException {
+        val starts = lineStarts()
+        // last line-start <= pos
+        var lo = 0; var hi = starts.size - 1
+        while (lo <= hi) {
+            val mid = (lo + hi) ushr 1
+            if (starts[mid] <= pos) lo = mid + 1 else hi = mid - 1
+        }
+        val lineIdx = hi
+        return if (lineIdx < 0) ParseException(msg, 0, pos + 1, cause)
+        else ParseException(msg, lineIdx + 1, pos - starts[lineIdx] + 1, cause)
     }
 
     override fun createCompositeException(msg: String, vararg exceptions: ParseException): ParseException {

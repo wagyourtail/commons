@@ -11,6 +11,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +122,16 @@ public class AnnotationUtils {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws ClassNotFoundException {
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (method.getDeclaringClass() == Object.class) {
+                switch (method.getName()) {
+                    case "toString": return toString();
+                    case "hashCode": return annotationHashCode();
+                    case "equals": return annotationEquals(proxy, args[0]);
+                }
+            } else if (method.getName().equals("annotationType")) {
+                return annotationClass;
+            }
             if (!values.containsKey(method.getName())) {
                 Object annDefault = method.getDefaultValue();
                 if (annDefault != null) {
@@ -129,7 +139,96 @@ public class AnnotationUtils {
                 }
                 throw new NullPointerException("No default value for " + method.getName());
             }
-            return convertType(values.get(method.getName()), method.getReturnType());
+            //cache the converted value — array members materialize
+            //once instead of being re-allocated on every call
+            Object converted = convertType(values.get(method.getName()), method.getReturnType());
+            values.put(method.getName(), converted);
+            return converted;
+        }
+
+        private Object memberValue(String name, Method method) throws Throwable {
+            if (values.containsKey(name)) {
+                return convertType(values.get(name), method.getReturnType());
+            }
+            return method.getDefaultValue();
+        }
+
+        /** equals/hashCode/toString per java.lang.annotation.Annotation */
+        boolean annotationEquals(Object proxy, Object other) throws Throwable {
+            if (proxy == other) return true;
+            if (!annotationClass.isInstance(other)) return false;
+            for (Method m : annotationClass.getDeclaredMethods()) {
+                if (!memberEquals(memberValue(m.getName(), m), m.invoke(other))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        int annotationHashCode() throws Throwable {
+            int result = 0;
+            for (Method m : annotationClass.getDeclaredMethods()) {
+                result += (127 * m.getName().hashCode()) ^ memberHash(memberValue(m.getName(), m));
+            }
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("@").append(annotationClass.getName()).append('(');
+            boolean first = true;
+            for (Method m : annotationClass.getDeclaredMethods()) {
+                try {
+                    Object v = memberValue(m.getName(), m);
+                    if (!first) sb.append(", ");
+                    sb.append(m.getName()).append('=').append(memberString(v));
+                    first = false;
+                } catch (Throwable ignored) {
+                }
+            }
+            return sb.append(')').toString();
+        }
+
+        static boolean memberEquals(Object a, Object b) {
+            if (a == b) return true;
+            if (a == null || b == null) return false;
+            if (a instanceof Object[] && b instanceof Object[])
+                return Arrays.deepEquals((Object[]) a, (Object[]) b);
+            if (a.getClass().isArray() && b.getClass().isArray()) {
+                int len = Array.getLength(a);
+                if (len != Array.getLength(b)) return false;
+                for (int i = 0; i < len; i++) {
+                    if (!memberEquals(Array.get(a, i), Array.get(b, i))) return false;
+                }
+                return true;
+            }
+            return a.equals(b);
+        }
+
+        static int memberHash(Object v) {
+            if (v == null) return 0;
+            if (v instanceof Object[]) return Arrays.deepHashCode((Object[]) v);
+            if (v.getClass().isArray()) {
+                int h = 1;
+                for (int i = 0; i < Array.getLength(v); i++) {
+                    h = 31 * h + memberHash(Array.get(v, i));
+                }
+                return h;
+            }
+            return v.hashCode();
+        }
+
+        static String memberString(Object v) {
+            if (v instanceof Object[]) return Arrays.deepToString((Object[]) v);
+            if (v != null && v.getClass().isArray()) {
+                StringBuilder sb = new StringBuilder("[");
+                for (int i = 0; i < Array.getLength(v); i++) {
+                    if (i > 0) sb.append(", ");
+                    sb.append(memberString(Array.get(v, i)));
+                }
+                return sb.append(']').toString();
+            }
+            return String.valueOf(v);
         }
 
         @SuppressWarnings("unchecked")
