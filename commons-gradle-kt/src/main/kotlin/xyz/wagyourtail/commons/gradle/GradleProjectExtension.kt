@@ -27,6 +27,15 @@ abstract class GradleProjectExtension @Inject constructor(@get:Internal val proj
     }
 
     /**
+     * toolchain queries that pick the best *detected* JDK satisfying a
+     * capability spec instead of an exact `languageVersion` — see
+     * [CapableToolchainService]
+     */
+    val capableToolchains by lazy {
+        project.extensions.getByType(CapableToolchainService::class.java)
+    }
+
+    /**
      * just a fun little shortcut for `project.group = project.
      */
     @JvmOverloads

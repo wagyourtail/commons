@@ -27,6 +27,7 @@ class GradleMain : Plugin<PluginAware> {
     }
 
     fun apply(project: Project) {
+        project.extensions.create("capableToolchains", CapableToolchainService::class.java, project)
         project.extensions.create("commons", GradleProjectExtension::class.java, project)
     }
 

@@ -27,6 +27,9 @@ val Project.sourceSets
 val Project.javaToolchains
     get() = extensions.getByType(JavaToolchainService::class.java)
 
+val Project.capableToolchains
+    get() = extensions.getByType(CapableToolchainService::class.java)
+
 val Project.base
     get() = extensions.getByType(BasePluginExtension::class.java)
 
