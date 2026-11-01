@@ -103,3 +103,23 @@ operator fun Number.unaryMinus(): Number {
         else -> throw IllegalArgumentException()
     }
 }
+
+private const val HEX_DIGITS_LOWER = "0123456789abcdef"
+private const val HEX_DIGITS_UPPER = "0123456789ABCDEF"
+
+/**
+ * encodes this byte array as a hex string, equivalent to the jvm's
+ * `joinToString("") { "%02x".format(it) }`
+ * @param uppercase when `true` emits `A-F` in uppercase, matching
+ *   commons-core's `NumberUtils.toHex` default
+ */
+fun ByteArray.toHex(uppercase: Boolean = false): String {
+    val digits = if (uppercase) HEX_DIGITS_UPPER else HEX_DIGITS_LOWER
+    val out = CharArray(size * 2)
+    for (i in indices) {
+        val b = this[i].toInt() and 0xFF
+        out[i * 2] = digits[b shr 4]
+        out[i * 2 + 1] = digits[b and 0xF]
+    }
+    return out.concatToString()
+}

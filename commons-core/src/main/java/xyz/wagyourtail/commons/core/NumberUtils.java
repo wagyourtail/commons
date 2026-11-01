@@ -29,9 +29,13 @@ public class NumberUtils {
     }
 
     public static String toHex(byte[] hexBytes) {
+        return toHex(hexBytes, true);
+    }
+
+    public static String toHex(byte[] hexBytes, boolean uppercase) {
         StringBuilder hex = new StringBuilder();
         for (byte b : hexBytes) {
-            hex.append(String.format("%02X", b));
+            hex.append(String.format(uppercase ? "%02X" : "%02x", b));
         }
         return hex.toString();
     }
