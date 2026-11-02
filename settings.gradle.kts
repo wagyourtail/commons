@@ -9,7 +9,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
     // self-hosted plugin: keep this pin at "${version}-SNAPSHOT" matching
     // gradle.properties — a lagging pin resolves a stale plugin jar (the
     // 1.0.4-SNAPSHOT pin resolved July-2025 code with inverted snapshot
