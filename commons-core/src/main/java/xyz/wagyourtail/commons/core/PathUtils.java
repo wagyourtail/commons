@@ -63,4 +63,44 @@ public class PathUtils {
         return FileSystems.newFileSystem(path, null);
     }
 
+    /**
+     * Move {@code src} onto {@code dest} atomically where the FS supports
+     * it, replacing any existing file.
+     */
+    public static void moveAtomic(Path src, Path dest) throws IOException {
+        try {
+            Files.move(src, dest, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * A fresh temp file next to {@code dest} for write-then-move producers:
+     * produced files must never leave a truncated/partial file at the
+     * destination.
+     */
+    public static Path tempSibling(Path dest) throws IOException {
+        Path parent = dest.toAbsolutePath().getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        return Files.createTempFile(parent, "." + dest.getFileName() + ".", ".tmp");
+    }
+
+    /**
+     * Copy {@code src} to a temp sibling of {@code dest}, then atomic-move
+     * it in — {@code dest} never observes a truncated/partial file.
+     */
+    public static void copyAtomic(Path src, Path dest) throws IOException {
+        Path tmp = tempSibling(dest);
+        try {
+            Files.copy(src, tmp, StandardCopyOption.REPLACE_EXISTING);
+            moveAtomic(tmp, dest);
+        } finally {
+            Files.deleteIfExists(tmp);
+        }
+    }
+
 }
