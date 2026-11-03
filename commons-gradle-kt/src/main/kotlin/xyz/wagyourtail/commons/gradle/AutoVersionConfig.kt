@@ -3,13 +3,10 @@ package xyz.wagyourtail.commons.gradle
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.process.ExecOperations
+import org.gradle.api.provider.Provider
 import javax.inject.Inject
 
 abstract class AutoVersionConfig @Inject constructor(val project: Project) {
-
-    @get:Inject
-    internal abstract val execOperations: ExecOperations
 
     abstract val snapshot: Property<Boolean>
 
@@ -23,21 +20,21 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
         implementationVersion.finalizeValueOnRead()
     }
 
+    /** CC-safe git stdout — providers.exec defers the external
+     *  process into tracked provider evaluation. */
+    private fun gitOut(vararg args: String): Provider<String> =
+        project.providers.exec { it.commandLine("git", *args) }
+            .standardOutput.asText.map(String::trim)
+
     fun fromGit(mainBranchName: String? = null) {
-        val describe = project.provider {
-            execOperations.getStdout {
-                it.commandLine("git", "describe", "--always", "--tags", "--first-parent")
-            }
-        }
+        val describe = gitOut("describe", "--always", "--tags", "--first-parent")
+        val currentBranch = gitOut("branch", "--show-current")
 
         this.snapshot.set(project.provider {
-            val currentBranch = execOperations.getStdout {
-                it.commandLine("git", "branch", "--show-current")
-            }
-
-            if (mainBranchName == null && (currentBranch == "main" || currentBranch == "master")) {
+            val branch = currentBranch.get()
+            if (mainBranchName == null && (branch == "main" || branch == "master")) {
                 false
-            } else if (currentBranch == mainBranchName) {
+            } else if (branch == mainBranchName) {
                 false
             } else {
                 true
@@ -83,13 +80,12 @@ abstract class AutoVersionConfig @Inject constructor(val project: Project) {
     }
 
     fun gitHashInImplementationVersion(onlyIfSnapshot: Boolean = true) {
+        val gitHash = gitOut("rev-parse", "--short", "HEAD")
         implementationVersion.set(project.provider {
             if (!onlyIfSnapshot || snapshot.get()) {
-                val gitHash = execOperations.getStdout {
-                    it.commandLine("git", "rev-parse", "--short", "HEAD")
-                }
-                if (gitHash.isNotEmpty()) {
-                    "${version.get()}-$gitHash"
+                val hash = gitHash.get()
+                if (hash.isNotEmpty()) {
+                    "${version.get()}-$hash"
                 } else {
                     version.get()
                 }
